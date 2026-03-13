@@ -261,11 +261,15 @@
     <!-- ============================================== -->
     <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
 
-        <!-- ГЛАВНОЕ ФОТО -->
-        <div class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow fade-in">
-            <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div class="absolute bottom-6 left-6 right-6 text-white">
+        <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
+        <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow fade-in transform-gpu transition-transform duration-200 ease-out will-change-transform">
+            <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+            
+            <!-- Блик для 3D эффекта -->
+            <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
+            
+            <div class="absolute bottom-6 left-6 right-6 text-white z-30">
                 <h1 class="text-4xl font-serif font-bold flex items-center gap-2 tracking-tight">
                     <span id="profile-name"></span>
                     <i class="ph-fill ph-check-circle text-white/90 text-[24px]"></i>
@@ -338,6 +342,14 @@
                     <a id="social-yt" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">YouTube</a>
                     <span>|</span>
                     <a id="social-vk" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">ВКонтакте</a>
+                </div>
+                
+                <!-- 👩‍💻 ССЫЛКА НА РАЗРАБОТЧИКА 👩‍💻 -->
+                <!-- Меняй ссылку в href="" на свою (например: https://t.me/твой_ник) -->
+                <div class="pt-6 pb-2">
+                    <a href="https://t.me/telegram" target="_blank" class="text-[10px] text-gray-500/50 font-medium hover:text-gray-800 transition-colors uppercase tracking-widest">
+                        design & code by Elena Sotnikova
+                    </a>
                 </div>
             </div>
         </div>
@@ -821,6 +833,54 @@
         window.onload = () => {
             renderApp();
             
+            // --- ЛОГИКА 3D-НАКЛОНА (TILT EFFECT) ДЛЯ ГЛАВНОГО ФОТО ---
+            const tiltCard = document.getElementById('tilt-card');
+            const tiltGlare = document.getElementById('tilt-glare');
+            
+            if(tiltCard) {
+                function handleTiltMove(e) {
+                    const rect = tiltCard.getBoundingClientRect();
+                    // Получаем координаты мыши или пальца
+                    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                    
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    // Вычисляем угол наклона (максимум 12 градусов)
+                    const rotateX = ((y - centerY) / centerY) * -12; 
+                    const rotateY = ((x - centerX) / centerX) * 12;
+                    
+                    // Применяем наклон
+                    tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                    
+                    // Двигаем блик
+                    if(tiltGlare) {
+                        tiltGlare.style.opacity = '1';
+                        const glareX = (x / rect.width) * 100;
+                        const glareY = (y / rect.height) * 100;
+                        tiltGlare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.4) 0%, transparent 60%)`;
+                    }
+                }
+                
+                function handleTiltLeave() {
+                    // Возвращаем в исходное положение
+                    tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    if(tiltGlare) {
+                        tiltGlare.style.opacity = '0';
+                    }
+                }
+                
+                // Слушатели для мыши (ПК) и пальцев (Сенсор)
+                tiltCard.addEventListener('mousemove', handleTiltMove);
+                tiltCard.addEventListener('mouseleave', handleTiltLeave);
+                tiltCard.addEventListener('touchmove', handleTiltMove, {passive: true});
+                tiltCard.addEventListener('touchend', handleTiltLeave);
+            }
+
             // Логика свайпа вниз для закрытия шторок
             let touchStartY = 0;
             let touchCurrentY = 0;
