@@ -94,14 +94,21 @@
             background: transparent;
         }
 
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         /* Плавное появление */
         .fade-in {
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes fadeIn {
-            to { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         
         .delay-1 { animation-delay: 0.1s; }
@@ -215,6 +222,14 @@
                 "https://t.me/telegram"
             ],
 
+            // 💬 8. ОТЗЫВЫ (Подготовка для Google Таблиц)
+            reviews: [
+                { name: "Екатерина", date: "10 марта 2026", stars: 5, text: "Потрясающее шоу! Гости были в полном восторге. Полина — настоящий профессионал своего дела. Огонь был завораживающим!" },
+                { name: "Михаил", date: "25 февраля 2026", stars: 5, text: "Заказывали мастер-класс на корпоратив. Все супер, очень атмосферно и безопасно. Коллеги до сих пор вспоминают." },
+                { name: "Ольга", date: "14 февраля 2026", stars: 5, text: "Невероятная энергетика и грация! Спасибо за эмоции, это было незабываемо." }
+            ],
+            reviewLink: "https://t.me/telegram", // Ссылка на форму или личку для отзыва
+
             // 📱 7. СОЦИАЛЬНЫЕ СЕТИ
             socials: {
                 instagram: "https://instagram.com",
@@ -268,6 +283,20 @@
         <!-- КАРТОЧКИ-РУБРИКИ (Сетка) -->
         <div class="grid grid-cols-2 gap-3 fade-in delay-2 mt-3" id="links-container">
             <!-- Карточки сгенерируются через JS -->
+        </div>
+
+        <!-- ОТЗЫВЫ (Карусель) -->
+        <div class="pt-5 fade-in delay-2">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h2 class="text-[18px] font-bold text-gray-900">Отзывы</h2>
+                <a id="write-review-btn" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="text-[12px] font-bold text-white bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/20 active:scale-95 transition-transform">
+                    Написать отзыв
+                </a>
+            </div>
+            
+            <div id="reviews-container" class="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 hide-scrollbar">
+                <!-- Отзывы генерируются через JS -->
+            </div>
         </div>
 
         <!-- ЧЕРНАЯ КНОПКА -->
@@ -478,6 +507,37 @@
                     </div>
                 `;
             });
+
+            // Рендер карусели отзывов
+            const reviewsContainer = document.getElementById('reviews-container');
+            reviewsContainer.innerHTML = '';
+            CONFIG.reviews.forEach(review => {
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                    if(i < review.stars) {
+                        starsHtml += '<i class="ph-fill ph-star text-orange-400"></i>';
+                    } else {
+                        starsHtml += '<i class="ph ph-star text-gray-500"></i>';
+                    }
+                }
+                
+                reviewsContainer.innerHTML += `
+                    <div class="snap-start shrink-0 w-[85%] card-shadow rounded-[1.5rem] p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-white font-bold text-[15px]">${review.name}</h4>
+                                <span class="text-gray-400 text-[11px] font-medium">${review.date}</span>
+                            </div>
+                            <div class="flex gap-1 mb-3 text-[14px]">
+                                ${starsHtml}
+                            </div>
+                            <p class="text-gray-200 text-[13px] leading-relaxed font-medium">"${review.text}"</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('write-review-btn').href = CONFIG.reviewLink;
 
             // Соцсети
             document.getElementById('social-inst').href = CONFIG.socials.instagram;
