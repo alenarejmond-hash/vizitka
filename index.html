@@ -120,6 +120,14 @@
 </head>
 <body class="dynamic-bg min-h-screen pb-12 pt-6 px-5 flex flex-col items-center">
 
+    <!-- TOAST УВЕДОМЛЕНИЕ (Dynamic Island вайб) -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-black/80 backdrop-blur-md border border-white/10 text-white px-5 py-3 rounded-full flex items-center gap-2 shadow-2xl transition-all duration-300 transform -translate-y-24 opacity-0 font-medium text-sm"></div>
+
+    <!-- КНОПКА ПОДЕЛИТЬСЯ -->
+    <button onclick="shareProfile()" class="fixed top-5 right-5 z-40 w-11 h-11 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
+        <i class="ph-bold ph-share-network text-xl"></i>
+    </button>
+
     <!-- ЗАГРУЗОЧНЫЙ ЭКРАН (Огненный лоадер) -->
     <div id="app-loader" class="fixed inset-0 z-[100] dynamic-bg flex items-center justify-center transition-opacity duration-500">
         <div class="relative w-20 h-20 flex items-center justify-center">
@@ -145,6 +153,13 @@
             // 👋 2. ДАВАЙТЕ ЗНАКОМИТЬСЯ (Шторка)
             about: {
                 photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
+                // ДОБАВЛЕНО: Массив фото для свайпера. Если фоток несколько, появится галерея.
+                photos: [
+                    "https://i.postimg.cc/jjCJXtLx/photo-2026-03-13-17-39-13.jpg",
+                    "https://i.postimg.cc/rpztJMKF/photo-2026-03-14-02-15-02.jpg",
+                    "https://i.postimg.cc/Bvt1g4Xv/photo-2026-03-14-02-15-07.jpg",
+                    "https://i.postimg.cc/VN5bRmdk/photo-2026-03-14-02-15-15.jpg"
+                ],
                 text: "Привет! Меня зовут Полина. Я занимаюсь фаер-шоу уже более 2 лет...<br><br>Мой путь начался с простой искры, а теперь я зажигаю целые стадионы. В этом блоге я делюсь самым сокровенным." 
             },
 
@@ -191,8 +206,8 @@
 
             // 🎓 4. НАСТРОЙКИ "ОБУЧЕНИЯ"
             training: {
-                photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
-                text: "Открой для себя мир огня и движения! Я провожу индивидуальные занятия для любого уровня подготовки.<br><br>Мы изучим базу, технику безопасности и поставим твой первый номер.",
+                photo: "https://i.postimg.cc/xdb18CXc/x1-2-webp-pagespeed-ic-q-Qce-BTDec4.webp", 
+                text: "Открой для себя мир танца и движения! Я провожу индивидуальные занятия для любого уровня подготовки.<br><br>Мы изучим базу и поставим твой первый номер.",
                 buttonLink: "https://t.me/telegram" // Ссылка для записи на обучение
             },
 
@@ -200,7 +215,12 @@
             services: [
                 {
                     title: "Огненное шоу на свадьбу",
-                    photo: "https://images.unsplash.com/photo-1542282811-943ef1a6477b?auto=format&fit=crop&w=600&q=80",
+                    photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                    // ДОБАВЛЕНО: Галерея для услуги
+                    photos: [
+                        "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                        "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                    ],
                     shortDesc: "Незабываемое соло-выступление с огнем.",
                     fullDesc: "Полная программа на 15 минут, включающая работу с веерами, поями и огнеметом. Идеально для свадеб и корпоративов!<br><br>В стоимость включен трансфер по городу и пиротехника.",
                     oldPrice: "15 000 ₽", // Оставьте пустым "", если старая цена не нужна
@@ -209,7 +229,12 @@
                 },
                 {
                     title: "Мастер-класс на мероприятие",
-                    photo: "https://images.unsplash.com/photo-1542282811-943ef1a6477b?auto=format&fit=crop&w=600&q=80",
+                    photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                    // ДОБАВЛЕНО: Галерея для услуги
+                    photos: [
+                        "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                        "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                    ],
                     shortDesc: "Интерактив с гостями (без огня).",
                     fullDesc: "Проведение безопасного интерактива со световым реквизитом. Гости смогут сами попробовать покрутить пои и веера!",
                     oldPrice: "",
@@ -385,7 +410,8 @@
         </div>
         <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
             <h2 class="text-2xl font-bold mb-5 tracking-tight text-white">Обо мне</h2>
-            <img id="about-photo" src="" alt="About" class="w-full aspect-square object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <!-- Галерея вместо статичного фото -->
+            <div id="about-gallery-container"></div>
             <div id="about-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium"></div>
         </div>
     </div>
@@ -431,7 +457,8 @@
         </div>
         <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
             <h2 id="service-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white leading-tight"></h2>
-            <img id="service-sheet-photo" src="" class="w-full aspect-video object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <!-- Галерея вместо статичного фото -->
+            <div id="service-gallery-container"></div>
             
             <div class="flex items-baseline gap-3 mb-5 px-1">
                 <span id="service-sheet-new-price" class="text-white font-extrabold text-[28px] drop-shadow-md tracking-tight"></span>
@@ -513,8 +540,8 @@
             document.getElementById('profile-name').textContent = CONFIG.profile.name;
             document.getElementById('profile-bio').textContent = CONFIG.profile.bio;
 
-            // Шторка "Давайте знакомиться"
-            document.getElementById('about-photo').src = CONFIG.about.photo;
+            // Шторка "Давайте знакомиться" (Рендерим галерею)
+            renderGallery('about-gallery-container', CONFIG.about.photos || [CONFIG.about.photo]);
             document.getElementById('about-text').innerHTML = CONFIG.about.text;
 
             // Генерация квадратных карточек-рубрик
@@ -567,9 +594,10 @@
             const servicesList = document.getElementById('services-list');
             servicesList.innerHTML = '';
             CONFIG.services.forEach((s, index) => {
+                const thumb = s.photos && s.photos.length > 0 ? s.photos[0] : s.photo;
                 servicesList.innerHTML += `
                     <div class="card-shadow rounded-3xl p-4 flex gap-4 active:scale-[0.98] transition-transform text-left cursor-pointer" onclick="openServiceDetails(${index})">
-                        <img src="${s.photo}" class="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-lg border border-white/10">
+                        <img src="${thumb}" class="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-lg border border-white/10">
                         <div class="flex flex-col justify-between w-full">
                             <div>
                                 <h3 class="text-white font-bold text-[15px] mb-1 leading-tight">${s.title}</h3>
@@ -672,10 +700,11 @@
         function submitReview() {
             if (currentRating === 0) {
                 tg.HapticFeedback.notificationOccurred('warning');
+                showToast('Пожалуйста, поставьте оценку', 'ph-fill ph-warning-circle');
                 return; // Не даем отправить без оценки
             }
             // Здесь в будущем будет отправка в Google Таблицы
-            tg.HapticFeedback.notificationOccurred('success');
+            showToast('Отзыв успешно отправлен! 💖', 'ph-fill ph-heart');
             closeSheet();
         }
 
@@ -728,7 +757,7 @@
 
             const service = CONFIG.services[index];
             document.getElementById('service-sheet-title').textContent = service.title;
-            document.getElementById('service-sheet-photo').src = service.photo;
+            renderGallery('service-gallery-container', service.photos || [service.photo]);
             document.getElementById('service-sheet-desc').innerHTML = service.fullDesc;
             document.getElementById('service-sheet-new-price').textContent = service.newPrice;
             document.getElementById('service-sheet-old-price').textContent = service.oldPrice || '';
@@ -828,6 +857,78 @@
             setTimeout(() => {
                 overlay.classList.add('hidden');
             }, 300);
+        }
+
+        // --- НОВЫЕ ФУНКЦИИ (ТОСТЫ, ГАЛЕРЕЯ, ПОДЕЛИТЬСЯ) ---
+        
+        // Всплывающее уведомление (Toast)
+        let toastTimeout;
+        function showToast(message, iconClass = 'ph-fill ph-check-circle') {
+            tg.HapticFeedback.notificationOccurred('success');
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="${iconClass} text-orange-400 text-lg"></i><span>${message}</span>`;
+            
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        // Кнопка Поделиться (Share)
+        function shareProfile() {
+            tg.HapticFeedback.impactOccurred('medium');
+            // Здесь должна быть ссылка на твоего бота, который открывает это приложение
+            const shareUrl = "https://t.me/telegram"; 
+            const shareText = "🔥 Смотри крутое фаер-шоу Полины Чубакиной!";
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+            tg.openTelegramLink(telegramUrl);
+        }
+
+        // Рендер галереи-свайпера с точками
+        function renderGallery(containerId, photos) {
+            const wrapper = document.getElementById(containerId);
+            if (!photos || photos.length === 0) return;
+            
+            const aspectClass = containerId === 'service-gallery-container' ? 'aspect-video' : 'aspect-square';
+            
+            let html = `
+            <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" id="${containerId}-scroll" onscroll="updateGalleryDots('${containerId}')">
+                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-cover shrink-0 snap-center">`).join('')}
+                </div>
+                ${photos.length > 1 ? `
+                <div class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10" id="${containerId}-dots">
+                    ${photos.map((_, i) => `<div class="w-2 h-2 rounded-full bg-white transition-all duration-300 shadow-md ${i === 0 ? 'opacity-100 scale-125' : 'opacity-40'}"></div>`).join('')}
+                </div>
+                ` : ''}
+            </div>
+            `;
+            wrapper.innerHTML = html;
+        }
+
+        // Обновление активной точки при свайпе галереи
+        function updateGalleryDots(containerId) {
+            const scrollContainer = document.getElementById(`${containerId}-scroll`);
+            const dotsContainer = document.getElementById(`${containerId}-dots`);
+            if (!scrollContainer || !dotsContainer) return;
+            
+            const scrollLeft = scrollContainer.scrollLeft;
+            const width = scrollContainer.clientWidth;
+            const index = Math.round(scrollLeft / width);
+            
+            Array.from(dotsContainer.children).forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.remove('opacity-40');
+                    dot.classList.add('opacity-100', 'scale-125');
+                } else {
+                    dot.classList.remove('opacity-100', 'scale-125');
+                    dot.classList.add('opacity-40');
+                }
+            });
         }
 
         window.onload = () => {
