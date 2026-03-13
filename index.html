@@ -66,14 +66,17 @@
             box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3), 0 20px 30px -10px rgba(0, 0, 0, 0.2);
         }
 
-        /* Черные воздушные и полупрозрачные карточки БЕЗ ОБВОДКИ (Эффект парения) */
+        /* Воздушные полупрозрачные карточки (Чистый эффект парения) */
         .card-shadow {
-            background: rgba(10, 10, 12, 0.45) !important;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            /* Усиленная тень для эффекта левитации */
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.03);
-            border: none;
+            background: rgba(20, 20, 24, 0.5) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            /* Аккуратная тень без "грязи" вокруг и легкий стеклянный блик, чтобы элементы не сливались */
+            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.5), 
+                        0 10px 20px -10px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transform: translateZ(0);
         }
 
         /* Кнопка "Subscribe" стайл */
