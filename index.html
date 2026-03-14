@@ -381,27 +381,29 @@
     <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
 
         <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
-        <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow fade-in transform-gpu will-change-transform">
-            <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
-            
-            <!-- Блик для 3D эффекта -->
-            <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
-            
-            <!-- Инфо и кнопки (Элегантный Вариант 2) -->
-            <div class="absolute bottom-5 left-5 right-5 text-white z-30 flex items-end justify-between gap-3">
-                <h1 class="text-[28px] sm:text-3xl font-serif font-bold flex items-center gap-1.5 tracking-tight min-w-0">
-                    <span id="profile-name" class="truncate"></span>
-                    <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
-                </h1>
+        <div class="w-full fade-in">
+            <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow transform-gpu will-change-transform">
+                <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
                 
-                <div class="flex items-center gap-4 pb-1.5 shrink-0">
-                    <button id="lang-btn" onclick="event.stopPropagation(); toggleLanguage()" class="text-white/90 font-bold text-sm uppercase transition-transform active:scale-95 drop-shadow-md font-sans">
-                        EN
-                    </button>
-                    <button id="share-btn" onclick="event.stopPropagation(); shareProfile()" class="text-white/90 transition-transform active:scale-95 drop-shadow-md">
-                        <i class="ph-bold ph-share-network text-[22px]"></i>
-                    </button>
+                <!-- Блик для 3D эффекта -->
+                <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
+                
+                <!-- Инфо и кнопки (Элегантный Вариант 2) -->
+                <div class="absolute bottom-5 left-5 right-5 text-white z-30 flex items-end justify-between gap-3">
+                    <h1 class="text-[28px] sm:text-3xl font-serif font-bold flex items-center gap-1.5 tracking-tight min-w-0">
+                        <span id="profile-name" class="truncate"></span>
+                        <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
+                    </h1>
+                    
+                    <div class="flex items-center gap-4 pb-1.5 shrink-0">
+                        <button id="lang-btn" onclick="event.stopPropagation(); toggleLanguage()" class="text-white/90 font-bold text-sm uppercase transition-transform active:scale-95 drop-shadow-md font-sans">
+                            EN
+                        </button>
+                        <button id="share-btn" onclick="event.stopPropagation(); shareProfile()" class="text-white/90 transition-transform active:scale-95 drop-shadow-md">
+                            <i class="ph-bold ph-share-network text-[22px]"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
