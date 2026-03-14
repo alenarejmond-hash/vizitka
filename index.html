@@ -130,16 +130,6 @@
     <!-- TOAST УВЕДОМЛЕНИЕ (Glassmorphism вайб под дизайн, п.4) -->
     <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-white/20 backdrop-blur-xl border border-white/40 text-white px-5 py-3 rounded-full flex items-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.3)] transition-all duration-300 transform -translate-y-24 opacity-0 font-medium text-sm"></div>
 
-    <!-- КНОПКА ЯЗЫКА (RU/EN) -->
-    <button id="lang-btn" onclick="toggleLanguage()" class="fixed top-5 left-5 z-40 w-11 h-11 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform font-bold text-sm uppercase">
-        EN
-    </button>
-
-    <!-- КНОПКА ПОДЕЛИТЬСЯ -->
-    <button id="share-btn" onclick="shareProfile()" class="fixed top-5 right-5 z-40 w-11 h-11 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
-        <i class="ph-bold ph-share-network text-xl"></i>
-    </button>
-
     <!-- ЗАГРУЗОЧНЫЙ ЭКРАН (Огненный лоадер) -->
     <div id="app-loader" class="fixed inset-0 z-[100] dynamic-bg flex items-center justify-center transition-opacity duration-500">
         <div class="relative w-20 h-20 flex items-center justify-center">
@@ -398,11 +388,21 @@
             <!-- Блик для 3D эффекта -->
             <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
             
-            <div class="absolute bottom-6 left-6 right-6 text-white z-30">
-                <h1 class="text-4xl font-serif font-bold flex items-center gap-2 tracking-tight">
-                    <span id="profile-name"></span>
-                    <i class="ph-fill ph-check-circle text-white/90 text-[24px]"></i>
+            <!-- Инфо и кнопки (Элегантный Вариант 2) -->
+            <div class="absolute bottom-5 left-5 right-5 text-white z-30 flex items-end justify-between gap-3">
+                <h1 class="text-[28px] sm:text-3xl font-serif font-bold flex items-center gap-1.5 tracking-tight min-w-0">
+                    <span id="profile-name" class="truncate"></span>
+                    <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
                 </h1>
+                
+                <div class="flex items-center gap-4 pb-1.5 shrink-0">
+                    <button id="lang-btn" onclick="event.stopPropagation(); toggleLanguage()" class="text-white/90 font-bold text-sm uppercase transition-transform active:scale-95 drop-shadow-md font-sans">
+                        EN
+                    </button>
+                    <button id="share-btn" onclick="event.stopPropagation(); shareProfile()" class="text-white/90 transition-transform active:scale-95 drop-shadow-md">
+                        <i class="ph-bold ph-share-network text-[22px]"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -899,8 +899,6 @@
         function openServicesPage() {
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('main-screen').classList.add('hidden');
-            document.getElementById('share-btn').classList.add('hidden'); // Скрываем кнопку Поделиться (п.3)
-            document.getElementById('lang-btn').classList.add('hidden');  // Скрываем и кнопку языка
             const servicesScreen = document.getElementById('services-screen');
             servicesScreen.classList.remove('hidden');
             servicesScreen.classList.add('fade-in');
@@ -911,8 +909,6 @@
         function closeServicesPage() {
             tg.HapticFeedback.impactOccurred('light');
             document.getElementById('services-screen').classList.add('hidden');
-            document.getElementById('share-btn').classList.remove('hidden'); // Возвращаем кнопку Поделиться
-            document.getElementById('lang-btn').classList.remove('hidden');  // Возвращаем кнопку языка
             document.getElementById('main-screen').classList.remove('hidden');
             window.scrollTo(0, 0);
         }
