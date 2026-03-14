@@ -3,44 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tracks & Stories</title>
+  <title>Tracks & Stories - Exclusive</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Подключение новых мягких и рукописных шрифтов -->
+  <!-- Подключение премиальных шрифтов: Playfair Display (Serif) и Inter (Grotesque) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Nunito:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 
-  <!-- Настройки Tailwind для новых цветов и шрифтов -->
+  <!-- Настройки Tailwind для эстетики Old Money -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            sand: '#FAF5EE',       // Светло-песочный фон
-            paper: '#FDFBF7',      // Текстура бумаги
-            coffee: '#3E2723',     // Темно-коричневый текст (вместо черного)
-            terracotta: '#D97757', // Приглушенный терракотовый
-            sage: '#8DA399',       // Шалфейный зеленый
-            cream: '#FFFBF5',      // Кремовый для карточек
+            ivory: '#FDFBF7',      // Слоновая кость (фон)
+            navy: '#0A1128',       // Глубокий синий/графитовый (основной текст и кнопки)
+            emerald: '#1A2F24',    // Глубокий изумрудный (альтернатива для акцентов)
+            gold: '#D4AF37',       // Приглушенное золото
+            graphite: '#2C2C2C',   // Мягкий черный для текстов
+            muted: '#8A8A8C',      // Серый для второстепенного текста
           },
           fontFamily: {
-            sans: ['Nunito', 'sans-serif'],   // Мягкий округлый
-            hand: ['Caveat', 'cursive'],      // Рукописный
+            serif: ['"Playfair Display"', 'serif'], // Элегантные заголовки
+            sans: ['"Inter"', 'sans-serif'],        // Строгий гротеск для чтения
           },
           boxShadow: {
-            'soft': '0 4px 20px -2px rgba(62, 39, 35, 0.05)',
-            'polaroid': '0 10px 25px -5px rgba(62, 39, 35, 0.1)',
-            'float': '0 12px 30px -8px rgba(217, 119, 87, 0.5)',
+            'subtle': '0 10px 30px -10px rgba(10, 17, 40, 0.08)',
+            'float': '0 20px 40px -10px rgba(10, 17, 40, 0.15)',
           }
         }
       }
     }
   </script>
 
-  <!-- Настройки Telegram Mini App -->
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
@@ -52,25 +50,31 @@
   </script>
 
   <style>
-    /* Эффект скотча (washi tape) для полароидов */
-    .washi-tape {
-      position: absolute;
-      width: 70px;
-      height: 22px;
-      background-color: rgba(253, 251, 247, 0.65);
-      box-shadow: 0 1px 3px rgba(62, 39, 35, 0.05);
-      z-index: 10;
-      border: 1px solid rgba(253, 251, 247, 0.8);
-      opacity: 0.9;
-    }
-    .washi-tape-1 { top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg); }
-    .washi-tape-2 { top: -10px; left: 15%; transform: rotate(4deg); }
-    
-    /* Скрытие скроллбара для эстетики */
+    /* Прячем скроллбар для идеальной чистоты */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
+    
+    /* Сброс стандартных стилей полей ввода для создания "линий блокнота" */
+    input[type="text"], textarea, select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    
+    /* Стилизация вариантов выпадающего списка (чтобы меню было светлым и премиальным) */
+    select option {
+      background-color: #FDFBF7;
+      color: #0A1128;
+      font-family: "Playfair Display", serif;
+      font-style: italic;
+    }
+
+    /* Кинематографичный фильтр для главных фото */
+    .cinematic-filter {
+      filter: grayscale(20%) contrast(110%) brightness(90%);
+    }
   </style>
 </head>
-<body class="bg-sand text-coffee font-sans overscroll-none selection:bg-terracotta selection:text-white">
+<body class="bg-ivory text-graphite font-sans leading-relaxed overscroll-none selection:bg-gold/30 selection:text-navy antialiased">
 
   <!-- 
   =======================================================================
@@ -124,166 +128,152 @@
       mainTourBtnText: "Программа тура",
       mainTourLink: "", 
 
-      bottomBtnText: "Оставить заявку",
+      bottomBtnText: "Запросить приглашение", // Обновленный текст
       bottomBtnLink: "https://t.me/durov",
 
       googleSheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWTsKdTeviytAVN625NFks2VNZg6CKSXsC7sf8zhoih6T20yKCKM1qQ-RaNYFzwVv6cYmS2waj2iAV/pub?gid=0&single=true&output=csv",
 
       archiveSheetBtnLink: "https://t.me/durov", 
-      archiveSheetBtnText: "Смотреть дневник...",
+      archiveSheetBtnText: "Открыть архив",
       archiveSheetText: "Мы не просто смотрим достопримечательности, мы создаем истории.",
       googleSheetArchiveUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWTsKdTeviytAVN625NFks2VNZg6CKSXsC7sf8zhoih6T20yKCKM1qQ-RaNYFzwVv6cYmS2waj2iAV/pub?gid=1427517511&single=true&output=csv",
       archivePhotos: [],
 
       googleSheetSubmitUrl: "https://script.google.com/macros/s/AKfycbwScQlTvTiC3BnCYUrLvdkJR4lTEhDP1lCpJuQxwdpS0sBj9NaR0Uzm6JP38sG4X_kiRw/exec",
-      formTitle: "Написать мне",
-      formSubtitle: "Оставьте свои контакты, и мы вместе создадим историю вашего идеального путешествия.",
-      formSubmitBtnText: "Отправить письмо",
-      formSuccessText: "Письмо отправлено! Скоро свяжусь с вами.",
+      formTitle: "Оставить запрос",
+      formSubtitle: "Укажите ваши данные, и мы свяжемся с вами для обсуждения деталей вашего персонального путешествия.",
+      formSubmitBtnText: "Отправить",
+      formSuccessText: "Запрос принят. Ожидайте ответа.",
 
       tours: []
     };
   </script>
   <!-- ================= КОНЕЦ БЛОКА НАСТРОЕК ================= -->
 
-
   <!-- Прелоадер -->
-  <div id="preloader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-700 bg-sand">
+  <div id="preloader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-1000 bg-navy text-gold">
     <div class="relative z-10 flex flex-col items-center">
-      <svg class="animate-spin h-10 w-10 text-terracotta mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p class="font-hand text-coffee text-2xl tracking-wide animate-pulse">открываем дневник...</p>
+      <div class="w-12 h-12 border border-gold/30 flex items-center justify-center mb-6">
+        <span class="font-serif text-2xl tracking-widest animate-pulse">TS</span>
+      </div>
+      <p class="font-sans text-xs uppercase tracking-[0.3em] text-gold/70">Bespoke Travel</p>
     </div>
   </div>
 
-  <div class="min-h-screen bg-sand text-coffee font-sans pb-32 relative">
-    
-    <div class="w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto bg-sand min-h-screen relative">
+  <div class="min-h-screen relative pb-32">
+    <div class="w-full max-w-md md:max-w-xl mx-auto bg-ivory min-h-screen relative shadow-2xl overflow-hidden">
       
-      <!-- БЛОК 1: Hero-секция (Скрапбукинг/Полароид) -->
-      <header class="pt-12 md:pt-16 pb-6 px-5 flex flex-col items-center relative z-10">
+      <!-- БЛОК 1: Hero-секция (Шапка) -->
+      <header class="relative w-full h-[45vh] min-h-[350px]">
+        <img id="cfg-hero-image" src="" alt="Hero" class="w-full h-full object-cover cinematic-filter">
+        <div class="absolute inset-0 bg-gradient-to-b from-navy/30 via-transparent to-ivory"></div>
         
-        <p class="font-hand text-terracotta text-2xl md:text-3xl mb-1 -rotate-2">твой проводник в мир приключений</p>
-        <h1 id="cfg-author-name" class="font-sans font-bold text-3xl md:text-4xl text-coffee text-center mb-8"></h1>
-
-        <!-- Полароидное фото гида -->
-        <div class="relative bg-white p-3 md:p-4 pb-12 md:pb-14 rounded-sm shadow-polaroid rotate-2 w-4/5 max-w-sm border border-gray-100">
-          <div class="washi-tape washi-tape-1"></div>
-          <img 
-            id="cfg-hero-image"
-            src="" 
-            alt="Guide" 
-            class="w-full aspect-[4/5] object-cover rounded-sm grayscale-[15%] sepia-[10%]"
-          />
-          <p id="cfg-author-sub" class="font-hand text-2xl text-coffee text-center absolute bottom-3 left-0 w-full"></p>
+        <!-- Логотип (Монограмма) и Имя -->
+        <div class="absolute bottom-0 left-0 w-full px-6 translate-y-1/3 flex flex-col items-center text-center z-10">
+          <div class="bg-ivory p-1.5 shadow-subtle mb-4">
+            <div class="w-16 h-16 border border-gold flex items-center justify-center bg-ivory">
+              <span id="cfg-monogram" class="font-serif text-2xl text-navy tracking-widest"></span>
+            </div>
+          </div>
+          <h1 id="cfg-author-name" class="font-serif font-medium text-3xl md:text-4xl text-navy uppercase tracking-widest mb-2"></h1>
+          <p class="font-serif italic text-gold text-lg">Bespoke Travel Experience</p>
         </div>
       </header>
 
       <!-- Основной контент -->
-      <main class="px-5 md:px-10 lg:px-16 py-6 md:py-10">
+      <main class="px-6 md:px-10 py-12 mt-20">
         
-        <!-- БЛОК 2: Главное меню (Мягкие эстетичные плашки) -->
-        <section class="relative z-20">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            
-            <!-- Карточка 1: Ближайшие экспедиции (Акцентная) -->
-            <button type="button" onclick="openExpeditions()" class="col-span-2 appearance-none focus:outline-none w-full text-left bg-cream border border-[#F2EBE1] rounded-[20px] p-5 shadow-soft hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group cursor-pointer">
-              <!-- Скрытое изображение для JS -->
-              <img id="cfg-expeditions-image" src="" class="hidden" />
-              <div>
-                <p class="font-hand text-sage text-xl md:text-2xl mb-0.5 group-hover:text-terracotta transition-colors">Расписание</p>
-                <h3 class="font-sans font-bold text-xl text-coffee">Экспедиции</h3>
-              </div>
-              <div class="w-12 h-12 rounded-full bg-sand flex items-center justify-center text-terracotta group-hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
-              </div>
-            </button>
+        <!-- БЛОК 2: Главное меню (Ресторанный стиль) -->
+        <nav class="relative z-20 my-8 py-8 border-y border-gold/30">
+          <ul class="space-y-6 text-center">
+            <li>
+              <button type="button" onclick="openExpeditions()" class="group inline-flex items-center justify-center font-serif text-navy text-[15px] tracking-[0.15em] uppercase hover:text-gold transition-colors focus:outline-none">
+                <span class="text-gold mr-3 text-xs">I.</span> 
+                <span class="border-b border-transparent group-hover:border-gold pb-0.5 transition-all">Предстоящие путешествия</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" onclick="openPhilosophy()" class="group inline-flex items-center justify-center font-serif text-navy text-[15px] tracking-[0.15em] uppercase hover:text-gold transition-colors focus:outline-none">
+                <span class="text-gold mr-3 text-xs">II.</span> 
+                <span class="border-b border-transparent group-hover:border-gold pb-0.5 transition-all">О создателе</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" onclick="openArchive()" class="group inline-flex items-center justify-center font-serif text-navy text-[15px] tracking-[0.15em] uppercase hover:text-gold transition-colors focus:outline-none">
+                <span class="text-gold mr-3 text-xs">III.</span> 
+                <span class="border-b border-transparent group-hover:border-gold pb-0.5 transition-all">Архив экспедиций</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" onclick="openReviews()" class="group inline-flex items-center justify-center font-serif text-navy text-[15px] tracking-[0.15em] uppercase hover:text-gold transition-colors focus:outline-none">
+                <span class="text-gold mr-3 text-xs">IV.</span> 
+                <span class="border-b border-transparent group-hover:border-gold pb-0.5 transition-all">Истории гостей</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
 
-            <!-- Карточка 2: Как это было -->
-            <button type="button" onclick="openArchive()" class="appearance-none focus:outline-none w-full text-left bg-cream border border-[#F2EBE1] rounded-[20px] p-4 aspect-square flex flex-col items-center justify-center text-center shadow-soft hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta mb-2 group-hover:scale-110 transition-transform"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
-              <span id="cfg-archive-title" class="text-sm font-bold text-coffee mb-0.5"></span>
-              <span id="cfg-archive-sub" class="font-hand text-sage text-lg"></span>
-            </button>
-
-            <!-- Карточка 3: Моя философия -->
-            <button type="button" onclick="openPhilosophy()" class="appearance-none focus:outline-none w-full text-left bg-cream border border-[#F2EBE1] rounded-[20px] p-4 aspect-square flex flex-col items-center justify-center text-center shadow-soft hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta mb-2 group-hover:scale-110 transition-transform"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <span id="cfg-philosophy-title" class="text-sm font-bold text-coffee mb-0.5"></span>
-              <span id="cfg-philosophy-sub" class="font-hand text-sage text-lg"></span>
-            </button>
-
-            <!-- Карточка 4: Отзывы -->
-            <button type="button" onclick="openReviews()" class="appearance-none focus:outline-none w-full text-left bg-cream border border-[#F2EBE1] rounded-[20px] p-4 aspect-square flex flex-col items-center justify-center text-center shadow-soft hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta mb-2 group-hover:scale-110 transition-transform"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-              <span id="cfg-reviews-title" class="text-sm font-bold text-coffee mb-0.5"></span>
-              <span id="cfg-reviews-sub" class="font-hand text-sage text-lg"></span>
-            </button>
-
-            <!-- Карточка 5: Контакты -->
-            <button type="button" onclick="openContacts()" class="appearance-none focus:outline-none w-full text-left bg-cream border border-[#F2EBE1] rounded-[20px] p-4 aspect-square flex flex-col items-center justify-center text-center shadow-soft hover:shadow-polaroid hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta mb-2 group-hover:scale-110 transition-transform"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <span id="cfg-contacts-title" class="text-sm font-bold text-coffee mb-0.5"></span>
-              <span id="cfg-contacts-sub" class="font-hand text-sage text-lg"></span>
-            </button>
-          </div>
-        </section>
-
-        <!-- БЛОК 3: Актуальный тур (Полароид) -->
-        <section class="mt-14">
-          <div class="flex items-center gap-2 mb-6 justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="m9 12 2 2 4-4"/></svg>
-            <h2 class="font-hand text-3xl text-coffee">Скоро отправляемся</h2>
+        <!-- БЛОК 3: Актуальный тур (Билет первого класса) -->
+        <section class="mt-16">
+          <div class="text-center mb-8">
+            <span class="font-sans text-[10px] uppercase tracking-[0.3em] text-muted mb-2 block">Ближайшее событие</span>
+            <h2 class="font-serif text-3xl text-navy italic">Exclusive Selection</h2>
           </div>
           
-          <!-- Карточка-полароид -->
-          <div class="bg-white rounded-sm shadow-polaroid border border-gray-100 p-3 md:p-5 pb-8 relative -rotate-1 md:w-4/5 mx-auto">
-            <div class="washi-tape washi-tape-2"></div>
-            
-            <div class="relative w-full aspect-[4/3] mb-5 bg-sand rounded-sm overflow-hidden">
-              <img 
-                id="cfg-main-tour-image"
-                src="" 
-                alt="Main Tour" 
-                class="w-full h-full object-cover sepia-[10%] grayscale-[10%]" 
-              />
-              <div class="absolute top-3 left-3 bg-white px-3 py-1 rounded-sm shadow-sm border border-gray-100">
-                <p id="cfg-main-tour-badge" class="text-[10px] font-bold text-coffee tracking-wider uppercase"></p>
+          <div class="bg-white border border-graphite/10 p-4 shadow-subtle group">
+            <div class="relative w-full aspect-[4/3] overflow-hidden mb-5 bg-ivory">
+              <img id="cfg-main-tour-image" src="" alt="Main Tour" class="w-full h-full object-cover cinematic-filter group-hover:scale-105 transition-transform duration-1000 ease-out"/>
+              <div class="absolute top-0 left-0 bg-navy text-gold px-4 py-1.5 text-[9px] uppercase tracking-[0.2em] font-sans">
+                <span id="cfg-main-tour-badge"></span>
               </div>
             </div>
             
             <div class="px-2">
-              <h3 id="cfg-main-tour-title" class="font-hand text-3xl md:text-4xl text-coffee mb-3"></h3>
+              <h3 id="cfg-main-tour-title" class="font-serif text-2xl text-navy mb-4"></h3>
               
-              <div class="flex flex-col gap-1.5 mb-4">
-                <div class="flex items-center text-sm text-coffee/80 font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-sage"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                  <span id="cfg-main-tour-dates"></span>
-                </div>
-                <div class="flex items-center text-sm text-coffee/80 font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-sage"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <span id="cfg-main-tour-location"></span>
-                </div>
+              <div class="border-y border-gold/30 py-3 mb-4 flex justify-between items-center font-sans text-xs tracking-widest text-graphite uppercase">
+                <span id="cfg-main-tour-dates"></span>
+                <span id="cfg-main-tour-location" class="text-right text-muted"></span>
               </div>
               
-              <p id="cfg-main-tour-desc" class="text-sm text-coffee/70 leading-relaxed mb-6 font-sans line-clamp-3"></p>
+              <p id="cfg-main-tour-desc" class="text-sm text-graphite/80 leading-relaxed mb-6 font-sans line-clamp-3 font-light"></p>
               
-              <a id="cfg-main-tour-btn" href="#" target="_blank" class="w-full py-3.5 border border-terracotta/30 text-terracotta rounded-full text-xs uppercase tracking-widest font-bold hover:bg-terracotta hover:text-white transition-colors flex items-center justify-center gap-2">
-                <span id="cfg-main-tour-btn-text"></span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-              </a>
+              <div class="text-center mt-6 mb-2">
+                <a id="cfg-main-tour-btn" href="#" target="_blank" class="inline-flex items-center justify-center font-sans text-[11px] uppercase tracking-[0.2em] text-navy border-b border-navy pb-1 hover:text-gold hover:border-gold transition-colors">
+                  <span id="cfg-main-tour-btn-text"></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
             </div>
           </div>
         </section>
 
+        <!-- БЛОК 6: Контакты (Футер) -->
+        <footer class="mt-20 pt-10 border-t border-gold/30 flex flex-col items-center">
+          <div class="w-8 h-8 border border-gold flex items-center justify-center mb-6">
+            <span class="font-serif text-sm text-navy tracking-widest">C</span>
+          </div>
+          <p class="font-serif italic text-navy text-xl mb-8">Для связи с нами</p>
+          
+          <div class="flex gap-8 mb-10">
+            <a id="cfg-contact-wa" href="#" target="_blank" class="text-navy hover:text-gold transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a id="cfg-contact-tg" href="#" target="_blank" class="text-navy hover:text-gold transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-18.6 7.143a2.25 2.25 0 0 0-.122 4.22l5.594 1.714 2.143 6.643a1.5 1.5 0 0 0 2.829-.029l2.76-5.807 5.178 3.834a2.25 2.25 0 0 0 3.535-1.503L23.493 3.51a2.25 2.25 0 0 0-2.295-1.077Z"/><path d="m10.5 15.5 4.5-4.5"/></svg>
+            </a>
+            <a id="cfg-contact-ig" href="#" target="_blank" class="text-navy hover:text-gold transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="0" ry="0"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+          </div>
+          <p class="text-[10px] text-muted tracking-widest uppercase font-sans">Bespoke Travel © 2026</p>
+        </footer>
       </main>
 
-      <!-- БЛОК 4: Sticky CTA (Pill shape) -->
-      <div class="fixed bottom-0 left-0 right-0 p-5 md:p-8 pt-16 md:pt-24 bg-gradient-to-t from-sand via-sand/95 to-transparent z-50 pointer-events-none">
-        <div class="w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto flex justify-center">
-          <button id="cfg-bottom-btn" onclick="openForm()" class="pointer-events-auto w-[90%] md:w-auto md:px-12 bg-terracotta text-white py-4 px-6 rounded-full text-sm uppercase tracking-[0.15em] font-bold shadow-float hover:bg-[#C26245] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 block text-center">
+      <!-- БЛОК 5: Sticky CTA (Строгий прямоугольник) -->
+      <div class="fixed bottom-0 left-0 right-0 p-5 md:p-8 bg-gradient-to-t from-ivory via-ivory/95 to-transparent z-50 pointer-events-none">
+        <div class="w-full max-w-md md:max-w-xl mx-auto flex justify-center">
+          <button id="cfg-bottom-btn" onclick="openForm()" class="pointer-events-auto w-[95%] bg-navy text-gold border border-gold/40 py-4 px-6 text-[11px] uppercase tracking-[0.25em] font-sans hover:bg-navy/90 hover:text-white transition-all duration-300 active:scale-95 block text-center shadow-float rounded-none">
           </button>
         </div>
       </div>
@@ -291,292 +281,241 @@
     </div>
   </div>
 
-  <!-- Всплывающие шторки (Мягкие формы, без стекла) -->
+  <!-- ================= СТРОГИЕ ШТОРКИ (BOTTOM SHEETS) ================= -->
   
-  <!-- Шторка "Экспедиции" -->
+  <!-- Шторка "Предстоящие путешествия" -->
   <div id="expeditions-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="expeditions-backdrop" class="absolute inset-0 bg-coffee/40 opacity-0 transition-opacity duration-500" onclick="closeExpeditions()"></div>
+    <div id="expeditions-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closeExpeditions()"></div>
     
-    <div id="expeditions-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[85vh]">
+    <div id="expeditions-content" class="relative bg-ivory w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[85vh] border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-3 px-6 flex flex-col items-center bg-sand rounded-t-[30px] z-10 sticky top-0 border-b border-coffee/5">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-4"></div>
+      <div class="flex-shrink-0 pt-6 pb-4 px-6 flex flex-col bg-ivory z-10 sticky top-0 border-b border-graphite/10">
         <div class="w-full flex justify-between items-center mb-2">
-          <h2 class="font-hand text-3xl text-coffee">Ближайшие туры</h2>
-          <button onclick="closeExpeditions()" class="p-2 -mr-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <h2 class="font-serif text-2xl text-navy italic">Экспедиции</h2>
+          <button onclick="closeExpeditions()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <div id="cfg-tours-container" class="overflow-y-auto p-5 pb-10 space-y-6 md:grid md:grid-cols-2 md:space-y-0 md:gap-6">
-        <!-- Полароиды генерируются скриптом -->
+      <div id="cfg-tours-container" class="overflow-y-auto p-6 pb-12 space-y-8">
+        <!-- Билеты генерируются скриптом -->
       </div>
     </div>
   </div>
 
-  <!-- Шторка "Как это было" -->
-  <div id="archive-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="archive-backdrop" class="absolute inset-0 bg-coffee/40 opacity-0 transition-opacity duration-500" onclick="closeArchive()"></div>
+  <!-- Шторка "О создателе" (Философия) -->
+  <div id="philosophy-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="philosophy-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closePhilosophy()"></div>
     
-    <div id="archive-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh]">
+    <div id="philosophy-content" class="relative bg-ivory w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh] border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-3 px-6 flex flex-col items-center bg-sand rounded-t-[30px] z-10 sticky top-0 border-b border-coffee/5">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-4"></div>
-        <div class="w-full flex justify-between items-center mb-2">
-          <h2 class="font-hand text-3xl text-coffee">Наш фотодневник</h2>
-          <button onclick="closeArchive()" class="p-2 -mr-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      <div class="flex-shrink-0 pt-6 pb-4 px-6 flex flex-col bg-ivory z-10 sticky top-0">
+        <div class="w-full flex justify-end items-center">
+          <button onclick="closePhilosophy()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <div class="overflow-y-auto p-5 pb-12 flex flex-col">
-        <p id="cfg-archive-sheet-text" class="font-hand text-2xl text-center text-sage leading-relaxed mb-8 px-4"></p>
+      <div class="overflow-y-auto px-6 pb-12 flex flex-col text-center">
+        <!-- ФОТО КРУПНЕЕ -->
+        <div class="w-28 h-28 md:w-32 md:h-32 mx-auto border border-gold p-1 mb-6">
+          <img id="cfg-philosophy-popup-img" src="" alt="Guide" class="w-full h-full object-cover cinematic-filter" />
+        </div>
         
-        <!-- Сетка фоток (Коллаж из полароидов) -->
-        <div id="cfg-archive-gallery" class="grid grid-cols-2 gap-4 mb-10 p-2">
-          <!-- Фото будут вставлены сюда -->
-        </div>
-
-        <a id="cfg-archive-sheet-btn" href="#" target="_blank" class="w-full py-4 border border-terracotta text-terracotta rounded-full text-xs uppercase tracking-[0.15em] font-bold hover:bg-terracotta hover:text-white transition-colors flex items-center justify-center gap-2 mt-auto">
-          <span id="cfg-archive-sheet-btn-text"></span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Попап "Моя философия" (Записка) -->
-  <div id="philosophy-popup" class="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none p-5">
-    <div id="philosophy-backdrop" class="absolute inset-0 bg-coffee/60 opacity-0 transition-opacity duration-300" onclick="closePhilosophy()"></div>
-    
-    <div id="philosophy-content" class="relative bg-paper w-full max-w-sm mx-auto rounded-md shadow-polaroid scale-95 opacity-0 transition-all duration-300 ease-out flex flex-col overflow-hidden rotate-1 border border-gray-100 p-2 pb-6">
-      
-      <div class="washi-tape washi-tape-1"></div>
-
-      <button onclick="closePhilosophy()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center bg-white/80 hover:bg-white text-coffee rounded-full shadow-sm transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-
-      <div class="w-full h-[220px] relative mb-4">
-        <img id="cfg-philosophy-popup-img" src="" alt="Guide" class="w-full h-full object-cover rounded-sm grayscale-[15%]" />
-      </div>
-
-      <div class="px-4">
-        <h3 id="cfg-philosophy-popup-title" class="font-hand text-4xl text-coffee mb-4 text-center"></h3>
-        <ul id="cfg-philosophy-bullets" class="space-y-3 font-sans text-sm text-coffee/80">
+        <h2 id="cfg-philosophy-popup-title" class="font-serif text-3xl text-navy italic mb-8"></h2>
+        
+        <ul id="cfg-philosophy-bullets" class="space-y-6 font-sans text-sm text-graphite/80 font-light text-left border-y border-gold/30 py-8 mx-auto max-w-sm">
           <!-- Буллиты генерируются из скрипта -->
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Шторка "Форма заявки" -->
-  <div id="form-sheet" class="fixed inset-0 z-[130] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="form-backdrop" class="absolute inset-0 bg-coffee/60 opacity-0 transition-opacity duration-500" onclick="closeForm()"></div>
+  <!-- Шторка "Архив экспедиций" -->
+  <div id="archive-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="archive-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closeArchive()"></div>
     
-    <div id="form-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh]">
+    <div id="archive-content" class="relative bg-ivory w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh] border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-3 px-6 flex flex-col items-center bg-sand rounded-t-[30px] z-10 sticky top-0 border-b border-coffee/5">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-4"></div>
+      <div class="flex-shrink-0 pt-6 pb-4 px-6 flex flex-col bg-ivory z-10 sticky top-0 border-b border-graphite/10">
         <div class="w-full flex justify-between items-center mb-2">
-          <h2 id="cfg-form-title" class="font-hand text-3xl text-coffee"></h2>
-          <button onclick="closeForm()" class="p-2 -mr-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <h2 class="font-serif text-2xl text-navy italic">Архив</h2>
+          <button onclick="closeArchive()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <div class="overflow-y-auto p-6 pb-12 flex flex-col relative">
-        <p id="cfg-form-subtitle" class="font-sans text-[15px] text-sage leading-relaxed mb-6 font-medium text-center"></p>
+      <div class="overflow-y-auto px-6 py-8 flex flex-col">
+        <p id="cfg-archive-sheet-text" class="font-serif text-xl text-center text-navy leading-relaxed mb-10 italic"></p>
         
-        <div id="form-success-msg" class="hidden absolute inset-0 bg-sand z-20 flex flex-col items-center justify-center p-6 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-sage mb-4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-          <p id="cfg-form-success-text" class="font-hand text-3xl text-coffee"></p>
+        <!-- Сетка фоток (Строгие квадраты) -->
+        <div id="cfg-archive-gallery" class="grid grid-cols-2 gap-4 mb-10">
+          <!-- Фото будут вставлены сюда -->
         </div>
 
-        <form id="lead-form" onsubmit="submitForm(event)" class="space-y-4">
-          <div>
-            <label class="block font-sans text-xs uppercase tracking-widest font-bold text-terracotta/80 mb-2 ml-1">Имя</label>
-            <input type="text" id="name" name="name" required placeholder="Ваше имя" class="w-full bg-cream border border-coffee/10 text-coffee text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/20 transition-all placeholder:text-coffee/30 shadow-sm font-sans">
-          </div>
-          
-          <div>
-            <label class="block font-sans text-xs uppercase tracking-widest font-bold text-terracotta/80 mb-2 ml-1">Связь</label>
-            <input type="text" id="contact" name="contact" required placeholder="@username в Telegram" class="w-full bg-cream border border-coffee/10 text-coffee text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/20 transition-all placeholder:text-coffee/30 shadow-sm font-sans">
-          </div>
-
-          <div>
-            <label class="block font-sans text-xs uppercase tracking-widest font-bold text-terracotta/80 mb-2 ml-1">Направление</label>
-            <div class="relative">
-              <select id="tour-select" name="tour" required class="w-full bg-cream border border-coffee/10 text-coffee text-[15px] rounded-[16px] px-5 py-4 appearance-none focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/20 transition-all shadow-sm font-sans cursor-pointer">
-              </select>
-              <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-terracotta">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" id="form-submit-btn" class="w-full bg-terracotta text-white py-4 px-6 rounded-full text-sm uppercase tracking-[0.15em] font-bold shadow-float hover:bg-[#C26245] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 mt-6">
-            <span id="cfg-form-btn-text"></span>
-            <svg id="form-btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg id="form-btn-loader" class="animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-          </button>
-        </form>
+        <div class="text-center mt-auto">
+          <a id="cfg-archive-sheet-btn" href="#" target="_blank" class="inline-flex items-center justify-center font-sans text-[11px] uppercase tracking-[0.2em] text-navy border border-navy px-8 py-4 hover:bg-navy hover:text-gold transition-colors w-full">
+            <span id="cfg-archive-sheet-btn-text"></span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Шторка "Отзывы" (Стикеры) -->
+  <!-- Шторка "Отзывы" (Письма) -->
   <div id="reviews-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="reviews-backdrop" class="absolute inset-0 bg-coffee/40 opacity-0 transition-opacity duration-500" onclick="closeReviews()"></div>
+    <div id="reviews-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closeReviews()"></div>
     
-    <div id="reviews-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh]">
+    <div id="reviews-content" class="relative bg-ivory w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh] border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-3 px-6 flex flex-col items-center bg-sand rounded-t-[30px] z-10 sticky top-0 border-b border-coffee/5">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-4"></div>
+      <div class="flex-shrink-0 pt-6 pb-4 px-6 flex flex-col bg-ivory z-10 sticky top-0 border-b border-graphite/10">
         <div class="w-full flex justify-between items-center mb-2">
-          <h2 class="font-hand text-3xl text-coffee">Теплые слова</h2>
-          <button onclick="closeReviews()" class="p-2 -mr-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <h2 class="font-serif text-2xl text-navy italic">Письма гостей</h2>
+          <button onclick="closeReviews()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       </div>
 
-      <div id="cfg-reviews-container" class="overflow-y-auto p-5 pb-32 space-y-5">
-        <!-- Записки генерируются скриптом -->
+      <div id="cfg-reviews-container" class="overflow-y-auto p-6 pb-32 space-y-8">
+        <!-- Письма генерируются скриптом -->
       </div>
 
-      <div class="absolute bottom-0 left-0 right-0 p-5 pt-12 bg-gradient-to-t from-sand via-sand/95 to-transparent">
-        <button onclick="openWriteReview()" class="w-full bg-white border border-[#F2EBE1] text-coffee py-4 px-6 rounded-full text-xs uppercase tracking-widest font-bold shadow-soft hover:shadow-polaroid transition-all duration-300 flex items-center justify-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
-          Оставить записку
+      <div class="absolute bottom-0 left-0 right-0 p-6 pt-12 bg-gradient-to-t from-ivory via-ivory/95 to-transparent">
+        <button onclick="openWriteReview()" class="w-full bg-transparent border border-gold text-navy py-4 px-6 text-[11px] uppercase tracking-[0.2em] font-sans hover:bg-gold hover:text-white transition-all duration-300">
+          Оставить послание
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Шторка "Написать отзыв" -->
+  <!-- Шторка "Написать отзыв" (Форма-блокнот) -->
   <div id="write-review-sheet" class="fixed inset-0 z-[140] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="write-review-backdrop" class="absolute inset-0 bg-coffee/60 opacity-0 transition-opacity duration-500" onclick="closeWriteReview()"></div>
+    <div id="write-review-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closeWriteReview()"></div>
     
-    <div id="write-review-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col">
+    <div id="write-review-content" class="relative bg-white w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-3 px-6 flex flex-col items-center bg-sand rounded-t-[30px] z-10 sticky top-0 border-b border-coffee/5">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-4"></div>
+      <div class="flex-shrink-0 pt-6 pb-4 px-6 flex flex-col z-10 sticky top-0">
         <div class="w-full flex justify-between items-center mb-2">
-          <h2 class="font-hand text-3xl text-coffee">Ваша история</h2>
-          <button onclick="closeWriteReview()" class="p-2 -mr-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <h2 class="font-serif text-2xl text-navy italic">Ваша история</h2>
+          <button onclick="closeWriteReview()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       </div>
 
       <div class="p-6 pb-12 relative">
-        <div id="review-success-msg" class="hidden absolute inset-0 bg-sand z-20 flex flex-col items-center justify-center p-6 text-center rounded-t-[30px]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-sage mb-4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-          <p class="font-hand text-3xl text-coffee">Спасибо за эмоции!</p>
-          <p class="text-sm text-sage mt-2 font-sans font-medium">Отзыв появится в дневнике чуть позже.</p>
+        <div id="review-success-msg" class="hidden absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-6 text-center">
+          <div class="w-12 h-12 border border-gold flex items-center justify-center mb-4 text-gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <p class="font-serif text-2xl text-navy italic">Благодарим вас</p>
+          <p class="text-xs text-muted mt-2 font-sans tracking-widest uppercase">Ваше письмо отправлено</p>
         </div>
 
-        <form id="write-review-form" onsubmit="submitNewReview(event)" class="space-y-4">
+        <form id="write-review-form" onsubmit="submitNewReview(event)" class="space-y-8">
           <div>
-            <label class="block font-sans text-xs uppercase tracking-widest font-bold text-terracotta/80 mb-2 ml-1">Имя и поездка</label>
-            <input type="text" name="reviewer_name" required placeholder="Например: Анна, Марокко" class="w-full bg-cream border border-coffee/10 text-coffee text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/20 transition-all placeholder:text-coffee/30 shadow-sm font-sans">
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-muted mb-1">Ваше Имя и Поездка</label>
+            <input type="text" name="reviewer_name" required placeholder="Анна, Марокко" class="w-full bg-transparent border-0 border-b border-graphite/20 text-navy font-serif italic text-lg px-0 py-2 focus:ring-0 focus:border-gold transition-colors placeholder:text-muted/40 outline-none rounded-none">
           </div>
           <div>
-            <label class="block font-sans text-xs uppercase tracking-widest font-bold text-terracotta/80 mb-2 ml-1">Впечатления</label>
-            <textarea name="reviewer_text" required rows="4" placeholder="Напишите пару слов..." class="w-full bg-cream border border-coffee/10 text-coffee text-[15px] rounded-[16px] px-5 py-4 focus:outline-none focus:border-terracotta focus:ring-1 focus:ring-terracotta/20 transition-all placeholder:text-coffee/30 shadow-sm font-sans resize-none"></textarea>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-muted mb-1">Ваши Впечатления</label>
+            <textarea name="reviewer_text" required rows="3" placeholder="Напишите несколько слов..." class="w-full bg-transparent border-0 border-b border-graphite/20 text-navy font-serif italic text-lg px-0 py-2 focus:ring-0 focus:border-gold transition-colors placeholder:text-muted/40 outline-none rounded-none resize-none"></textarea>
           </div>
-          <button type="submit" id="review-submit-btn" class="w-full bg-coffee text-white py-4 px-6 rounded-full text-sm uppercase tracking-[0.15em] font-bold shadow-soft hover:bg-[#2A1A17] hover:-translate-y-0.5 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 mt-6">
+          <button type="submit" id="review-submit-btn" class="w-full bg-navy text-gold py-4 px-6 text-[11px] uppercase tracking-[0.2em] font-sans hover:bg-navy/90 transition-all duration-300 mt-4 rounded-none flex items-center justify-center">
             <span>Отправить</span>
-            <svg id="review-btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            <svg id="review-btn-loader" class="animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <svg id="review-btn-loader" class="animate-spin hidden ml-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Шторка "Контакты" -->
-  <div id="contacts-sheet" class="fixed inset-0 z-[120] flex flex-col justify-end pointer-events-none transition-all duration-500">
-    <div id="contacts-backdrop" class="absolute inset-0 bg-coffee/40 opacity-0 transition-opacity duration-500" onclick="closeContacts()"></div>
+  <!-- Шторка "Форма заявки" (Запросить приглашение) -->
+  <div id="form-sheet" class="fixed inset-0 z-[130] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="form-backdrop" class="absolute inset-0 bg-navy/60 backdrop-blur-sm opacity-0 transition-opacity duration-500" onclick="closeForm()"></div>
     
-    <div id="contacts-content" class="relative bg-sand w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto rounded-t-[30px] shadow-[0_-10px_40px_rgba(62,39,35,0.1)] translate-y-full transition-transform duration-500 ease-out flex flex-col pb-8">
+    <div id="form-content" class="relative bg-white w-full max-w-md md:max-w-xl mx-auto rounded-none shadow-float translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[90vh] border-t border-gold/30">
       
-      <div class="flex-shrink-0 pt-5 pb-2 px-6 flex flex-col items-center relative">
-        <div class="w-12 h-1.5 bg-coffee/10 rounded-full mb-6"></div>
-        <button onclick="closeContacts()" class="absolute top-5 right-5 p-2 text-coffee/50 hover:text-terracotta transition-colors rounded-full bg-cream">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
+      <div class="flex-shrink-0 pt-6 pb-2 px-6 flex flex-col z-10 sticky top-0">
+        <div class="w-full flex justify-between items-center mb-2">
+          <h2 id="cfg-form-title" class="font-serif text-2xl text-navy italic"></h2>
+          <button onclick="closeForm()" class="p-2 -mr-2 text-muted hover:text-navy transition-colors focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
       </div>
 
-      <div class="px-8 pb-8 text-center">
-        <h2 class="font-hand text-4xl text-coffee mb-2">На связи</h2>
-        <p class="text-[15px] text-sage font-medium">Отвечаю лично за чашечкой кофе</p>
-      </div>
-
-      <div class="px-6 space-y-3 pb-6 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+      <div class="overflow-y-auto p-6 pb-12 flex flex-col relative">
+        <p id="cfg-form-subtitle" class="font-sans text-xs tracking-wide text-graphite/70 leading-relaxed mb-8 font-light"></p>
         
-        <a id="cfg-contact-wa" href="#" target="_blank" class="w-full bg-white border border-[#F2EBE1] shadow-soft rounded-[20px] p-4 flex items-center gap-5 hover:-translate-y-1 hover:shadow-polaroid transition-all duration-300">
-          <div class="w-12 h-12 rounded-full bg-[#25D366]/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <div id="form-success-msg" class="hidden absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-6 text-center">
+          <div class="w-12 h-12 border border-gold flex items-center justify-center mb-4 text-gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </div>
-          <span class="text-[16px] font-bold text-coffee">WhatsApp</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto text-terracotta/50"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
+          <p id="cfg-form-success-text" class="font-serif text-2xl text-navy italic"></p>
+        </div>
 
-        <a id="cfg-contact-tg" href="#" target="_blank" class="w-full bg-white border border-[#F2EBE1] shadow-soft rounded-[20px] p-4 flex items-center gap-5 hover:-translate-y-1 hover:shadow-polaroid transition-all duration-300">
-          <div class="w-12 h-12 rounded-full bg-[#2AABEE]/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2AABEE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-18.6 7.143a2.25 2.25 0 0 0-.122 4.22l5.594 1.714 2.143 6.643a1.5 1.5 0 0 0 2.829-.029l2.76-5.807 5.178 3.834a2.25 2.25 0 0 0 3.535-1.503L23.493 3.51a2.25 2.25 0 0 0-2.295-1.077Z"/><path d="m10.5 15.5 4.5-4.5"/></svg>
+        <form id="lead-form" onsubmit="submitForm(event)" class="space-y-6">
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-muted mb-1">Имя</label>
+            <input type="text" id="name" name="name" required placeholder="Ваше имя" class="w-full bg-transparent border-0 border-b border-graphite/20 text-navy font-serif italic text-lg px-0 py-2 focus:ring-0 focus:border-gold transition-colors placeholder:text-muted/40 outline-none rounded-none">
           </div>
-          <span class="text-[16px] font-bold text-coffee">Telegram</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto text-terracotta/50"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
+          
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-muted mb-1">Контакт для связи</label>
+            <input type="text" id="contact" name="contact" required placeholder="@username или номер телефона" class="w-full bg-transparent border-0 border-b border-graphite/20 text-navy font-serif italic text-lg px-0 py-2 focus:ring-0 focus:border-gold transition-colors placeholder:text-muted/40 outline-none rounded-none">
+          </div>
 
-        <a id="cfg-contact-ig" href="#" target="_blank" class="w-full bg-white border border-[#F2EBE1] shadow-soft rounded-[20px] p-4 flex items-center gap-5 hover:-translate-y-1 hover:shadow-polaroid transition-all duration-300">
-          <div class="w-12 h-12 rounded-full bg-[#E1306C]/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-muted mb-1">Направление</label>
+            <div class="relative">
+              <select id="tour-select" name="tour" required class="w-full bg-transparent border-0 border-b border-graphite/20 text-navy font-serif italic text-lg px-0 py-2 focus:ring-0 focus:border-gold transition-colors outline-none rounded-none cursor-pointer">
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pointer-events-none text-navy">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
           </div>
-          <span class="text-[16px] font-bold text-coffee">Instagram</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto text-terracotta/50"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
+
+          <button type="submit" id="form-submit-btn" class="w-full bg-navy text-gold py-4 px-6 text-[11px] uppercase tracking-[0.2em] font-sans hover:bg-navy/90 transition-all duration-300 mt-8 rounded-none flex items-center justify-center">
+            <span id="cfg-form-btn-text"></span>
+            <svg id="form-btn-loader" class="animate-spin hidden ml-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+        </form>
       </div>
     </div>
   </div>
 
   <script>
+    function generateMonogram(name) {
+      if (!name) return 'TS';
+      const parts = name.trim().split(' ');
+      if (parts.length > 1) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+
     function applyVibeConfig() {
       // 1. Главный экран
-      document.getElementById('preloader').style.backgroundImage = 'none'; // Убираем картинку, оставляем песочный фон
       document.getElementById('cfg-hero-image').src = APP_DATA.heroImage;
       document.getElementById('cfg-author-name').textContent = APP_DATA.authorName;
-      document.getElementById('cfg-author-sub').textContent = APP_DATA.authorSubtitle;
+      document.getElementById('cfg-monogram').textContent = generateMonogram(APP_DATA.authorName);
 
-      // 2. Меню
-      document.getElementById('cfg-expeditions-image').src = APP_DATA.expeditionsImage;
-      document.getElementById('cfg-archive-title').textContent = APP_DATA.archiveTitle;
-      document.getElementById('cfg-archive-sub').textContent = APP_DATA.archiveSub;
-      
-      document.getElementById('cfg-philosophy-title').textContent = APP_DATA.philosophyTitle;
-      document.getElementById('cfg-philosophy-sub').textContent = APP_DATA.philosophySub;
-
-      document.getElementById('cfg-reviews-title').textContent = APP_DATA.reviewsTitle;
-      document.getElementById('cfg-reviews-sub').textContent = APP_DATA.reviewsSub;
-
-      document.getElementById('cfg-contacts-title').textContent = APP_DATA.contactsTitle;
-      document.getElementById('cfg-contacts-sub').textContent = APP_DATA.contactsSub;
-      
+      // Соцсети в футере
       if(APP_DATA.socialLinks) {
         const wa = document.getElementById('cfg-contact-wa');
-        if(APP_DATA.socialLinks.whatsapp) { wa.href = APP_DATA.socialLinks.whatsapp; wa.style.display = 'flex'; } else { wa.style.display = 'none'; }
+        if(APP_DATA.socialLinks.whatsapp) { wa.href = APP_DATA.socialLinks.whatsapp; wa.style.display = 'block'; } else { wa.style.display = 'none'; }
         
         const tg = document.getElementById('cfg-contact-tg');
-        if(APP_DATA.socialLinks.telegram) { tg.href = APP_DATA.socialLinks.telegram; tg.style.display = 'flex'; } else { tg.style.display = 'none'; }
+        if(APP_DATA.socialLinks.telegram) { tg.href = APP_DATA.socialLinks.telegram; tg.style.display = 'block'; } else { tg.style.display = 'none'; }
         
         const ig = document.getElementById('cfg-contact-ig');
-        if(APP_DATA.socialLinks.instagram) { ig.href = APP_DATA.socialLinks.instagram; ig.style.display = 'flex'; } else { ig.style.display = 'none'; }
+        if(APP_DATA.socialLinks.instagram) { ig.href = APP_DATA.socialLinks.instagram; ig.style.display = 'block'; } else { ig.style.display = 'none'; }
       }
 
       // 3. Актуальный тур
@@ -584,12 +523,12 @@
       
       if (nearestTour) {
         document.getElementById('cfg-main-tour-image').src = nearestTour.image || APP_DATA.mainTourImage;
-        document.getElementById('cfg-main-tour-badge').textContent = nearestTour.badge || APP_DATA.mainTourBadge;
+        document.getElementById('cfg-main-tour-badge').textContent = nearestTour.badge || APP_DATA.mainTourBadge || "Premium";
         document.getElementById('cfg-main-tour-title').textContent = nearestTour.title || APP_DATA.mainTourTitle;
         document.getElementById('cfg-main-tour-dates').textContent = nearestTour.dates || APP_DATA.mainTourDates;
         document.getElementById('cfg-main-tour-location').textContent = nearestTour.location || APP_DATA.mainTourLocation;
         document.getElementById('cfg-main-tour-desc').textContent = nearestTour.desc || APP_DATA.mainTourDesc;
-        document.getElementById('cfg-main-tour-btn-text').textContent = APP_DATA.mainTourBtnText;
+        document.getElementById('cfg-main-tour-btn-text').textContent = "Подробности";
         document.getElementById('cfg-main-tour-btn').href = nearestTour.link || APP_DATA.mainTourLink;
       }
 
@@ -610,9 +549,9 @@
       bulletsContainer.innerHTML = '';
       APP_DATA.philosophyPopupBullets.forEach(text => {
         const html = `
-          <li class="flex items-start gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-terracotta shrink-0 mt-0.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-            <span class="leading-relaxed">${text}</span>
+          <li class="flex items-start">
+            <span class="text-gold mr-4 mt-0.5 opacity-60 font-serif text-lg">·</span>
+            <span class="leading-relaxed tracking-wide">${text}</span>
           </li>
         `;
         bulletsContainer.insertAdjacentHTML('beforeend', html);
@@ -625,109 +564,83 @@
 
       const galleryContainer = document.getElementById('cfg-archive-gallery');
       galleryContainer.innerHTML = '';
-      APP_DATA.archivePhotos.forEach((photoUrl, index) => {
-        const rot = index % 2 === 0 ? 'rotate-2' : '-rotate-2';
-        const tapeRot = index % 2 === 0 ? '-rotate-3' : 'rotate-4';
+      APP_DATA.archivePhotos.forEach(photoUrl => {
         const html = `
-          <div class="bg-white p-2 pb-8 shadow-polaroid rounded-sm border border-gray-100 ${rot} hover:rotate-0 hover:scale-105 transition-all duration-300 transform origin-center z-10 hover:z-20 relative">
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 ${tapeRot} z-10 w-12 h-5 bg-paper/80 shadow-sm border border-white/50"></div>
-            <img src="${photoUrl}" class="w-full aspect-square object-cover grayscale-[10%]" alt="Story">
+          <div class="bg-ivory border border-graphite/10 p-1 hover:border-gold/50 transition-colors duration-500">
+            <img src="${photoUrl}" class="w-full aspect-square object-cover cinematic-filter" alt="Archive Story">
           </div>
         `;
         galleryContainer.insertAdjacentHTML('beforeend', html);
       });
 
-      // 8. Туры (Стиль полароид)
+      // 8. Туры (Стиль: Билеты первого класса)
       const toursContainer = document.getElementById('cfg-tours-container');
       toursContainer.innerHTML = ''; 
       
       APP_DATA.tours.forEach((tour, index) => {
         const isSold = tour.isSoldOut;
-        const rot = index % 2 === 0 ? 'rotate-1' : '-rotate-1';
-        const tapeRot = index % 2 === 0 ? '-rotate-2' : 'rotate-3';
 
         const html = `
-          <a href="${tour.link}" target="_blank" class="flex flex-col bg-white p-3 md:p-4 rounded-sm shadow-polaroid border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group ${isSold ? 'opacity-85' : ''} transform ${rot} mb-4 relative">
-            
-            <div class="absolute -top-3 left-[15%] ${tapeRot} z-10 w-16 h-6 bg-paper/80 shadow-sm border border-white/50"></div>
-            
-            <div class="relative w-full aspect-[4/3] shrink-0 overflow-hidden bg-sand rounded-sm ${isSold ? 'grayscale' : 'grayscale-[10%]' }">
-              <img src="${tour.image}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${tour.title}">
-              <div class="absolute top-3 left-3 bg-white px-3 py-1 rounded-sm shadow-sm border border-gray-100 z-10">
-                <p class="text-[10px] font-bold text-coffee uppercase tracking-wider">${tour.badge}</p>
+          <div class="bg-white border border-graphite/10 shadow-subtle group ${isSold ? 'opacity-70' : ''}">
+            <div class="relative w-full aspect-[16/9] overflow-hidden bg-ivory p-2 border-b border-graphite/10">
+              <img src="${tour.image}" class="w-full h-full object-cover cinematic-filter group-hover:scale-105 transition-transform duration-1000 ease-out" alt="${tour.title}">
+              <div class="absolute top-4 left-4 bg-navy text-gold px-3 py-1 text-[9px] uppercase tracking-[0.2em] font-sans">
+                ${tour.badge || "VIP"}
               </div>
             </div>
             
-            <div class="pt-4 flex flex-col flex-1 px-1">
-              <h3 class="font-hand text-[32px] md:text-[36px] text-coffee mb-2 leading-tight group-hover:text-terracotta transition-colors">${tour.title}</h3>
+            <div class="p-5">
+              <h3 class="font-serif text-[26px] text-navy mb-3 leading-snug group-hover:text-gold transition-colors">${tour.title}</h3>
               
-              <div class="flex flex-col gap-1.5 mb-4">
-                <p class="text-sm text-coffee/80 flex items-center gap-2 font-medium font-sans">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-sage"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                  ${tour.dates}
-                </p>
-                ${tour.location ? `
-                <p class="text-sm text-coffee/80 flex items-center gap-2 font-medium font-sans">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-sage"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  ${tour.location}
-                </p>
-                ` : ''}
+              <div class="border-y border-gold/30 py-2 mb-4 flex justify-between font-sans text-[10px] tracking-widest text-graphite uppercase">
+                <span>${tour.dates}</span>
+                ${tour.location ? `<span class="text-muted text-right">${tour.location}</span>` : ''}
               </div>
 
-              ${tour.desc ? `<p class="text-sm text-coffee/70 leading-relaxed mb-5 font-sans line-clamp-3">${tour.desc}</p>` : ''}
+              ${tour.desc ? `<p class="text-sm text-graphite/70 leading-relaxed mb-6 font-sans line-clamp-2 font-light">${tour.desc}</p>` : ''}
               
-              <div class="flex items-center justify-between mt-auto pt-4 border-t border-coffee/5">
-                <span class="text-lg font-bold text-coffee font-sans ${isSold ? 'opacity-50 line-through' : ''}">${tour.price}</span>
+              <div class="flex items-center justify-between mt-6 pt-4 border-t border-graphite/5">
+                <!-- СТОИМОСТЬ КРУПНЕЕ -->
+                <span class="font-serif text-xl md:text-2xl text-navy italic ${isSold ? 'line-through opacity-50' : ''}">${tour.price}</span>
+                
                 ${isSold 
-                  ? `<span class="text-sage text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 border border-sage/30 rounded-full font-sans">${tour.soldOutText || "В резерв"}</span>`
-                  : `<span class="flex items-center gap-1.5 text-[11px] uppercase tracking-widest font-bold text-terracotta group-hover:text-[#C26245] transition-colors font-sans">
-                      Подробнее
-                     </span>`
+                  ? `<span class="text-muted text-[9px] uppercase tracking-[0.2em] font-sans border border-muted/30 px-3 py-1">${tour.soldOutText || "В резерв"}</span>`
+                  : `<a href="${tour.link}" target="_blank" class="inline-flex items-center font-sans text-[10px] uppercase tracking-[0.2em] text-navy border-b border-navy pb-0.5 hover:text-gold hover:border-gold transition-colors">
+                      Подробности <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                     </a>`
                 }
               </div>
             </div>
-          </a>
+          </div>
         `;
         toursContainer.insertAdjacentHTML('beforeend', html);
       });
 
       const tourSelect = document.getElementById('tour-select');
-      tourSelect.innerHTML = '<option value="" disabled selected>Куда поедем?</option><option value="Не определился, нужна помощь">Пока не знаю, помогите выбрать</option>';
+      // ВЫПАДАШКА: ДОБАВЛЕНЫ КЛАССЫ ДЛЯ СВЕТЛОГО ФОНА И ЭЛЕГАНТНОГО ТЕКСТА
+      tourSelect.innerHTML = '<option value="" disabled selected class="bg-ivory text-navy">Выберите направление</option><option value="Не определился, нужна помощь" class="bg-ivory text-navy">Помогите выбрать</option>';
       APP_DATA.tours.forEach(tour => {
         if(!tour.isSoldOut) {
-          tourSelect.insertAdjacentHTML('beforeend', `<option value="${tour.title}">${tour.title}</option>`);
+          tourSelect.insertAdjacentHTML('beforeend', `<option value="${tour.title}" class="bg-ivory text-navy">${tour.title}</option>`);
         } else {
-          tourSelect.insertAdjacentHTML('beforeend', `<option value="${tour.title} (В резерв)">${tour.title} (В резерв)</option>`);
+          tourSelect.insertAdjacentHTML('beforeend', `<option value="${tour.title} (В резерв)" class="bg-ivory text-muted">${tour.title} (В резерв)</option>`);
         }
       });
 
-      // 9. Отзывы (Стиль записок/стикеров)
+      // 9. Отзывы (Стиль писем на бумаге)
       const reviewsContainer = document.getElementById('cfg-reviews-container');
       reviewsContainer.innerHTML = '';
-      
-      const starSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-90"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-      const starsHtml = starSvg.repeat(5);
 
-      APP_DATA.reviews.forEach((review, index) => {
-        const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
-        const rot = rotations[index % 4];
-
+      APP_DATA.reviews.forEach((review) => {
         const html = `
-          <div class="bg-[#FFF9E6] border border-[#F2E5C9] shadow-soft rounded-br-[24px] rounded-tl-sm p-6 relative ${rot} mb-4">
+          <div class="bg-white border border-graphite/10 p-8 relative shadow-subtle group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gold/20 group-hover:bg-gold transition-colors"></div>
             
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center">
-              <div class="w-3 h-3 rounded-full bg-terracotta shadow-sm opacity-90"></div>
-            </div>
+            <p class="font-serif text-lg text-graphite leading-loose mb-6 italic opacity-90">«${review.text}»</p>
             
-            <div class="flex gap-1 mb-4 text-terracotta justify-center">
-              ${starsHtml}
-            </div>
-            
-            <p class="font-hand text-[22px] md:text-3xl text-coffee leading-relaxed mb-6 text-center px-2">«${review.text}»</p>
-            
-            <div class="flex flex-col items-center border-t border-coffee/10 pt-4">
-              <span class="text-[13px] font-bold text-coffee tracking-widest uppercase font-sans">${review.name}</span>
-              <span class="font-hand text-xl text-sage mt-1">${review.tour}</span>
+            <div class="flex flex-col mt-6 border-t border-gold/20 pt-4">
+              <span class="text-[11px] font-sans tracking-[0.2em] uppercase text-navy">${review.name}</span>
+              <span class="font-serif text-sm text-muted mt-1 italic">${review.tour}</span>
             </div>
           </div>
         `;
@@ -735,7 +648,7 @@
       });
     }
 
-    // Запуск приложения и загрузка из Гугл Таблицы
+    // Запуск приложения и загрузка
     window.addEventListener('load', function() {
       applyVibeConfig();
 
@@ -743,9 +656,8 @@
       if (preloader) {
         setTimeout(() => {
           preloader.style.opacity = '0';
-          preloader.style.pointerEvents = 'none';
-          setTimeout(() => { preloader.style.display = 'none'; }, 700);
-        }, 800);
+          setTimeout(() => { preloader.style.display = 'none'; }, 1000);
+        }, 1200);
       }
 
       const fetches = [];
@@ -763,7 +675,7 @@
                 title: cols[0] || "", dates: cols[1] || "", price: cols[2] || "",
                 badge: cols[3] || "", image: cols[4] || "", link: cols[5] || "",
                 isSoldOut: (cols[6] && cols[6].toLowerCase() === 'да'),
-                soldOutText: "Запись в резерв", location: cols[7] || "", desc: cols[8] || ""
+                soldOutText: "В лист ожидания", location: cols[7] || "", desc: cols[8] || ""
               });
             }
             if (fetchedTours.length > 0) APP_DATA.tours = fetchedTours;
@@ -808,44 +720,41 @@
       Promise.allSettled(fetches).then(() => { applyVibeConfig(); });
     });
 
-    // --- ШТОРКИ И МОДАЛКИ ---
+    // --- СТРОГИЕ ШТОРКИ ---
     function openExpeditions() { document.getElementById('expeditions-sheet').classList.remove('pointer-events-none'); document.getElementById('expeditions-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('expeditions-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; }
     function closeExpeditions() { document.getElementById('expeditions-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('expeditions-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('expeditions-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
 
     function openArchive() { document.getElementById('archive-sheet').classList.remove('pointer-events-none'); document.getElementById('archive-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('archive-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; }
     function closeArchive() { document.getElementById('archive-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('archive-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('archive-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
 
-    function openPhilosophy() { document.getElementById('philosophy-popup').classList.remove('pointer-events-none'); document.getElementById('philosophy-backdrop').classList.replace('opacity-0', 'opacity-100'); const content = document.getElementById('philosophy-content'); content.classList.replace('scale-95', 'scale-100'); content.classList.replace('opacity-0', 'opacity-100'); document.body.style.overflow = 'hidden'; }
-    function closePhilosophy() { document.getElementById('philosophy-backdrop').classList.replace('opacity-100', 'opacity-0'); const content = document.getElementById('philosophy-content'); content.classList.replace('scale-100', 'scale-95'); content.classList.replace('opacity-100', 'opacity-0'); setTimeout(() => { document.getElementById('philosophy-popup').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 300); }
+    function openPhilosophy() { document.getElementById('philosophy-sheet').classList.remove('pointer-events-none'); document.getElementById('philosophy-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('philosophy-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; }
+    function closePhilosophy() { document.getElementById('philosophy-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('philosophy-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('philosophy-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
 
-    function openForm() { document.getElementById('form-sheet').classList.remove('pointer-events-none'); document.getElementById('form-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('form-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; document.getElementById('form-success-msg').classList.add('hidden'); document.getElementById('lead-form').reset(); document.getElementById('form-submit-btn').disabled = false; document.getElementById('form-btn-icon').classList.remove('hidden'); document.getElementById('form-btn-loader').classList.add('hidden'); }
+    function openForm() { document.getElementById('form-sheet').classList.remove('pointer-events-none'); document.getElementById('form-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('form-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; document.getElementById('form-success-msg').classList.add('hidden'); document.getElementById('lead-form').reset(); document.getElementById('form-submit-btn').disabled = false; document.getElementById('form-btn-loader').classList.add('hidden'); }
     function closeForm() { document.getElementById('form-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('form-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('form-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
 
     function openReviews() { document.getElementById('reviews-sheet').classList.remove('pointer-events-none'); document.getElementById('reviews-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('reviews-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; }
     function closeReviews() { document.getElementById('reviews-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('reviews-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('reviews-sheet').classList.add('pointer-events-none'); if (document.getElementById('write-review-sheet').classList.contains('pointer-events-none')) { document.body.style.overflow = ''; } }, 500); }
 
-    function openWriteReview() { closeReviews(); setTimeout(() => { document.getElementById('write-review-sheet').classList.remove('pointer-events-none'); document.getElementById('write-review-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('write-review-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; document.getElementById('review-success-msg').classList.add('hidden'); document.getElementById('write-review-form').reset(); document.getElementById('review-submit-btn').disabled = false; document.getElementById('review-btn-icon').classList.remove('hidden'); document.getElementById('review-btn-loader').classList.add('hidden'); }, 100); }
+    function openWriteReview() { closeReviews(); setTimeout(() => { document.getElementById('write-review-sheet').classList.remove('pointer-events-none'); document.getElementById('write-review-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('write-review-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; document.getElementById('review-success-msg').classList.add('hidden'); document.getElementById('write-review-form').reset(); document.getElementById('review-submit-btn').disabled = false; document.getElementById('review-btn-loader').classList.add('hidden'); }, 300); }
     function closeWriteReview() { document.getElementById('write-review-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('write-review-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('write-review-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
-
-    function openContacts() { document.getElementById('contacts-sheet').classList.remove('pointer-events-none'); document.getElementById('contacts-backdrop').classList.replace('opacity-0', 'opacity-100'); document.getElementById('contacts-content').classList.replace('translate-y-full', 'translate-y-0'); document.body.style.overflow = 'hidden'; }
-    function closeContacts() { document.getElementById('contacts-backdrop').classList.replace('opacity-100', 'opacity-0'); document.getElementById('contacts-content').classList.replace('translate-y-0', 'translate-y-full'); setTimeout(() => { document.getElementById('contacts-sheet').classList.add('pointer-events-none'); document.body.style.overflow = ''; }, 500); }
 
     function submitNewReview(event) {
       event.preventDefault();
-      const form = document.getElementById('write-review-form'); const btn = document.getElementById('review-submit-btn'); const icon = document.getElementById('review-btn-icon'); const loader = document.getElementById('review-btn-loader'); const successMsg = document.getElementById('review-success-msg');
-      btn.disabled = true; icon.classList.add('hidden'); loader.classList.remove('hidden');
+      const form = document.getElementById('write-review-form'); const btn = document.getElementById('review-submit-btn'); const loader = document.getElementById('review-btn-loader'); const successMsg = document.getElementById('review-success-msg');
+      btn.disabled = true; loader.classList.remove('hidden');
       const formData = new URLSearchParams(new FormData(form));
       if (APP_DATA.googleSheetSubmitReviewUrl) { fetch(APP_DATA.googleSheetSubmitReviewUrl, { method: 'POST', body: formData, mode: 'no-cors' }).then(() => showReviewSuccess()).catch(err => showReviewSuccess()); } else { setTimeout(showReviewSuccess, 1000); }
-      function showReviewSuccess() { successMsg.classList.remove('hidden'); successMsg.classList.add('animate-pulse'); setTimeout(() => { closeWriteReview(); }, 2500); }
+      function showReviewSuccess() { successMsg.classList.remove('hidden'); setTimeout(() => { closeWriteReview(); }, 2500); }
     }
 
     function submitForm(event) {
       event.preventDefault(); 
-      const form = document.getElementById('lead-form'); const btn = document.getElementById('form-submit-btn'); const icon = document.getElementById('form-btn-icon'); const loader = document.getElementById('form-btn-loader'); const successMsg = document.getElementById('form-success-msg');
-      btn.disabled = true; icon.classList.add('hidden'); loader.classList.remove('hidden');
+      const form = document.getElementById('lead-form'); const btn = document.getElementById('form-submit-btn'); const loader = document.getElementById('form-btn-loader'); const successMsg = document.getElementById('form-success-msg');
+      btn.disabled = true; loader.classList.remove('hidden');
       const formData = new URLSearchParams(new FormData(form));
       if (APP_DATA.googleSheetSubmitUrl) { fetch(APP_DATA.googleSheetSubmitUrl, { method: 'POST', body: formData, mode: 'no-cors' }).then(() => { showSuccess(); }).catch(err => { showSuccess(); }); } else { setTimeout(showSuccess, 1000); }
-      function showSuccess() { successMsg.classList.remove('hidden'); successMsg.classList.add('animate-pulse'); setTimeout(() => { closeForm(); }, 2500); }
+      function showSuccess() { successMsg.classList.remove('hidden'); setTimeout(() => { closeForm(); }, 2500); }
     }
   </script>
 </body>
