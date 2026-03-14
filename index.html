@@ -3,873 +3,680 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Психолог | Telegram Mini App</title>
+    <title>Эзотерик | Премиум Визитка</title>
     
-    <!-- Telegram Web App -->
+    <!-- Telegram Web App JS -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
+    <!-- Иконки Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Премиальные Google Шрифты -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sage: '#A3B1A6',
-                        'sage-light': '#D6DDD8',
-                        sand: '#F4F1EA',
-                        cream: '#FCFBFA',
-                        graphite: '#363636',
-                    },
-                    fontFamily: {
-                        serif: ['Lora', 'serif'],
-                        sans: ['Montserrat', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'soft': '0 8px 32px -8px rgba(163, 177, 166, 0.3)',
-                        'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
-        /* 🛠 ВАЙБОВЫЙ ФИКС 2: Жесткая фиксация экрана (убираем "резинку" и прыжки) */
-        html, body {
-            overscroll-behavior-y: none;
-            background-color: #F4F1EA;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --glass-bg: rgba(20, 20, 25, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.15);
         }
-        /* Оставляем возможность писать текст в форме отзывов */
-        input, textarea {
-            -webkit-user-select: auto;
-            user-select: auto;
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #e2e8f0;
+            background-color: #0f172a;
+            /* Разрешаем скролл, так как добавили карусель на главную */
+            overflow-x: hidden; 
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overscroll-behavior-y: none; /* Предотвращает оттягивание аппки вниз */
         }
-        /* Убираем скроллбар для эстетики карусели */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        body::-webkit-scrollbar { display: none; }
+
+        h1, h2, h3, .font-serif {
+            font-family: 'Cormorant Garamond', serif;
         }
-        .no-scrollbar {
+
+        /* --- Загрузочный экран (Loader) --- */
+        #global-loader {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 2px solid rgba(212, 175, 55, 0.1);
+            border-top-color: #d4af37;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Плавный движущийся фон (Ken Burns Effect) --- */
+        .bg-photo {
+            position: fixed;
+            top: -10%; left: -10%;
+            width: 120%; height: 120%;
+            /* Замени ссылку на свое фото (звезды, дым, кристаллы, космос) */
+            background: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1080&auto=format&fit=crop') center/cover no-repeat;
+            animation: slowPan 40s alternate infinite ease-in-out;
+            z-index: -2;
+        }
+        
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(10, 15, 25, 0.95) 100%);
+            z-index: -1;
+        }
+
+        @keyframes slowPan {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.08) translate(-2%, -2%); }
+        }
+
+        /* --- Темный Глассморфизм --- */
+        .glass-dark {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-btn {
+            background: rgba(30, 30, 40, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:active {
+            transform: scale(0.97);
+            background: rgba(40, 40, 50, 0.7);
+            border-color: var(--gold-light);
+        }
+
+        /* --- Карусель Отзывов --- */
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            /* Скрываем скроллбар */
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        .glass-panel {
-            background: rgba(252, 251, 250, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+        .carousel-container::-webkit-scrollbar { display: none; }
+        
+        .carousel-item {
+            scroll-snap-align: center;
+            min-width: 85%;
+            max-width: 85%;
         }
+
+        /* --- Блокировка скролла фона --- */
+        body.no-scroll {
+            overflow: hidden !important;
+        }
+
+        /* --- Шторки (Bottom Sheets) --- */
+        .sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 40;
+        }
+        .sheet-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            height: 85vh;
+            background: rgba(20, 20, 28, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px 28px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -15px 50px rgba(0,0,0,0.5);
+        }
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            padding: 1.25rem 1rem 0.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .sheet-drag-handle {
+            width: 36px; height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 0 auto 12px auto;
+        }
+        .sheet-content {
+            padding: 1rem 1.5rem 2.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Золотое свечение для Руны */
+        .gold-glow {
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 0 0 30px rgba(212, 175, 55, 0.3);
+            animation: pulseGold 2.5s infinite alternate;
+        }
+        @keyframes pulseGold {
+            from { text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
+            to { text-shadow: 0 0 25px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.5); }
+        }
+
+        .text-gold { color: var(--gold); }
     </style>
 </head>
-<body class="text-graphite font-sans antialiased overflow-x-hidden" oncontextmenu="return false;">
-    <div id="root"></div>
+<body class="relative w-full min-h-screen pb-10">
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <!-- Загрузочный экран -->
+    <div id="global-loader">
+        <div class="spinner"></div>
+    </div>
 
-        // --- Lucide Icons (SVG) ---
-        const Heart = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
-        const Leaf = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>;
-        const Sparkles = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>;
-        const MessageCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>;
-        const X = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
-        const Calendar = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-        const QrCode = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>;
-
-        // ==========================================
-        // 🛠 БЛОК НАСТРОЕК (МЕНЯТЬ ТОЛЬКО ЗДЕСЬ) 🛠
-        // ==========================================
-        const CONFIG = {
-            // 1. Главный экран (Hero)
-            hero: {
-                name: "Александра Вейс",
-                description: "Помогаю обрести внутреннюю опору и гармонию",
-                photoUrl: "https://i.postimg.cc/j54xwpZm/unnamed-11.jpg",
-            },
+    <!-- ======================================================== -->
+    <!-- ⬇️ ВАШ БЛОК ДЛЯ РЕДАКТИРОВАНИЯ (МЕНЯЙТЕ ДАННЫЕ ТОЛЬКО ЗДЕСЬ) ⬇️ -->
+    <!-- ======================================================== -->
+    <script>
+        const MY_DATA = {
+            // --- 📸 ФОТО И ФОН ---
+            // Ссылка на фоновое изображение (красиво смотрится космос, туманность или кристаллы)
+            backgroundPhoto: "https://i.postimg.cc/WbrgM5qb/unnamed-13.webp",
+            // Ваше главное фото (аватарка)
+            avatarPhoto: "https://i.postimg.cc/pVjVpSp7/unnamed-(2).jpg",
             
-            // 2. Ссылки
-            links: {
-                telegram: "https://t.me/telegram", // Для записи и кнопки "Написать мне"
-                telegramChannel: "https://t.me/telegram_channel", // Ссылка для кнопки "Мой канал"
-                qrCodeUrl: "https://i.postimg.cc/tgyzs0Sj/Remove-background-project-(1).png", // ⭐️ Ссылка на картинку с QR-кодом
-                freebieUrl: "#", // Ссылка на пост/файл
-                freebieTitle: "Полезное (Free)",
-                freebieSubtitle: "Гайд \"Снижение тревожности\"",
+            // --- 📝 ОСНОВНАЯ ИНФОРМАЦИЯ ---
+            name: "Елена Световая",
+            // Три главных слова под вашим именем (через запятую, в кавычках)
+            tags: ["Руны", "Таро", "Энергия"],
+
+            // --- ⚙️ ИНТЕГРАЦИЯ С GOOGLE (ДЛЯ ОТЗЫВОВ) ---
+            // Чтобы активировать:
+            // 1. Вставьте ссылку на ваш Web App из Google Apps Script ниже
+            // 2. В функции submitReview (внизу кода) найдите закомментированный код для отправки и раскомментируйте его.
+            googleScriptUrl: "", // Вставьте сюда ссылку "https://script.google.com/macros/s/.../exec"
+            googleSheetUrl: "",  // Ссылка на саму таблицу (просто чтобы не потерять)
+
+            // --- 🔗 ССЫЛКИ НА СОЦСЕТИ ---
+            socialLinks: {
+                telegram: "https://t.me/YOUR_USERNAME",
+                instagram: "https://instagram.com/YOUR_USERNAME",
+                whatsapp: "https://wa.me/YOUR_NUMBER" // укажите номер в международном формате, например 79991234567
             },
 
-            // ==========================================
-            // ⭐️ НОВЫЙ РАЗДЕЛ: ПОЛЕЗНОЕ (ЛИД-МАГНИТЫ) ⭐️
-            // Добавляй свои гайды сюда. Если хочешь добавить еще один — просто 
-            // скопируй блок в фигурных скобках {...} и вставь через запятую!
-            // ==========================================
-            freebies: [
-                { 
-                    title: "Гайд по самопомощи", 
-                    subtitle: "Снижение тревожности за 10 минут", 
-                    url: "https://t.me/telegram_channel/1" // Ссылка на пост с гайдом
+            // --- 🎁 БЕСПЛАТНЫЙ ГАЙД ---
+            guide: {
+                title: "Бесплатный гайд",
+                subtitle: "Знаки Вселенной",
+                link: "https://t.me/YOUR_USERNAME" // Ссылка на скачивание гайда или бота
+            },
+
+            // --- 🔮 БЛОК «ОБО МНЕ» ---
+            about: {
+                photo: "https://images.unsplash.com/photo-1608744882201-52a7f7f3dd22?q=80&w=800&auto=format&fit=crop", // фото внутри шторки
+                text: "Я работаю с тонкими материями более 7 лет. Мой подход исключает запугивание и фатализм. Будущее многовариантно, и карты лишь подсвечивают лучшую из дорог.",
+                quote: "«Мы сами творцы своей реальности. Магия — лишь инструмент, помогающий услышать голос Души.»",
+                tools: ["Скандинавские Руны", "Таро Тота", "Рейки", "Астрология"] // Ваши инструменты
+            },
+
+            // --- 💎 ВАШИ УСЛУГИ И ЦЕНЫ ---
+            // Чтобы добавить новую услугу, скопируйте блок в фигурных скобках { ... } и поставьте запятую
+            services: [
+                {
+                    title: "Расклад «Путь»",
+                    price: "2 500 ₽",
+                    description: "Глубокий анализ текущей ситуации, диагностика блоков и просмотр вариантов будущего.",
+                    telegramMessage: "Здравствуйте! Записываюсь на расклад «Путь»." // Это сообщение клиент автоматически отправит вам в ЛС
                 },
-                { 
-                    title: "Медитация на сон", 
-                    subtitle: "Аудио-практика для глубокого расслабления", 
-                    url: "https://t.me/telegram_channel/2" // Ссылка на аудио/пост
-                },
-                { 
-                    title: "Тест на уровень стресса", 
-                    subtitle: "Узнай свое состояние прямо сейчас", 
-                    url: "https://t.me/telegram_channel/3" // Ссылка на бота или тест
-                },
-                { 
-                    title: "Чек-лист: Личные границы", 
-                    subtitle: "Как говорить «нет» без чувства вины", 
-                    url: "https://t.me/telegram_channel/4" 
+                {
+                    title: "Чистка Ауры",
+                    price: "5 000 ₽",
+                    description: "Снятие негативных программ, восстановление энергобаланса. Дистанционная работа.",
+                    telegramMessage: "Здравствуйте! Интересует чистка ауры."
                 }
             ],
 
-            // 3. Блок "Обо мне"
-            about: {
-                title: "Обо мне",
-                paragraphs: [
-                    "Привет! Меня зовут Александра. В психологии я уже более 6 лет.",
-                    "Мой подход основан на бережном отношении к чувствам клиента. Я не даю советов, как \"правильно\" жить, но помогаю подсветить ваши сильные стороны и найти выход из сложных состояний.",
-                    "Верю, что каждый человек уже обладает всеми нужными ресурсами для счастья. Моя задача — помочь вам их распаковать."
-                ],
-                quote: "Изменения начинаются с принятия себя"
-            },
-
-            // 4. С чем я работаю (карточки)
-            expertise: [
-                { title: "Тревога", message: "Я помогу тебе найти островок спокойствия внутри себя с помощью бережных техник." },
-                { title: "Отношения", message: "Разберемся в сложных сценариях и научимся выстраивать теплые, здоровые связи." },
-                { title: "Самооценка", message: "Бережно подсветим твою ценность и вернем уверенность в своих силах." },
-                { title: "Выгорание", message: "Найдем, куда уходит энергия, и шаг за шагом восстановим твой внутренний ресурс." },
-                { title: "Поиск себя", message: "Услышим твои истинные желания и проложим путь к жизни, которая тебе по душе." }
-            ],
-
-            // 5. Кнопка состояния (эмодзи и ответы - 51 вариант!)
-            supportMessages: {
-                '😔': [
-                    "Грустить — это нормально. Позволь себе прожить эти эмоции, я рядом.",
-                    "Твои чувства важны. Дай себе столько времени, сколько нужно, чтобы пережить это.",
-                    "Даже в самые темные дни помни: тучи обязательно рассеются.",
-                    "Обнимаю тебя. Сейчас может быть тяжело, но ты справишься.",
-                    "Не требуй от себя многого сегодня. Просто отдохни и побудь с собой.",
-                    "Плакать можно. Это помогает душе очиститься от тяжести.",
-                    "Ты не одинок(а) в своих переживаниях. Я мысленно держу тебя за руку.",
-                    "Каждое твое чувство имеет право на существование. Дыши.",
-                    "Завтра будет новый день, а сегодня просто позволь себе быть не в ресурсе.",
-                    "Разреши себе снять броню. Тебе не нужно всегда быть сильным(ой).",
-                    "Твоя грусть говорит о том, что тебе не всё равно. Это проявление любви к себе.",
-                    "Маленькими шагами. Сегодня твой шаг — просто разрешить себе погрустить.",
-                    "Я слышу твою боль. Ты имеешь полное право чувствовать то, что чувствуешь.",
-                    "Это состояние временно. Оно пройдет, как проходит зима.",
-                    "Попробуй обнять себя за плечи прямо сейчас. Ты — свой самый близкий человек.",
-                    "Тебе не нужно оправдываться за свою грусть. Просто побудь в тишине.",
-                    "Иногда самое продуктивное, что можно сделать — это лечь и отдохнуть."
-                ],
-                '😰': [
-                    "Сделай медленный вдох. Ты в безопасности. Тревога — это просто волна, она уйдёт.",
-                    "Вдохни на 4 счета, выдохни на 6. Прямо сейчас тебе ничего не угрожает.",
-                    "Эта тревога — ложная тревога. Твой мозг пытается тебя защитить, но ты в безопасности.",
-                    "Оглянись вокруг: назови 5 предметов, которые ты сейчас видишь. Вернись в реальность.",
-                    "Ты больше, чем твоя тревога. Она пройдет, а ты останешься.",
-                    "Позволь плечам опуститься. Разожми челюсть. Выдохни напряжение.",
-                    "То, что тебя пугает сейчас, вряд ли случится. Возвращайся в момент 'здесь и сейчас'.",
-                    "Страх питается твоими мыслями. Давай попробуем переключить внимание на тело.",
-                    "Тревога любит будущее, а жизнь происходит в настоящем. Что ты чувствуешь прямо сейчас?",
-                    "Представь свою тревогу как облако, которое медленно проплывает мимо.",
-                    "Я рядом. Эта буря внутри скоро утихнет, просто продолжай дышать.",
-                    "Ничего страшного не происходит прямо в эту секунду. Заземлись.",
-                    "Ты уже справлялся(лась) с этим раньше. Справишься и сейчас.",
-                    "Почувствуй опору под ногами. Земля держит тебя, ты не упадешь.",
-                    "Отложи мысли на потом. Сейчас твоя единственная задача — спокойно дышать.",
-                    "Переведи фокус на свои руки: сожми и разожми кулаки несколько раз.",
-                    "Тревога громко кричит, но она часто врет. Не верь ей сейчас."
-                ],
-                '🙂': [
-                    "Замечательно! Сохрани этот свет внутри себя на весь день.",
-                    "Я очень рада за тебя! Пусть это состояние длится как можно дольше.",
-                    "Заметь это чувство. Как оно отзывается в теле? Запомни его.",
-                    "Твоя улыбка — это прекрасно. Продолжай светить!",
-                    "Ты молодец! Разреши себе искренне насладиться этим моментом.",
-                    "Это твой ресурс. Черпай из него силы для новых свершений.",
-                    "Как здорово! Пусть этот день принесет тебе еще больше приятных сюрпризов.",
-                    "Поблагодари себя за то, что пришел(ла) к этому светлому состоянию.",
-                    "Зафиксируй эту радость. Она — твое топливо на пути к целям.",
-                    "Ты заслуживаешь этого спокойствия и счастья. Впитывай каждую каплю!",
-                    "Чудесно! Поделись этим теплом с миром, и оно вернется вдвойне.",
-                    "Твоя гармония — результат твоей внутренней работы. Горжусь тобой!",
-                    "Пусть эта легкость сопровождает тебя в каждом деле сегодня.",
-                    "Радость в мелочах. Здорово, что ты умеешь ее замечать!",
-                    "Сохрани этот 'снимок' хорошего настроения в памяти на случай пасмурных дней.",
-                    "Дышится легко, правда? Наслаждайся этим чувством свободы.",
-                    "Прекрасный настрой! Мир сегодня точно на твоей стороне."
-                ]
-            },
-
-            // 6. СВЯЗЬ С ТАБЛИЦЕЙ
-            // 6.1. Ссылка на скрипт (ДЛЯ ОТПРАВКИ новых отзывов в карантин)
-            googleScriptUrl: "https://script.google.com/macros/s/AKfycbxjMAQoFuQHrCPD3v1JuhBn0kSQOo4QsP7jtsM5LLN-jZlJvK4Doi45KJluuarkb0RW/exec", 
-            
-            // 6.2. Ссылка на саму таблицу (ДЛЯ ПРЯМОГО ЧТЕНИЯ опубликованных)
-            // ⚠️ ВАЖНО: В настройках таблицы (кнопка "Поделиться" справа сверху) 
-            // должен стоять доступ "Все, у кого есть ссылка" -> "Читатель".
-            googleSheetUrl: "https://docs.google.com/spreadsheets/d/1ii-0VEFRxh4g7XdZh676zLAKPy0NDJDEBrjSsEygAEc/edit?gid=0#gid=0",
-
-            // 7. Дефолтные отзывы (если таблица не подключена или пустая)
-            defaultReviews: [
-                { id: 1, name: "Анна М.", text: "Бережный подход и невероятное чувство такта. После сессий уходит тяжесть, появляется ясность.", rating: 5 },
-                { id: 2, name: "Елена В.", text: "Научилась слышать себя и отстаивать границы без чувства вины. Спасибо за эту трансформацию!", rating: 5 },
-                { id: 3, name: "Михаил С.", text: "Каждая сессия — как глоток свежего воздуха. Нашел ту самую внутреннюю опору.", rating: 5 }
-            ],
-
-            // ==========================================
-            // ⭐️ НОВЫЙ РАЗДЕЛ: ФОРМАТ И СТОИМОСТЬ ⭐️
-            // ==========================================
-            pricing: [
-                { title: "Онлайн-сессия", duration: "60 мин", price: "3 500 ₽" },
-                { title: "Личная встреча", duration: "60 мин", price: "5 000 ₽" },
-                { title: "Групповая терапия", duration: "120 мин", price: "2 500 ₽" }
+            // --- ⭐ ОТЗЫВЫ НА ГЛАВНОЙ ---
+            reviews: [
+                {
+                    name: "Анна В.",
+                    date: "12 Мая 2024",
+                    text: "Делала расклад на отношения. Елена невероятно чуткий мастер. Всё встало на свои места, ушла тревога. Очень красивый и глубокий подход!"
+                },
+                {
+                    name: "Мария К.",
+                    date: "05 Мая 2024",
+                    text: "Энергетическая чистка просто вернула меня к жизни. Будто сняли тяжелый рюкзак, который я носила годами. Огромная благодарность."
+                },
+                {
+                    name: "Светлана",
+                    date: "28 Апр 2024",
+                    text: "Обращаюсь за рунической подсказкой перед важными сделками. Работает как швейцарские часы. Уровень профессионализма на высоте."
+                }
             ]
         };
-        // ==========================================
-        // КОНЕЦ БЛОКА НАСТРОЕК
-        // ==========================================
+    </script>
+    <!-- ======================================================== -->
+    <!-- ⬆️ КОНЕЦ БЛОКА ДЛЯ РЕДАКТИРОВАНИЯ ⬆️ -->
+    <!-- ======================================================== -->
 
-        const tg = window.Telegram?.WebApp;
+    <!-- Фоновые элементы -->
+    <div id="dynamic-bg" class="bg-photo"></div>
+    <div class="bg-overlay"></div>
 
-        const App = () => {
-            const [isModalOpen, setIsModalOpen] = useState(false);
-            const [selectedMood, setSelectedMood] = useState(null);
-            const [selectedMessage, setSelectedMessage] = useState("");
-            
-            // ВАЙБОВЫЙ ФИКС: Добавили потерянное состояние для окна Полезного
-            const [isFreebiesOpen, setIsFreebiesOpen] = useState(false);
-            
-            // Новое состояние для окна Стоимости
-            const [isPricingOpen, setIsPricingOpen] = useState(false);
-            
-            // ВАЙБОВЫЙ ФИКС: Новое состояние для окна QR-кода
-            const [isQrOpen, setIsQrOpen] = useState(false);
-            
-            // Новые состояния для лоадера и отзывов
-            const [isLoading, setIsLoading] = useState(true);
-            const [reviews, setReviews] = useState([]);
-            const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
-            const [reviewForm, setReviewForm] = useState({ name: '', text: '', rating: 5 });
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const [submitStatus, setSubmitStatus] = useState(null);
-            const [activeExpertise, setActiveExpertise] = useState(null);
-
-            // Состояние для обработки свайпа (Swipe Back)
-            const [touchStartXY, setTouchStartXY] = useState({x: 0, y: 0});
-
-            // 3. Легкая вибрация (Haptic Feedback)
-            const triggerHaptic = () => {
-                if (tg && tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
-            };
-
-            // 1 & 2. Инициализация Telegram Mini App (разворот и защита от смахивания)
-            useEffect(() => {
-                if (tg) {
-                    tg.ready();
-                    tg.expand(); // Разворачиваем на весь экран
-                    tg.enableClosingConfirmation(); // Защита от случайного закрытия
-                    if (tg.disableVerticalSwipes) {
-                        tg.disableVerticalSwipes(); // Блокировка смахивания вниз (в новых версиях TG)
-                    }
-                }
-            }, []);
-
-            // 🛠 ВАЙБОВЫЙ ФИКС 1: Блокировка скролла фона при открытых модалках
-            useEffect(() => {
-                if (isModalOpen || isReviewFormOpen || isFreebiesOpen || isPricingOpen || isQrOpen) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-                return () => { document.body.style.overflow = ''; };
-            }, [isModalOpen, isReviewFormOpen, isFreebiesOpen, isPricingOpen, isQrOpen]);
-
-            // 4. Обработка системной кнопки "Назад" (Android/TG Desktop)
-            useEffect(() => {
-                if (!tg) return;
+    <main class="w-full max-w-md mx-auto px-4 pt-10 relative z-10 flex flex-col items-center">
+        
+        <!-- Аватар и Заголовок -->
+        <div class="flex flex-col items-center mb-10 w-full">
+            <div class="relative mb-5 group">
+                <!-- Тонкая анимированная рамка вокруг фото -->
+                <div class="absolute inset-0 rounded-full border border-[#d4af37]/30 scale-[1.1] animate-pulse"></div>
+                <div class="absolute inset-0 rounded-full border border-[#d4af37]/50 scale-[1.05]"></div>
                 
-                const handleBack = () => {
-                    triggerHaptic();
-                    setIsModalOpen(false);
-                    setIsReviewFormOpen(false);
-                    setIsFreebiesOpen(false); // Закрываем полезное при системном свайпе
-                    setIsPricingOpen(false); // Закрываем прайс-лист
-                    setIsQrOpen(false); // Закрываем QR-код
-                };
+                <img id="dynamic-avatar" src="" 
+                     alt="Мастер" 
+                     class="w-28 h-28 rounded-full object-cover shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+            </div>
+            <h1 id="dynamic-name" class="text-4xl text-white tracking-wide mb-1 text-center"></h1>
+            <div id="dynamic-tags" class="flex items-center gap-2 text-gold/80 text-xs tracking-[0.2em] uppercase font-light">
+                <!-- Теги загрузятся скриптом -->
+            </div>
+        </div>
 
-                if (isModalOpen || isReviewFormOpen || isFreebiesOpen || isPricingOpen || isQrOpen) {
-                    tg.BackButton.show();
-                    tg.onEvent('backButtonClicked', handleBack);
-                } else {
-                    tg.BackButton.hide();
-                    tg.offEvent('backButtonClicked', handleBack);
-                }
+        <!-- Кнопка интерактива: Руна дня -->
+        <button onclick="drawRune()" class="w-full glass-dark rounded-2xl p-6 mb-8 flex flex-col items-center justify-center relative overflow-hidden active:scale-95 transition-transform duration-300">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#d4af37] rounded-full blur-[80px] opacity-10"></div>
+            <span class="text-5xl mb-3 gold-glow text-[#f3e5ab]">ᛟ</span>
+            <span class="font-serif text-2xl text-white tracking-wide">Руна Дня</span>
+            <span class="text-xs text-gray-400 mt-2 font-light tracking-wider uppercase">Открыть послание</span>
+        </button>
 
-                return () => {
-                    tg.offEvent('backButtonClicked', handleBack);
-                };
-            }, [isModalOpen, isReviewFormOpen, isFreebiesOpen, isPricingOpen, isQrOpen]);
+        <!-- Навигация (2 кнопки в ряд для стиля) -->
+        <div class="w-full grid grid-cols-2 gap-3 mb-3">
+            <button onclick="openSheet('services-sheet')" class="glass-btn p-4 rounded-xl flex flex-col items-center justify-center gap-2 group">
+                <i class="ph ph-sparkle text-2xl text-gold"></i>
+                <span class="font-serif text-lg tracking-wide">Услуги</span>
+            </button>
+            <button onclick="openSheet('about-sheet')" class="glass-btn p-4 rounded-xl flex flex-col items-center justify-center gap-2 group">
+                <i class="ph ph-moon-stars text-2xl text-gold"></i>
+                <span class="font-serif text-lg tracking-wide">Обо мне</span>
+            </button>
+        </div>
 
-            // 🛠 ВАЙБОВЫЙ ФИКС 3: Обработчики свайпа вправо (Touch Events для модалок)
-            const onTouchStart = (e) => {
-                setTouchStartXY({
-                    x: e.targetTouches[0].clientX,
-                    y: e.targetTouches[0].clientY
-                });
-            };
-
-            const onTouchEnd = (e, closeFn) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const touchEndY = e.changedTouches[0].clientY;
-                
-                const dx = touchEndX - touchStartXY.x;
-                const dy = Math.abs(touchEndY - touchStartXY.y);
-                
-                // Если провели вправо больше чем на 70px и палец не ушел сильно вверх-вниз (защита от скролла)
-                if (dx > 70 && dy < 50) { 
-                    triggerHaptic();
-                    closeFn();
-                }
-            };
-
-            // Эффект загрузки данных при старте (Чтение напрямую из Google Таблицы)
-            useEffect(() => {
-                if (CONFIG.googleSheetUrl) {
-                    // Достаем ID таблицы из ссылки
-                    const match = CONFIG.googleSheetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                    if (match && match[1]) {
-                        const sheetId = match[1];
-                        const sheetName = encodeURIComponent("Опубликованные отзывы");
-                        const timestamp = new Date().getTime(); // Антикэш
-                        
-                        // Специальная ссылка Google API для прямого чтения таблиц (вайб-кодерский трюк!)
-                        const fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}&t=${timestamp}`;
-
-                        fetch(fetchUrl, { cache: 'no-store' })
-                            .then(res => res.text())
-                            .then(text => {
-                                // Очищаем ответ от лишних символов Google
-                                const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-                                const data = JSON.parse(jsonStr);
-                                const rows = data.table.rows;
-                                const loadedReviews = [];
-
-                                rows.forEach((row, idx) => {
-                                    // Проверяем, что в строке есть имя (0 колонка) и текст (2 колонка)
-                                    if (row.c && row.c[0] && row.c[2]) {
-                                        const name = row.c[0].v;
-                                        const textVal = row.c[2].v;
-                                        
-                                        // Игнорируем заголовки, если они попали в данные
-                                        if (textVal && textVal.toLowerCase() !== "текст" && name !== "Имя") {
-                                            loadedReviews.push({
-                                                id: idx,
-                                                name: name || "Аноним",
-                                                text: textVal,
-                                                // Оценка в 4 колонке (индекс 3)
-                                                rating: row.c[3] ? parseInt(row.c[3].v) : 5 
-                                            });
-                                        }
-                                    }
-                                });
-
-                                if (loadedReviews.length > 0) {
-                                    setReviews(loadedReviews.reverse()); // Свежие наверх
-                                } else {
-                                    setReviews(CONFIG.defaultReviews);
-                                }
-                            })
-                            .catch(err => {
-                                console.warn("⚠️ Не удалось загрузить из таблицы напрямую. Показываем дефолтные.");
-                                setReviews(CONFIG.defaultReviews);
-                            })
-                            .finally(() => setIsLoading(false));
-                        return; // Завершаем, чтобы не пошло дальше
-                    }
-                }
-                
-                // Если ссылки на таблицу нет
-                setReviews(CONFIG.defaultReviews);
-                setIsLoading(false);
-            }, []);
-
-            // Отправка нового отзыва
-            const handleReviewSubmit = (e) => {
-                e.preventDefault();
-                triggerHaptic();
-                if (!CONFIG.googleScriptUrl) {
-                    setSubmitStatus('error_no_url');
-                    return;
-                }
-                
-                setIsSubmitting(true);
-                
-                // Подготавливаем данные именно так, как ждет твой скрипт (e.parameter)
-                const formData = new URLSearchParams();
-                formData.append('reviewer_name', reviewForm.name);
-                formData.append('reviewer_text', reviewForm.text);
-                formData.append('reviewer_rating', reviewForm.rating);
-
-                fetch(CONFIG.googleScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                })
-                .then(() => {
-                    setSubmitStatus('success');
-                    setReviewForm({ name: '', text: '', rating: 5 });
-                    // Закрываем форму через 3 секунды после успеха
-                    setTimeout(() => {
-                        setIsReviewFormOpen(false);
-                        setSubmitStatus(null);
-                    }, 3000);
-                })
-                .catch(() => setSubmitStatus('error'))
-                .finally(() => setIsSubmitting(false));
-            };
-
-            return (
-                <div className="max-w-md mx-auto min-h-screen pb-24 relative selection:bg-sage/30">
-                    
-                    {/* Кнопка QR-кода (Справа вверху, как ты и просила!) */}
-                    <button 
-                        onClick={() => { triggerHaptic(); setIsQrOpen(true); }}
-                        className="absolute top-6 right-6 glass-panel p-3 rounded-full text-sage hover:text-graphite transition-all active:scale-95 shadow-md z-50"
-                    >
-                        <QrCode className="w-6 h-6" />
-                    </button>
-
-                    {/* Header / Hero */}
-                    <header className="px-6 pt-12 pb-6 flex flex-col items-center text-center opacity-0 animate-fade-in-up">
-                        <div className="relative mb-6">
-                            <div className="w-32 h-32 rounded-full overflow-hidden shadow-soft border-4 border-white">
-                                <img 
-                                    src={CONFIG.hero.photoUrl} 
-                                    alt="" 
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <div className="absolute -bottom-2 -right-2 bg-sage text-white p-2 rounded-full shadow-md animate-pulse-slow">
-                                <Leaf className="w-4 h-4" />
-                            </div>
-                        </div>
-                        <h1 className="font-serif text-3xl mb-2 text-graphite tracking-tight">{CONFIG.hero.name}</h1>
-                        <p className="text-sm text-graphite/70 font-light max-w-[240px] leading-relaxed">
-                            {CONFIG.hero.description}
-                        </p>
-                    </header>
-
-                    {/* State Checker (Unique Feature) */}
-                    <section className="px-6 mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                        <div className="glass-panel rounded-[2rem] p-6 shadow-glass text-center transition-all duration-300">
-                            {!selectedMood ? (
-                                <div>
-                                    <h3 className="font-serif text-lg mb-4 text-graphite">Как ты сейчас?</h3>
-                                    <div className="flex justify-center gap-6">
-                                        {Object.keys(CONFIG.supportMessages).map((emoji) => (
-                                            <button 
-                                                key={emoji}
-                                                onClick={() => { 
-                                                    triggerHaptic(); 
-                                                    const messages = CONFIG.supportMessages[emoji];
-                                                    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-                                                    setSelectedMood(emoji); 
-                                                    setSelectedMessage(randomMsg);
-                                                }}
-                                                className="text-4xl transition-transform active:scale-90 hover:scale-110"
-                                            >
-                                                {emoji}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="animate-fade-in-up">
-                                    <p className="text-sm italic text-graphite/80 leading-relaxed mb-4">
-                                        "{selectedMessage}"
-                                    </p>
-                                    <button 
-                                        onClick={() => { triggerHaptic(); setSelectedMood(null); setSelectedMessage(""); }}
-                                        className="text-xs text-sage border-b border-sage/30 pb-0.5 uppercase tracking-wider font-medium"
-                                    >
-                                        Вернуться
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    {/* Interactive Buttons */}
-                    <section className="px-6 mb-8 grid grid-cols-2 gap-4 opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                        <button 
-                            onClick={() => { triggerHaptic(); setIsModalOpen(true); }}
-                            className="glass-panel p-5 rounded-[2rem] flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform"
-                        >
-                            <div className="bg-sand p-3 rounded-full text-sage">
-                                <Heart className="w-6 h-6" />
-                            </div>
-                            <span className="font-medium text-sm">Обо мне</span>
-                        </button>
-                        
-                        <button 
-                            onClick={() => { triggerHaptic(); setIsPricingOpen(true); }}
-                            className="glass-panel p-5 rounded-[2rem] flex flex-col items-center justify-center gap-3 active:scale-95 transition-transform"
-                        >
-                            <div className="bg-sand p-3 rounded-full text-sage">
-                                <Calendar className="w-6 h-6" />
-                            </div>
-                            <span className="font-medium text-sm text-center leading-tight">Формат и<br/>стоимость</span>
-                        </button>
-
-                        <div className="col-span-2 glass-panel p-6 rounded-[2rem] transition-all duration-300">
-                            <h3 className="font-serif text-lg mb-4 flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-sage" />
-                                С чем я работаю
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {CONFIG.expertise.map((item, idx) => (
-                                    <button 
-                                        key={idx} 
-                                        onClick={() => { triggerHaptic(); setActiveExpertise(activeExpertise === idx ? null : idx); }}
-                                        className={`text-xs px-4 py-2 rounded-full border transition-all duration-300 active:scale-95 ${activeExpertise === idx ? 'bg-sage text-white border-sage shadow-soft' : 'bg-white/60 text-graphite/80 border-white hover:bg-white/80'}`}
-                                    >
-                                        {item.title}
-                                    </button>
-                                ))}
-                            </div>
-                            {activeExpertise !== null && (
-                                <div className="mt-4 p-4 bg-sage/10 rounded-2xl border border-sage/20 animate-fade-in-up">
-                                    <p className="text-sm font-light text-graphite/80 leading-relaxed italic">
-                                        "{CONFIG.expertise[activeExpertise].message}"
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* КНОПКА ПОЛЕЗНОЕ (Теперь открывает меню лид-магнитов) */}
-                        <button 
-                            onClick={() => { triggerHaptic(); setIsFreebiesOpen(true); }}
-                            className="col-span-2 bg-sage text-white p-5 rounded-[2rem] flex items-center justify-between active:scale-95 transition-transform shadow-soft w-full"
-                        >
-                            <div className="text-left">
-                                <span className="block font-serif text-lg mb-1">Полезное (Free)</span>
-                                <span className="block text-xs text-white/80 font-light">Гайды, медитации и тесты</span>
-                            </div>
-                            <div className="bg-white/20 p-2 rounded-full">
-                                <Leaf className="w-5 h-5" />
-                            </div>
-                        </button>
-                    </section>
-
-                    {/* Reviews Carousel & Submit Form */}
-                    <section className="mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                        <div className="flex justify-between items-end px-6 mb-4">
-                            <h2 className="font-serif text-xl text-graphite">Отзывы</h2>
-                            <button 
-                                onClick={() => { triggerHaptic(); setIsReviewFormOpen(true); }} 
-                                className="text-xs text-sage border-b border-sage/30 pb-0.5 hover:text-graphite transition-colors"
-                            >
-                                Оставить отзыв
-                            </button>
-                        </div>
-                        {isLoading ? (
-                            <div className="px-6 pb-4 text-sm text-sage flex items-center gap-2">
-                                <div className="w-4 h-4 rounded-full border-2 border-sage-light border-t-sage animate-spin"></div>
-                                Загружаем отзывы...
-                            </div>
-                        ) : (
-                            <div className="flex gap-4 overflow-x-auto snap-x px-6 pb-4 no-scrollbar">
-                                {reviews.map((review, index) => (
-                                    <div key={review.id || index} className="snap-center shrink-0 w-64 glass-panel p-5 rounded-[2rem]">
-                                        <div className="flex mb-2">
-                                            {[...Array(5)].map((_, i) => (
-                                                <svg key={i} className={`w-4 h-4 ${i < (review.rating || 5) ? 'fill-current text-sage' : 'fill-current text-sage-light'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                            ))}
-                                        </div>
-                                        <p className="text-sm text-graphite/80 font-light leading-relaxed mb-3">"{review.text}"</p>
-                                        <span className="text-xs font-medium text-graphite">{review.name}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                        
-                        {/* Эстетичная плашка про разрешение клиентов */}
-                        <div className="text-center px-6 flex justify-center items-center gap-1.5 mt-1">
-                            <Heart className="w-3 h-3 text-sage/60" />
-                            <p className="text-[11px] text-graphite/50 font-light italic">
-                                Все отзывы опубликованы с разрешения клиентов
-                            </p>
-                        </div>
-                    </section>
-
-                    {/* CTA Bottom Buttons (Fixed) */}
-                    <div className="fixed bottom-6 left-0 right-0 px-6 max-w-md mx-auto z-40 flex gap-3">
-                        <a 
-                            href={CONFIG.links.telegram}
-                            target="_blank"
-                            onClick={triggerHaptic}
-                            className="glass-panel border-sage/20 shadow-soft flex-1 py-3.5 rounded-full flex items-center justify-center text-graphite font-medium active:scale-95 transition-transform text-sm"
-                        >
-                            Написать мне
-                        </a>
-                        <a 
-                            href={CONFIG.links.telegramChannel}
-                            target="_blank"
-                            onClick={triggerHaptic}
-                            className="bg-sage text-white shadow-soft flex-1 py-3.5 rounded-full flex items-center justify-center font-medium active:scale-95 transition-transform text-sm"
-                        >
-                            Мой канал
-                        </a>
-                    </div>
-
-                    {/* About Modal */}
-                    {isModalOpen && (
-                        <div 
-                            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-graphite/20 backdrop-blur-sm animate-fade-in-up"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={(e) => onTouchEnd(e, () => setIsModalOpen(false))}
-                        >
-                            <div className="glass-panel w-full max-w-sm rounded-[2.5rem] p-8 relative shadow-2xl border-white" onClick={e => e.stopPropagation()}>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsModalOpen(false); }}
-                                    className="absolute top-6 right-6 text-graphite/50 hover:text-graphite transition-colors bg-white/50 p-2 rounded-full"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                
-                                <h2 className="font-serif text-2xl mb-4 text-graphite">{CONFIG.about.title}</h2>
-                                <div className="space-y-4 text-sm font-light text-graphite/80 leading-relaxed max-h-[60vh] overflow-y-auto no-scrollbar pr-2 overscroll-contain">
-                                    {CONFIG.about.paragraphs.map((p, idx) => (
-                                        <p key={idx}>{p}</p>
-                                    ))}
-                                    <div className="bg-sage/10 p-4 rounded-2xl mt-6 border border-sage/20">
-                                        <p className="font-medium text-sage text-center italic">"{CONFIG.about.quote}"</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* QR-код Modal */}
-                    {isQrOpen && (
-                        <div 
-                            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-graphite/20 backdrop-blur-sm animate-fade-in-up"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={(e) => onTouchEnd(e, () => setIsQrOpen(false))}
-                        >
-                            <div className="glass-panel w-full max-w-sm rounded-[2.5rem] p-8 relative shadow-2xl border-white text-center" onClick={e => e.stopPropagation()}>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsQrOpen(false); }}
-                                    className="absolute top-6 right-6 text-graphite/50 hover:text-graphite transition-colors bg-white/50 p-2 rounded-full"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                
-                                <h2 className="font-serif text-2xl mb-6 text-graphite flex items-center justify-center gap-2">
-                                    <QrCode className="w-6 h-6 text-sage" />
-                                    Мой канал
-                                </h2>
-                                
-                                <img 
-                                    src={CONFIG.links.qrCodeUrl} 
-                                    alt="" 
-                                    className="w-full max-w-[280px] h-auto object-contain drop-shadow-xl mb-6 mx-auto"
-                                />
-                                
-                                <p className="text-sm font-light text-graphite/80 leading-relaxed italic px-2">
-                                    Отсканируй, чтобы не потерять уютный канал ✨
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Написать отзыв Modal */}
-                    {isReviewFormOpen && (
-                        <div 
-                            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-graphite/20 backdrop-blur-sm animate-fade-in-up"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={(e) => onTouchEnd(e, () => setIsReviewFormOpen(false))}
-                        >
-                            <div className="glass-panel w-full max-w-sm rounded-[2.5rem] p-8 relative shadow-2xl border-white" onClick={e => e.stopPropagation()}>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsReviewFormOpen(false); }}
-                                    className="absolute top-6 right-6 text-graphite/50 hover:text-graphite transition-colors bg-white/50 p-2 rounded-full"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                
-                                <h2 className="font-serif text-2xl mb-4 text-graphite">Оставить отзыв</h2>
-                                
-                                {submitStatus === 'success' ? (
-                                    <div className="text-center py-6 animate-fade-in-up">
-                                        <div className="bg-sage/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Heart className="w-8 h-8 text-sage" />
-                                        </div>
-                                        <p className="text-graphite/80 text-sm">Благодарю! Твои слова отправлены, скоро они появятся здесь.</p>
-                                    </div>
-                                ) : (
-                                    <form onSubmit={handleReviewSubmit} className="space-y-4">
-                                        <div className="flex justify-center gap-2 mb-2">
-                                            {[1, 2, 3, 4, 5].map(star => (
-                                                <svg 
-                                                    key={star} 
-                                                    onClick={() => { triggerHaptic(); setReviewForm({...reviewForm, rating: star}); }}
-                                                    className={`w-8 h-8 cursor-pointer transition-colors ${reviewForm.rating >= star ? 'text-sage fill-current' : 'text-sage-light fill-current'}`} 
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                                </svg>
-                                            ))}
-                                        </div>
-                                        <input 
-                                            required 
-                                            type="text" 
-                                            placeholder="Твоё имя" 
-                                            className="w-full bg-white/60 border border-white rounded-2xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-sage/50 text-graphite"
-                                            value={reviewForm.name}
-                                            onChange={e => setReviewForm({...reviewForm, name: e.target.value})}
-                                        />
-                                        <textarea 
-                                            required 
-                                            placeholder="Поделись своими чувствами и впечатлениями..." 
-                                            rows="4"
-                                            className="w-full bg-white/60 border border-white rounded-2xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-sage/50 resize-none text-graphite"
-                                            value={reviewForm.text}
-                                            onChange={e => setReviewForm({...reviewForm, text: e.target.value})}
-                                        ></textarea>
-                                        
-                                        {submitStatus === 'error_no_url' && <p className="text-red-400 text-xs text-center">Сначала подключи Google Script в настройках кода.</p>}
-                                        {submitStatus === 'error' && <p className="text-red-400 text-xs text-center">Произошла ошибка, попробуй позже.</p>}
-                                        
-                                        <button 
-                                            disabled={isSubmitting}
-                                            type="submit" 
-                                            className="w-full bg-sage text-white py-3 rounded-full font-medium shadow-soft active:scale-95 transition-transform disabled:opacity-70 mt-2 flex items-center justify-center gap-2"
-                                        >
-                                            {isSubmitting ? 'Отправляем...' : 'Отправить'}
-                                        </button>
-                                    </form>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Формат и стоимость Modal */}
-                    {isPricingOpen && (
-                        <div 
-                            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-graphite/20 backdrop-blur-sm animate-fade-in-up"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={(e) => onTouchEnd(e, () => setIsPricingOpen(false))}
-                        >
-                            <div className="glass-panel w-full max-w-sm rounded-[2.5rem] p-8 relative shadow-2xl border-white" onClick={e => e.stopPropagation()}>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsPricingOpen(false); }}
-                                    className="absolute top-6 right-6 text-graphite/50 hover:text-graphite transition-colors bg-white/50 p-2 rounded-full"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                
-                                <h2 className="font-serif text-2xl mb-6 text-graphite flex items-center gap-2">
-                                    <Calendar className="w-6 h-6 text-sage" />
-                                    Стоимость
-                                </h2>
-                                
-                                <div className="space-y-3">
-                                    {CONFIG.pricing.map((item, idx) => (
-                                        <div key={idx} className="bg-white/60 p-4 rounded-2xl border border-white flex justify-between items-center">
-                                            <div>
-                                                <h3 className="font-medium text-graphite">{item.title}</h3>
-                                                <span className="text-xs text-graphite/60">{item.duration}</span>
-                                            </div>
-                                            <div className="font-serif text-lg text-sage">{item.price}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Полезное (Лид-магниты) Modal */}
-                    {isFreebiesOpen && (
-                        <div 
-                            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-graphite/20 backdrop-blur-sm animate-fade-in-up"
-                            onTouchStart={onTouchStart}
-                            onTouchEnd={(e) => onTouchEnd(e, () => setIsFreebiesOpen(false))}
-                        >
-                            <div className="glass-panel w-full max-w-sm rounded-[2.5rem] p-8 relative shadow-2xl border-white" onClick={e => e.stopPropagation()}>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsFreebiesOpen(false); }}
-                                    className="absolute top-6 right-6 text-graphite/50 hover:text-graphite transition-colors bg-white/50 p-2 rounded-full"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                                
-                                <h2 className="font-serif text-2xl mb-6 text-graphite flex items-center gap-2">
-                                    <Leaf className="w-6 h-6 text-sage" />
-                                    Полезное
-                                </h2>
-                                
-                                <div className="space-y-3 max-h-[60vh] overflow-y-auto no-scrollbar pr-2 overscroll-contain">
-                                    {CONFIG.freebies.map((item, idx) => (
-                                        <a 
-                                            key={idx} 
-                                            href={item.url}
-                                            target="_blank"
-                                            onClick={triggerHaptic}
-                                            className="block bg-white/60 p-4 rounded-2xl border border-white hover:bg-white/80 transition-colors active:scale-[0.98]"
-                                        >
-                                            <h3 className="font-medium text-graphite mb-1">{item.title}</h3>
-                                            <p className="text-xs text-graphite/70 leading-relaxed">{item.subtitle}</p>
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
+        <!-- Блок: Гайд (Ссылка) -->
+        <a id="dynamic-guide-link" href="#" target="_blank" class="w-full glass-btn p-4 rounded-xl flex items-center justify-between mb-10 group relative overflow-hidden border border-white/5 hover:border-gold/30 transition-all">
+            <div class="absolute inset-0 bg-gradient-to-r from-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-11 h-11 rounded-full bg-black/30 border border-gold/20 flex items-center justify-center text-gold shadow-[0_0_10px_rgba(212,175,55,0.1)]">
+                    <i class="ph ph-book-open-text text-xl"></i>
                 </div>
-            );
-        };
+                <div class="text-left">
+                    <h3 id="dynamic-guide-title" class="font-serif text-lg text-white tracking-wide leading-tight"></h3>
+                    <p id="dynamic-guide-subtitle" class="text-[10px] text-gray-400 font-light uppercase tracking-widest mt-0.5"></p>
+                </div>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center relative z-10 group-hover:bg-gold/10 transition-colors">
+                <i class="ph ph-arrow-right text-gold text-sm group-hover:translate-x-0.5 transition-transform"></i>
+            </div>
+        </a>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        <!-- Раздел: Отзывы (Свайп-Карусель) -->
+        <div class="w-full mb-8">
+            <div class="flex justify-between items-end mb-4 px-1">
+                <h2 class="text-2xl text-white tracking-wide">Отзывы</h2>
+                <button onclick="openSheet('add-review-sheet')" class="text-xs text-gold/80 hover:text-gold uppercase tracking-wider">Оставить свой</button>
+            </div>
+            
+            <!-- Контейнер карусели -->
+            <div class="carousel-container -mx-4 px-4" id="reviews-carousel">
+                <!-- Отзывы загрузятся скриптом -->
+            </div>
+        </div>
+
+        <!-- Подвал / Соцсети -->
+        <footer class="w-full mt-4">
+            <div class="glass-dark rounded-2xl p-4 flex justify-center gap-8 items-center">
+                <a id="dynamic-tg" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
+                    <i class="ph ph-telegram-logo text-3xl"></i>
+                </a>
+                <a id="dynamic-inst" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
+                    <i class="ph ph-instagram-logo text-3xl"></i>
+                </a>
+                <a id="dynamic-wa" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
+                    <i class="ph ph-whatsapp-logo text-3xl"></i>
+                </a>
+            </div>
+        </footer>
+
+    </main>
+
+
+    <!-- ==================== ШТОРКИ (MODALS) ==================== -->
+    <div id="overlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
+
+    <!-- Шторка: Руна Дня -->
+    <div id="rune-sheet" class="bottom-sheet">
+        <div class="sheet-header" onclick="closeAllSheets()">
+            <div class="sheet-drag-handle"></div>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="sheet-content flex flex-col items-center text-center">
+            <div class="w-32 h-40 glass-dark border border-[#d4af37]/30 rounded-2xl flex items-center justify-center mb-8 relative">
+                <!-- Декоративные уголки -->
+                <div class="absolute top-2 left-2 w-2 h-2 border-t border-l border-gold/50"></div>
+                <div class="absolute top-2 right-2 w-2 h-2 border-t border-r border-gold/50"></div>
+                <div class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-gold/50"></div>
+                <div class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-gold/50"></div>
+                
+                <span id="rune-symbol" class="text-7xl gold-glow text-[#f3e5ab]"></span>
+            </div>
+            <h3 id="rune-name" class="font-serif text-3xl text-white mb-4 tracking-widest uppercase"></h3>
+            <p id="rune-desc" class="text-gray-300 font-light leading-relaxed text-sm max-w-[280px]"></p>
+        </div>
+    </div>
+
+    <!-- Шторка: Услуги -->
+    <div id="services-sheet" class="bottom-sheet">
+        <div class="sheet-header" onclick="closeAllSheets()">
+            <div class="sheet-drag-handle"></div>
+            <h2 class="font-serif text-2xl text-white">Мои Услуги</h2>
+            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div id="dynamic-services" class="sheet-content space-y-4 mt-2">
+            <!-- Услуги загрузятся скриптом -->
+        </div>
+    </div>
+
+    <!-- Шторка: Обо мне -->
+    <div id="about-sheet" class="bottom-sheet">
+        <div class="sheet-header" onclick="closeAllSheets()">
+            <div class="sheet-drag-handle"></div>
+            <h2 class="font-serif text-2xl text-white">О мастере</h2>
+            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="sheet-content">
+            <img id="dynamic-about-img" src="" 
+                 alt="Эстетика" 
+                 class="w-full h-40 object-cover rounded-xl mb-6 shadow-lg opacity-80 border border-white/10">
+            
+            <div class="space-y-4 text-gray-300 font-light text-sm leading-relaxed">
+                <p id="dynamic-about-text"></p>
+                
+                <blockquote id="dynamic-about-quote" class="border-l-2 border-gold pl-4 py-1 italic text-gray-400">
+                </blockquote>
+                
+                <div class="pt-2">
+                    <h4 class="text-white font-serif text-lg mb-3">Мои инструменты:</h4>
+                    <div id="dynamic-about-tools" class="flex flex-wrap gap-2">
+                        <!-- Инструменты загрузятся скриптом -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Шторка: Оставить отзыв -->
+    <div id="add-review-sheet" class="bottom-sheet">
+        <div class="sheet-header" onclick="closeAllSheets()">
+            <div class="sheet-drag-handle"></div>
+            <h2 class="font-serif text-2xl text-white">Ваш отзыв</h2>
+            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="sheet-content">
+            <form id="review-form" class="flex flex-col gap-4" onsubmit="submitReview(event)">
+                <input type="text" id="rev-name" placeholder="Ваше имя" required 
+                       class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-light focus:outline-none focus:border-gold/50 transition-colors placeholder:text-gray-600">
+                
+                <textarea id="rev-text" placeholder="Поделитесь впечатлениями..." required rows="4" 
+                          class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-light focus:outline-none focus:border-gold/50 transition-colors resize-none placeholder:text-gray-600"></textarea>
+                
+                <button type="submit" id="submit-btn" class="mt-4 w-full bg-gold hover:bg-[#b5952f] text-black font-semibold py-3.5 rounded-xl uppercase tracking-widest text-sm transition-colors flex justify-center items-center">
+                    Отправить
+                </button>
+                <p id="form-message" class="text-sm text-center font-light hidden mt-2"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready(); // Сообщает ТГ, что аппка готова (ускоряет отображение)
+        tg.setHeaderColor('#0f172a'); // Подстраиваем цвет шапки тг
+
+        // Запрещаем вертикальные свайпы, чтобы аппка не улетала при случайном касании
+        if (tg.disableVerticalSwipes) {
+            tg.disableVerticalSwipes();
+        }
+
+        // --- Убираем загрузчик после загрузки страницы ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 400);
+            }
+        });
+
+        // --- Логика Шторок ---
+        const overlay = document.getElementById('overlay');
+        let activeSheet = null;
+
+        function openSheet(sheetId) {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            closeAllSheets();
+            const sheet = document.getElementById(sheetId);
+            sheet.classList.add('active');
+            overlay.classList.add('active');
+            activeSheet = sheet;
+            document.body.classList.add('no-scroll'); // Блокируем скролл фона
+        }
+
+        function closeAllSheets() {
+            if (activeSheet) {
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                activeSheet.classList.remove('active');
+                activeSheet = null;
+            }
+            overlay.classList.remove('active');
+            document.body.classList.remove('no-scroll'); // Возвращаем скролл фона
+        }
+
+        // --- Логика Руны Дня ---
+        const runes = [
+            { symbol: 'ᚠ', name: 'Феху', desc: 'Энергия созидания и ресурса. Сегодня прекрасный день для закладки финансового фундамента.' },
+            { symbol: 'ᚢ', name: 'Уруз', desc: 'Первозданная мощь. В вас скрыт огромный потенциал для прорыва. Действуйте смело.' },
+            { symbol: 'ᚱ', name: 'Райдо', desc: 'Дорога открыта. Доверьтесь потоку событий, ваш внутренний компас настроен верно.' },
+            { symbol: 'ᚨ', name: 'Ансуз', desc: 'Мудрость Вселенной. Обратите внимание на знаки, сны и случайно услышанные слова.' },
+            { symbol: 'ᚷ', name: 'Гебо', desc: 'Гармония обмена. Отдавая — получаете. Прекрасное время для союзов и искренней любви.' },
+            { symbol: 'ᚹ', name: 'Вуньо', desc: 'Радость и свет. Позвольте себе насладиться моментом, тьма отступила.' },
+            { symbol: 'ᛟ', name: 'Одал', desc: 'Связь с родом. Ваша опора сегодня — ваши корни и внутренний духовный дом.' },
+            { symbol: 'ᛉ', name: 'Альгиз', desc: 'Высшая защита. Вы под покровительством. Страхи иллюзорны, слушайте интуицию.' }
+        ];
+
+        function drawRune() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            
+            const randomRune = runes[Math.floor(Math.random() * runes.length)];
+            
+            document.getElementById('rune-symbol').innerText = randomRune.symbol;
+            document.getElementById('rune-name').innerText = randomRune.name;
+            document.getElementById('rune-desc').innerText = randomRune.desc;
+            
+            openSheet('rune-sheet');
+        }
+
+        // --- Заглушка отправки отзыва ---
+        function submitReview(event) {
+            event.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const msg = document.getElementById('form-message');
+            const name = document.getElementById('rev-name').value;
+            const text = document.getElementById('rev-text').value;
+            
+            btn.innerHTML = 'Отправка...';
+            btn.disabled = true;
+
+            // === ЗАГЛУШКА (Удалите или закомментируйте этот блок, когда подключите Google Script) ===
+            setTimeout(() => {
+                btn.innerHTML = 'Отправить';
+                btn.disabled = false;
+                document.getElementById('review-form').reset();
+                msg.innerHTML = 'Благодарю. Отзыв отправлен на модерацию ✨';
+                msg.classList.remove('hidden', 'text-red-400');
+                msg.classList.add('text-gold');
+            }, 1000);
+            // === КОНЕЦ ЗАГЛУШКИ ===
+
+            /* // === РЕАЛЬНАЯ ОТПРАВКА В GOOGLE SCRIPT (Раскомментируйте, когда добавите ссылку в MY_DATA) ===
+            if (MY_DATA.googleScriptUrl) {
+                const formData = new FormData();
+                formData.append('action', 'addReview');
+                formData.append('name', name);
+                formData.append('text', text);
+
+                fetch(MY_DATA.googleScriptUrl, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                }).then(() => {
+                    btn.innerHTML = 'Отправить';
+                    btn.disabled = false;
+                    document.getElementById('review-form').reset();
+                    msg.innerHTML = 'Благодарю. Отзыв отправлен на модерацию ✨';
+                    msg.classList.remove('hidden', 'text-red-400');
+                    msg.classList.add('text-gold');
+                }).catch(err => {
+                    btn.innerHTML = 'Отправить';
+                    btn.disabled = false;
+                    msg.innerHTML = 'Произошла ошибка. Попробуйте позже.';
+                    msg.classList.remove('hidden', 'text-gold');
+                    msg.classList.add('text-red-400');
+                });
+            }
+            // === КОНЕЦ РЕАЛЬНОЙ ОТПРАВКИ ===
+            */
+        }
+
+        // --- МАГИЯ: ПОДСТАНОВКА ВАШИХ ДАННЫХ В ДИЗАЙН ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Фон и Аватар
+            document.getElementById('dynamic-bg').style.backgroundImage = `url('${MY_DATA.backgroundPhoto}')`;
+            document.getElementById('dynamic-avatar').src = MY_DATA.avatarPhoto;
+            
+            // Имя и теги
+            document.getElementById('dynamic-name').innerText = MY_DATA.name;
+            const tagsContainer = document.getElementById('dynamic-tags');
+            MY_DATA.tags.forEach((tag, index) => {
+                tagsContainer.innerHTML += `<span>${tag}</span>`;
+                if (index < MY_DATA.tags.length - 1) {
+                    tagsContainer.innerHTML += `<span class="w-1 h-1 rounded-full bg-gold/50"></span>`;
+                }
+            });
+
+            // Гайд
+            document.getElementById('dynamic-guide-title').innerText = MY_DATA.guide.title;
+            document.getElementById('dynamic-guide-subtitle').innerText = MY_DATA.guide.subtitle;
+            document.getElementById('dynamic-guide-link').href = MY_DATA.guide.link;
+
+            // Соцсети
+            document.getElementById('dynamic-tg').href = MY_DATA.socialLinks.telegram;
+            document.getElementById('dynamic-inst').href = MY_DATA.socialLinks.instagram;
+            document.getElementById('dynamic-wa').href = MY_DATA.socialLinks.whatsapp;
+
+            // Отзывы
+            const reviewsContainer = document.getElementById('reviews-carousel');
+            MY_DATA.reviews.forEach(rev => {
+                reviewsContainer.innerHTML += `
+                <div class="carousel-item glass-dark rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-serif text-lg text-white">${rev.name}</h4>
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider">${rev.date}</span>
+                            </div>
+                            <div class="flex text-gold text-sm gap-0.5">
+                                <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 font-light leading-relaxed mb-2">${rev.text}</p>
+                    </div>
+                </div>`;
+            });
+
+            // Услуги
+            const servicesContainer = document.getElementById('dynamic-services');
+            const tgLink = MY_DATA.socialLinks.telegram;
+            const tgDomain = tgLink.includes('/') ? tgLink.split('/').pop() : tgLink.replace('@', '');
+            
+            MY_DATA.services.forEach(srv => {
+                servicesContainer.innerHTML += `
+                <div class="glass-btn rounded-xl p-5 text-left border border-white/5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-serif text-xl text-gold">${srv.title}</h3>
+                        <span class="text-sm tracking-wider font-light border border-gold/30 px-3 py-1 rounded-full text-gold">${srv.price}</span>
+                    </div>
+                    <p class="text-xs text-gray-400 font-light leading-relaxed mb-4">${srv.description}</p>
+                    <a href="tg://resolve?domain=${tgDomain}&text=${encodeURIComponent(srv.telegramMessage)}" 
+                       class="block w-full text-center bg-white/10 hover:bg-white/20 text-white text-sm py-3 rounded-lg uppercase tracking-widest transition-colors">
+                       Записаться
+                    </a>
+                </div>`;
+            });
+
+            // Обо мне
+            document.getElementById('dynamic-about-img').src = MY_DATA.about.photo;
+            document.getElementById('dynamic-about-text').innerText = MY_DATA.about.text;
+            document.getElementById('dynamic-about-quote').innerText = MY_DATA.about.quote;
+            const toolsContainer = document.getElementById('dynamic-about-tools');
+            MY_DATA.about.tools.forEach(tool => {
+                toolsContainer.innerHTML += `<span class="px-3 py-1 rounded-full glass-btn text-xs text-gold">${tool}</span>`;
+            });
+
+            // Добавляем виброотклик на все ссылки и кнопки (Telegram Haptics)
+            document.querySelectorAll('a, button').forEach(el => {
+                el.addEventListener('click', () => {
+                    // Игнорируем элементы, у которых уже прописан onclick с вибрацией
+                    if(tg.HapticFeedback && !el.hasAttribute('onclick')) {
+                        tg.HapticFeedback.impactOccurred('light');
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
