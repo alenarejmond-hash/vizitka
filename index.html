@@ -245,10 +245,10 @@
                 ui: {
                     aboutBtnTitle: "Давайте знакомиться", aboutBtnSub: "Моя история и путь",
                     reviewsTitle: "Отзывы", writeReview: "Написать отзыв",
-                    fortuneBtnTitle: "Карта дня", fortuneBtnSub: "Узнай свое предсказание",
+                    fortuneBtnTitle: "Пожелание дня", fortuneBtnSub: "Получи заряд вдохновения",
                     socialsTitle: "Мои социальные сети", servicesPageTitle: "Мои услуги",
                     aboutSheetTitle: "Обо мне", trainingSheetTitle: "Обучение",
-                    enrollBtn: "Записаться", fortuneSheetTitle: "Твоя карта дня",
+                    enrollBtn: "Записаться", fortuneSheetTitle: "Твое пожелание на день",
                     reviewSheetTitle: "Оставить отзыв", reviewNamePlaceholder: "Ваше имя",
                     reviewTextPlaceholder: "Поделитесь впечатлениями...", reviewSubmitBtn: "Отправить отзыв",
                     moreBtn: "Подробнее", toastSuccess: "Отзыв успешно отправлен! 💖", toastWarning: "Пожалуйста, поставьте оценку"
@@ -356,10 +356,10 @@
                 ui: {
                     aboutBtnTitle: "Let's get acquainted", aboutBtnSub: "My story and journey",
                     reviewsTitle: "Reviews", writeReview: "Write a review",
-                    fortuneBtnTitle: "Card of the day", fortuneBtnSub: "Find out your fortune",
+                    fortuneBtnTitle: "Wish of the day", fortuneBtnSub: "Get inspired for the day",
                     socialsTitle: "My social networks", servicesPageTitle: "My Services",
                     aboutSheetTitle: "About Me", trainingSheetTitle: "Training",
-                    enrollBtn: "Sign up", fortuneSheetTitle: "Your card of the day",
+                    enrollBtn: "Sign up", fortuneSheetTitle: "Your wish for today",
                     reviewSheetTitle: "Leave a review", reviewNamePlaceholder: "Your name",
                     reviewTextPlaceholder: "Share your impressions...", reviewSubmitBtn: "Submit Review",
                     moreBtn: "Details", toastSuccess: "Review sent successfully! 💖", toastWarning: "Please rate us with stars"
@@ -381,7 +381,7 @@
     <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
 
         <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
-        <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow fade-in transform-gpu transition-transform duration-200 ease-out will-change-transform">
+        <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow fade-in transform-gpu will-change-transform">
             <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
             
@@ -455,8 +455,8 @@
                         🔮
                     </div>
                     <div class="text-left">
-                        <h3 class="text-[16px] font-bold text-white leading-tight" id="ui-fortune-btn-title">Карта дня</h3>
-                        <p class="text-[13px] font-medium text-gray-300 mt-0.5" id="ui-fortune-btn-sub">Узнай свое предсказание</p>
+                        <h3 class="text-[16px] font-bold text-white leading-tight" id="ui-fortune-btn-title">Пожелание дня</h3>
+                        <p class="text-[13px] font-medium text-gray-300 mt-0.5" id="ui-fortune-btn-sub">Получи заряд вдохновения</p>
                     </div>
                 </div>
                 <i class="ph-bold ph-sparkle text-orange-400 relative z-10 animate-pulse text-2xl"></i>
@@ -590,7 +590,7 @@
             <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-4xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                 🔮
             </div>
-            <h2 class="text-2xl font-bold mb-4 tracking-tight text-white" id="ui-fortune-sheet-title">Твоя карта дня</h2>
+            <h2 class="text-2xl font-bold mb-4 tracking-tight text-white" id="ui-fortune-sheet-title">Твое пожелание на день</h2>
             <p id="fortune-text" class="text-gray-200 text-[16px] leading-relaxed font-medium mb-6 italic"></p>
             <a id="fortune-link" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="block w-full text-center bg-white/10 border border-white/20 text-white rounded-2xl p-4 font-bold text-[14px] active:scale-[0.98] transition-transform flex items-center justify-between">
                 <span id="fortune-link-text"></span>
@@ -1103,6 +1103,10 @@
             
             if(tiltCard) {
                 function handleTiltMove(e) {
+                    // Убираем CSS-задержку во время движения, чтобы фото мгновенно следовало за пальцем
+                    tiltCard.style.transition = 'none';
+                    if(tiltGlare) tiltGlare.style.transition = 'none';
+
                     const rect = tiltCard.getBoundingClientRect();
                     // Получаем координаты мыши или пальца
                     const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
@@ -1131,9 +1135,11 @@
                 }
                 
                 function handleTiltLeave() {
-                    // Возвращаем в исходное положение
+                    // Возвращаем в исходное положение (Включаем плавную анимацию возврата)
+                    tiltCard.style.transition = 'transform 0.5s ease-out';
                     tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
                     if(tiltGlare) {
+                        tiltGlare.style.transition = 'opacity 0.5s ease-out';
                         tiltGlare.style.opacity = '0';
                     }
                 }
