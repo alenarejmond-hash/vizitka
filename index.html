@@ -395,22 +395,23 @@
                         <span id="profile-name" class="truncate"></span>
                         <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
                     </h1>
-                    
-                    <div class="flex items-center gap-4 pb-1.5 shrink-0">
-                        <button id="lang-btn" onclick="event.stopPropagation(); toggleLanguage()" class="text-white/90 font-bold text-sm uppercase transition-transform active:scale-95 drop-shadow-md font-sans">
-                            EN
-                        </button>
-                        <button id="share-btn" onclick="event.stopPropagation(); shareProfile()" class="text-white/90 transition-transform active:scale-95 drop-shadow-md">
-                            <i class="ph-bold ph-share-network text-[22px]"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- КРАТКАЯ ИНФОРМАЦИЯ -->
-        <div class="text-center px-4 fade-in delay-1">
-            <p id="profile-bio" class="text-gray-900 font-bold text-sm leading-relaxed"></p>
+        <!-- КРАТКАЯ ИНФОРМАЦИЯ И КНОПКИ УПРАВЛЕНИЯ -->
+        <div class="w-full relative px-2 fade-in delay-1">
+            <p id="profile-bio" class="text-gray-900 font-bold text-sm leading-relaxed text-center px-4"></p>
+            
+            <!-- Кнопки языка и поделиться (перенесены из фото) -->
+            <div class="flex justify-end items-center gap-3 mt-1.5 pr-2">
+                <button id="lang-btn" onclick="toggleLanguage()" class="text-gray-600 hover:text-black font-extrabold text-[12px] uppercase transition-colors active:scale-95 font-sans tracking-wide">
+                    EN
+                </button>
+                <button id="share-btn" onclick="shareProfile()" class="text-gray-600 hover:text-black transition-colors active:scale-95">
+                    <i class="ph-bold ph-share-network text-[20px]"></i>
+                </button>
+            </div>
         </div>
 
         <!-- КНОПКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
