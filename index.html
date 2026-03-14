@@ -380,6 +380,16 @@
     <!-- ============================================== -->
     <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
 
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ (Воздушная, без плашки) -->
+        <div class="w-full flex justify-end items-center gap-3 px-2 -mb-4 fade-in relative z-10">
+            <button id="lang-btn" onclick="toggleLanguage()" class="text-gray-500 hover:text-gray-800 font-extrabold text-[11px] uppercase transition-colors active:scale-95 font-sans tracking-widest drop-shadow-sm">
+                EN
+            </button>
+            <button id="share-btn" onclick="shareProfile()" class="text-gray-500 hover:text-gray-800 transition-colors active:scale-95 drop-shadow-sm">
+                <i class="ph-bold ph-share-network text-[18px]"></i>
+            </button>
+        </div>
+
         <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
         <div class="w-full fade-in">
             <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow transform-gpu will-change-transform">
@@ -402,16 +412,6 @@
         <!-- КРАТКАЯ ИНФОРМАЦИЯ И КНОПКИ УПРАВЛЕНИЯ -->
         <div class="w-full relative px-2 fade-in delay-1">
             <p id="profile-bio" class="text-gray-900 font-bold text-sm leading-relaxed text-center px-4"></p>
-            
-            <!-- Кнопки языка и поделиться (перенесены из фото) -->
-            <div class="flex justify-end items-center gap-3 mt-1.5 pr-2">
-                <button id="lang-btn" onclick="toggleLanguage()" class="text-gray-600 hover:text-black font-extrabold text-[12px] uppercase transition-colors active:scale-95 font-sans tracking-wide">
-                    EN
-                </button>
-                <button id="share-btn" onclick="shareProfile()" class="text-gray-600 hover:text-black transition-colors active:scale-95">
-                    <i class="ph-bold ph-share-network text-[20px]"></i>
-                </button>
-            </div>
         </div>
 
         <!-- КНОПКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
