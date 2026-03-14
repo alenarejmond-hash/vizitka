@@ -3,1182 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Навигатор Канала</title>
-    <!-- Подключение Telegram Web App API -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключение Tailwind CSS -->
+    <title>Trobetrotter</title>
+    
+    <!-- Подключаем Tailwind для стилей -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Подключение шрифта -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Иконки Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Подключаем React -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Подключаем Babel, чтобы браузер понял React-код внутри HTML -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    },
-                    colors: {
-                        app: {
-                            bg: '#e2e2e6',
-                            card: 'rgba(255, 255, 255, 0.6)',
-                            dark: '#1c1c1e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Подключаем Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключаем парсер для Google Таблиц (магия данных) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- Подключаем рукописный шрифт для подписи на фото и основной элегантный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <style>
-        /* ========================================================================= */
-        /* 🌈 НАСТРОЙКИ ЦВЕТА ФОНА (АНИМИРОВАННЫЙ ГРАДИЕНТ) 🌈 */
-        /* Меняйте цвета ниже. Можно использовать HEX-коды или английские названия */
-        /* ========================================================================= */
-        :root {
-            --bg-color-1: #ffcf00; /* Желтый */
-            --bg-color-2: #ff7700; /* Оранжевый */
-            --bg-color-3: #b000ff; /* Фиолетовый */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Lora', serif; 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none;
+            background-color: #fce2b1; /* Цвет фона всей страницы */
         }
-
-        .dynamic-bg {
-            background: linear-gradient(-45deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3), var(--bg-color-1));
-            background-size: 300% 300%;
-            animation: gradient-bg 12s ease infinite;
-        }
-
-        @keyframes gradient-bg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        html, body {
-            overscroll-behavior-y: none; /* Запрет прыжков/резинки при скролле (п.6) */
-        }
-
-        body {
-            color: #1c1c1e;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none; /* Запрет долгого нажатия на iOS (п.1) */
-            -webkit-user-select: none; /* Запрет выделения в Safari (п.1) */
-            user-select: none; /* Запрет выделения текста (п.1) */
-        }
-
-        /* Парящие тени как на референсе */
-        .floating-shadow {
-            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3), 0 20px 30px -10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Воздушные полупрозрачные карточки (Чистый эффект парения) */
-        .card-shadow {
-            background: rgba(20, 20, 24, 0.5) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            /* Аккуратная тень без "грязи" вокруг и легкий стеклянный блик, чтобы элементы не сливались */
-            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.5), 
-                        0 10px 20px -10px rgba(0, 0, 0, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transform: translateZ(0);
-        }
-
-        /* Кнопка "Subscribe" стайл */
-        .black-pill-btn {
-            background-color: #1a1a1c;
-            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s ease;
-        }
-        .black-pill-btn:active {
-            transform: scale(0.97);
-            background-color: #000000;
-        }
-
-        /* Кастомный скроллбар (скрыт для красоты) */
-        ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Плавное появление */
-        .fade-in {
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(20px); }
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(30px); }
             100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .animate-item {
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+        .animate-fade {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* --- ТЕКСТУРА БУМАГИ --- */
+        .bg-paper {
+            background-color: #fce2b1; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.35'/%3E%3C/svg%3E");
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.05);
+        }
+
+        /* --- СТИЛЬ ПОЧТОВОЙ МАРКИ --- */
+        .postage-stamp {
+            background: white;
+            padding: 4px;
+            filter: drop-shadow(2px 3px 5px rgba(0,0,0,0.2));
+            --g: radial-gradient(4px at 4px 4px, #0000 98%, #000 101%);
+            -webkit-mask: 
+                var(--g) 0 0 / 100% 8px repeat-x,
+                var(--g) 0 0 / 8px 100% repeat-y,
+                var(--g) 100% 100% / 100% 8px repeat-x,
+                var(--g) 100% 100% / 8px 100% repeat-y,
+                linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat;
+            mask: 
+                var(--g) 0 0 / 100% 8px repeat-x,
+                var(--g) 0 0 / 8px 100% repeat-y,
+                var(--g) 100% 100% / 100% 8px repeat-x,
+                var(--g) 100% 100% / 8px 100% repeat-y,
+                linear-gradient(#000 0 0) center / calc(100% - 8px) calc(100% - 8px) no-repeat;
+        }
+
+        /* --- АДАПТИВНЫЙ КОНТЕЙНЕР --- */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
+        .app-container {
+            min-height: 100dvh;
+            width: 100%;
+            max-width: 500px; /* Ограничение ширины для десктопа */
+            margin: 0 auto;   /* Центрирование */
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: #fce2b1;
+            /* Легкая тень по бокам только на больших экранах */
+            box-shadow: 0 0 60px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
-<body class="dynamic-bg min-h-screen pb-12 pt-6 px-5 flex flex-col items-center">
+<body>
+    <div id="root"></div>
 
-    <!-- TOAST УВЕДОМЛЕНИЕ (Glassmorphism вайб под дизайн, п.4) -->
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-white/20 backdrop-blur-xl border border-white/40 text-white px-5 py-3 rounded-full flex items-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.3)] transition-all duration-300 transform -translate-y-24 opacity-0 font-medium text-sm"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН (Огненный лоадер) -->
-    <div id="app-loader" class="fixed inset-0 z-[100] dynamic-bg flex items-center justify-center transition-opacity duration-500">
-        <div class="relative w-20 h-20 flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-4 border-orange-500/20"></div>
-            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-orange-500 border-r-red-500 border-b-yellow-400 animate-spin shadow-[0_0_30px_rgba(249,115,22,0.6)]"></div>
-            <i class="ph-fill ph-fire text-orange-500 text-3xl animate-pulse"></i>
-        </div>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- 🛑 НАСТРОЙКИ: МЕНЯЙТЕ ФОТО, ТЕКСТЫ И ССЫЛКИ ТОЛЬКО ЗДЕСЬ 🛑 -->
-    <!-- ========================================================================= -->
-    <script>
-        const APP_DATA = {
-            // ================= РУССКИЙ ЯЗЫК =================
-            ru: {
-                profile: {
-                    name: "Полина Чубакина", 
-                    avatar: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
-                    bio: "Зажигаю сердца и сцены. Фаер-шоу, акробатика и жизнь в движении 🔥"
-                },
-                about: {
-                    photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
-                    photos: [
-                        "https://i.postimg.cc/jjCJXtLx/photo-2026-03-13-17-39-13.jpg",
-                        "https://i.postimg.cc/rpztJMKF/photo-2026-03-14-02-15-02.jpg",
-                        "https://i.postimg.cc/Bvt1g4Xv/photo-2026-03-14-02-15-07.jpg",
-                        "https://i.postimg.cc/VN5bRmdk/photo-2026-03-14-02-15-15.jpg"
-                    ],
-                    text: "Привет! Меня зовут Полина. Я занимаюсь фаер-шоу уже более 2 лет...<br><br>Мой путь начался с простой искры, а теперь я зажигаю целые стадионы. В этом блоге я делюсь самым сокровенным." 
-                },
-                categories: [
-                    { 
-                        title: "Огненные выступления", 
-                        icon: "🔥", badge: "Хит!", action: "posts",
-                        posts: [
-                            { title: "Моё лучшее соло с веерами", link: "https://t.me/telegram" },
-                            { title: "Выступление на фестивале", link: "https://t.me/telegram" },
-                            { title: "Огонь и танцы: бэкстейдж", link: "https://t.me/telegram" }
-                        ]
-                    },
-                    { 
-                        title: "Акробатика", 
-                        icon: "🤸‍♀️", badge: null, action: "posts",
-                        posts: [
-                            { title: "Как я научилась делать сальто", link: "https://t.me/telegram" },
-                            { title: "Секреты идеальной растяжки", link: "https://t.me/telegram" }
-                        ]
-                    },
-                    { 
-                        title: "Обучение", 
-                        icon: '<i class="ph-bold ph-graduation-cap"></i>', subtitle: "Индивидуальные занятия", badge: "Идет набор", action: "training", type: "wide"
-                    },
-                    { 
-                        title: "Мои услуги", 
-                        icon: '<i class="ph-bold ph-sparkle"></i>', subtitle: "Шоу и мастер-классы", badge: "New!", action: "services", type: "wide"
-                    }
-                ],
-                training: {
-                    photo: "https://i.postimg.cc/xdb18CXc/x1-2-webp-pagespeed-ic-q-Qce-BTDec4.webp", 
-                    text: "Открой для себя мир танца и движения! Я провожу индивидуальные занятия для любого уровня подготовки.<br><br>Мы изучим базу и поставим твой первый номер.",
-                    buttonLink: "https://t.me/telegram"
-                },
-                services: [
-                    {
-                        title: "Огненное шоу на свадьбу",
-                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
-                        photos: [
-                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
-                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
-                        ],
-                        shortDesc: "Незабываемое соло-выступление с огнем.",
-                        fullDesc: "Полная программа на 15 минут, включающая работу с веерами, поями и огнеметом. Идеально для свадеб и корпоративов!<br><br>В стоимость включен трансфер по городу и пиротехника.",
-                        oldPrice: "15 000 ₽", newPrice: "12 000 ₽", buttonLink: "https://t.me/telegram"
-                    },
-                    {
-                        title: "Мастер-класс на мероприятие",
-                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
-                        photos: [
-                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
-                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
-                        ],
-                        shortDesc: "Интерактив с гостями (без огня).",
-                        fullDesc: "Проведение безопасного интерактива со световым реквизитом. Гости смогут сами попробовать покрутить пои и веера!",
-                        oldPrice: "", newPrice: "8 000 ₽", buttonLink: "https://t.me/telegram"
-                    }
-                ],
-                fortunes: [
-                    { text: "Твоя стихия сегодня — Искра. Самое время начинать новые проекты!", postTitle: "Заряд мотивации здесь", postLink: "https://t.me/telegram" },
-                    { text: "Сегодня ты — Дикий Огонь. Не бойся выделяться и быть в центре внимания.", postTitle: "Смотри, как я зажигаю", postLink: "https://t.me/telegram" },
-                    { text: "Время разжечь пламя! Сделай то, что давно откладывала.", postTitle: "Пост о преодолении страхов", postLink: "https://t.me/telegram" },
-                    { text: "Твой день пройдет ярко! Лови момент и наслаждайся каждой минутой.", postTitle: "Бэкстейдж с фестиваля", postLink: "https://t.me/telegram" },
-                    { text: "Гибкость — твое оружие сегодня. Подстройся под ситуацию, и ты выиграешь!", postTitle: "Секреты идеальной растяжки", postLink: "https://t.me/telegram" },
-                    { text: "Даже маленькая искра может зажечь большое пламя. Твои усилия окупятся.", postTitle: "Моя история пути", postLink: "https://t.me/telegram" },
-                    { text: "Сегодня идеальный день для тренировки или танца. Дай телу свободу!", postTitle: "Туториал для новичков", postLink: "https://t.me/telegram" },
-                    { text: "Ты горишь своим делом, и это вдохновляет других. Продолжай сиять!", postTitle: "Мое лучшее выступление", postLink: "https://t.me/telegram" },
-                    { text: "Не бойся обжечься. Риск сегодня оправдан, действуй смело!", postTitle: "Как я приручила огонь", postLink: "https://t.me/telegram" },
-                    { text: "Сохраняй баланс. Как в акробатике, так и в жизни — важна точка опоры.", postTitle: "Акробатика: с чего начать", postLink: "https://t.me/telegram" },
-                    { text: "Твой внутренний огонь согревает близких. Подари им сегодня свою улыбку.", postTitle: "Лайфстайл пост", postLink: "https://t.me/telegram" },
-                    { text: "Сегодня ты притягиваешь взгляды, словно фаер-шоу в ночном городе.", postTitle: "Смотреть горячее соло", postLink: "https://t.me/telegram" },
-                    { text: "Пламя не знает преград. Иди к своей цели, не останавливаясь!", postTitle: "Про мотивацию и спорт", postLink: "https://t.me/telegram" },
-                    { text: "Выдохни и расслабься. Огню тоже нужно время, чтобы разгореться с новой силой.", postTitle: "Как я восстанавливаюсь", postLink: "https://t.me/telegram" },
-                    { text: "Звезды говорят: пора добавить в жизнь немного магии и драйва!", postTitle: "Магия огня на сцене", postLink: "https://t.me/telegram" }
-                ],
-                reviews: [
-                    { name: "Екатерина", date: "10 марта 2026", stars: 5, text: "Потрясающее шоу! Гости были в полном восторге. Полина — настоящий профессионал своего дела. Огонь был завораживающим!" },
-                    { name: "Михаил", date: "25 февраля 2026", stars: 5, text: "Заказывали мастер-класс на корпоратив. Все супер, очень атмосферно и безопасно. Коллеги до сих пор вспоминают." },
-                    { name: "Ольга", date: "14 февраля 2026", stars: 5, text: "Невероятная энергетика и грация! Спасибо за эмоции, это было незабываемо." }
-                ],
-                socials: {
-                    telegram: "https://t.me/telegram", instagram: "https://instagram.com", youtube: "https://youtube.com", vk: "https://vk.com"
-                },
-                ui: {
-                    aboutBtnTitle: "Давайте знакомиться", aboutBtnSub: "Моя история и путь",
-                    reviewsTitle: "Отзывы", writeReview: "Написать отзыв",
-                    fortuneBtnTitle: "Пожелание дня", fortuneBtnSub: "Получи заряд вдохновения",
-                    socialsTitle: "Мои социальные сети", servicesPageTitle: "Мои услуги",
-                    aboutSheetTitle: "Обо мне", trainingSheetTitle: "Обучение",
-                    enrollBtn: "Записаться", fortuneSheetTitle: "Твое пожелание на день",
-                    reviewSheetTitle: "Оставить отзыв", reviewNamePlaceholder: "Ваше имя",
-                    reviewTextPlaceholder: "Поделитесь впечатлениями...", reviewSubmitBtn: "Отправить отзыв",
-                    moreBtn: "Подробнее", toastSuccess: "Отзыв успешно отправлен! 💖", toastWarning: "Пожалуйста, поставьте оценку"
-                }
+        const CONFIG = {
+            brandName: "Ольга Иванова", 
+            slogan: "Твой личный тревел-эксперт", 
+            avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+            googleSheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRWByT--Ch96eWyxGr2fKuwK7NFITq0YG6g_k6fZkP78CreHlEHB96AU1x6fLyiRT9SxW2_xRTGsG/pub?gid=0&single=true&output=csv",
+            about: {
+                title: "Обо мне",
+                text: "Привет! Я твой личный тревел-эксперт. Я помогаю людям находить идеальные места для отдыха, организую незабываемые туры и беру всю рутину с документами на себя. Моя цель — сделать так, чтобы ты просто собрал чемодан и наслаждался отпуском!",
+                photoUrl: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=400",
             },
-
-            // ================= АНГЛИЙСКИЙ ЯЗЫК =================
-            en: {
-                profile: {
-                    name: "Polina Chubakina", 
-                    avatar: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
-                    bio: "Igniting hearts and stages. Fire shows, acrobatics, and life in motion 🔥"
-                },
-                about: {
-                    photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
-                    photos: [
-                        "https://i.postimg.cc/jjCJXtLx/photo-2026-03-13-17-39-13.jpg",
-                        "https://i.postimg.cc/rpztJMKF/photo-2026-03-14-02-15-02.jpg",
-                        "https://i.postimg.cc/Bvt1g4Xv/photo-2026-03-14-02-15-07.jpg",
-                        "https://i.postimg.cc/VN5bRmdk/photo-2026-03-14-02-15-15.jpg"
-                    ],
-                    text: "Hi! I'm Polina. I've been performing fire shows for over 2 years...<br><br>My journey started with a simple spark, and now I light up entire stadiums. In this blog, I share my most cherished moments." 
-                },
-                categories: [
-                    { 
-                        title: "Fire Performances", 
-                        icon: "🔥", badge: "Hit!", action: "posts",
-                        posts: [
-                            { title: "My best solo with fans", link: "https://t.me/telegram" },
-                            { title: "Performance at the festival", link: "https://t.me/telegram" },
-                            { title: "Fire and dance: backstage", link: "https://t.me/telegram" }
-                        ]
-                    },
-                    { 
-                        title: "Acrobatics", 
-                        icon: "🤸‍♀️", badge: null, action: "posts",
-                        posts: [
-                            { title: "How I learned to do a backflip", link: "https://t.me/telegram" },
-                            { title: "Secrets of perfect stretching", link: "https://t.me/telegram" }
-                        ]
-                    },
-                    { 
-                        title: "Training", 
-                        icon: '<i class="ph-bold ph-graduation-cap"></i>', subtitle: "Individual lessons", badge: "Hiring", action: "training", type: "wide"
-                    },
-                    { 
-                        title: "My Services", 
-                        icon: '<i class="ph-bold ph-sparkle"></i>', subtitle: "Shows and master classes", badge: "New!", action: "services", type: "wide"
-                    }
-                ],
-                training: {
-                    photo: "https://i.postimg.cc/xdb18CXc/x1-2-webp-pagespeed-ic-q-Qce-BTDec4.webp", 
-                    text: "Discover the world of dance and movement! I conduct individual lessons for any skill level.<br><br>We will learn the basics and choreograph your first routine.",
-                    buttonLink: "https://t.me/telegram"
-                },
-                services: [
-                    {
-                        title: "Fire show for a wedding",
-                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
-                        photos: [
-                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
-                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
-                        ],
-                        shortDesc: "Unforgettable solo fire performance.",
-                        fullDesc: "Full 15-minute program including work with fans, poi, and a flamethrower. Ideal for weddings and corporate events!<br><br>Price includes city transfer and pyrotechnics.",
-                        oldPrice: "15 000 ₽", newPrice: "12 000 ₽", buttonLink: "https://t.me/telegram"
-                    },
-                    {
-                        title: "Master class for an event",
-                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
-                        photos: [
-                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
-                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
-                        ],
-                        shortDesc: "Interactive session with guests (no fire).",
-                        fullDesc: "Conducting a safe interactive session with light props. Guests will be able to try spinning poi and fans themselves!",
-                        oldPrice: "", newPrice: "8 000 ₽", buttonLink: "https://t.me/telegram"
-                    }
-                ],
-                fortunes: [
-                    { text: "Your element today is Spark. It's time to start new projects!", postTitle: "Motivation boost here", postLink: "https://t.me/telegram" },
-                    { text: "Today you are Wild Fire. Don't be afraid to stand out.", postTitle: "See how I ignite", postLink: "https://t.me/telegram" },
-                    { text: "Time to light the flame! Do what you've been putting off.", postTitle: "Post about overcoming fears", postLink: "https://t.me/telegram" },
-                    { text: "Your day will be bright! Catch the moment and enjoy every minute.", postTitle: "Backstage from the festival", postLink: "https://t.me/telegram" },
-                    { text: "Flexibility is your weapon today. Adapt to the situation, and you will win!", postTitle: "Secrets of perfect stretching", postLink: "https://t.me/telegram" },
-                    { text: "Even a small spark can ignite a big flame. Your efforts will pay off.", postTitle: "My life story", postLink: "https://t.me/telegram" },
-                    { text: "Today is a perfect day for training or dancing. Give your body freedom!", postTitle: "Tutorial for beginners", postLink: "https://t.me/telegram" },
-                    { text: "You burn for your craft, and it inspires others. Keep shining!", postTitle: "My best performance", postLink: "https://t.me/telegram" },
-                    { text: "Don't be afraid to get burned. Risk is justified today, act boldly!", postTitle: "How I tamed the fire", postLink: "https://t.me/telegram" },
-                    { text: "Keep your balance. In acrobatics as in life, a fulcrum is important.", postTitle: "Acrobatics: where to start", postLink: "https://t.me/telegram" },
-                    { text: "Your inner fire warms your loved ones. Give them a smile today.", postTitle: "Lifestyle post", postLink: "https://t.me/telegram" },
-                    { text: "Today you catch everyone's eyes, like a fire show in the night city.", postTitle: "Watch hot solo", postLink: "https://t.me/telegram" },
-                    { text: "The flame knows no barriers. Go to your goal without stopping!", postTitle: "About motivation and sports", postLink: "https://t.me/telegram" },
-                    { text: "Exhale and relax. Fire also needs time to flare up with renewed vigor.", postTitle: "How I recover", postLink: "https://t.me/telegram" },
-                    { text: "The stars say: it's time to add some magic and drive to your life!", postTitle: "Magic of fire on stage", postLink: "https://t.me/telegram" }
-                ],
-                reviews: [
-                    { name: "Ekaterina", date: "March 10, 2026", stars: 5, text: "Amazing show! Guests were absolutely thrilled. Polina is a true professional. The fire was mesmerizing!" },
-                    { name: "Mikhail", date: "February 25, 2026", stars: 5, text: "Ordered a master class for a corporate party. Everything was super, very atmospheric and safe. Colleagues still remember it." },
-                    { name: "Olga", date: "February 14, 2026", stars: 5, text: "Incredible energy and grace! Thank you for the emotions, it was unforgettable." }
-                ],
-                socials: {
-                    telegram: "https://t.me/telegram", instagram: "https://instagram.com", youtube: "https://youtube.com", vk: "https://vk.com"
-                },
-                ui: {
-                    aboutBtnTitle: "Let's get acquainted", aboutBtnSub: "My story and journey",
-                    reviewsTitle: "Reviews", writeReview: "Write a review",
-                    fortuneBtnTitle: "Wish of the day", fortuneBtnSub: "Get inspired for the day",
-                    socialsTitle: "My social networks", servicesPageTitle: "My Services",
-                    aboutSheetTitle: "About Me", trainingSheetTitle: "Training",
-                    enrollBtn: "Sign up", fortuneSheetTitle: "Your wish for today",
-                    reviewSheetTitle: "Leave a review", reviewNamePlaceholder: "Your name",
-                    reviewTextPlaceholder: "Share your impressions...", reviewSubmitBtn: "Submit Review",
-                    moreBtn: "Details", toastSuccess: "Review sent successfully! 💖", toastWarning: "Please rate us with stars"
-                }
-            }
+            bookingLink: "https://t.me/telegram", 
+            contacts: {
+                telegram: "https://t.me/telegram",
+                instagram: "https://instagram.com/instagram",
+                whatsapp: "https://wa.me/1234567890",
+                phone: "+7 (999) 123-45-67"
+            },
+            reviewsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSaRWByT--Ch96eWyxGr2fKuwK7NFITq0YG6g_k6fZkP78CreHlEHB96AU1x6fLyiRT9SxW2_xRTGsG/pub?gid=882822745&single=true&output=csv",
+            reviewsPostUrl: "https://script.google.com/macros/s/AKfycbwnSKpgdCJGand6-hgZ1L6_5a7RRxi9gpf4fa-sPvuOGJqTBp6GiBYtdjOzzjfvMfDR-Q/exec"
         };
 
-        // Текущий выбранный язык
-        let currentLang = 'ru';
-        let CONFIG = APP_DATA[currentLang];
-    </script>
-    <!-- ========================================================================= -->
-    <!-- 🛑 КОНЕЦ НАСТРОЕК 🛑 -->
-    <!-- ========================================================================= -->
+        const IconArrowLeft = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>;
+        const IconInstagram = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
+        const IconSend = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>;
+        const IconPhone = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
+        const IconMapPin = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+        const IconStar = ({size=24, filled=true, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>;
+        const IconEdit = ({size=24, className=""}) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
 
-    <!-- ============================================== -->
-    <!-- ГЛАВНЫЙ ЭКРАН -->
-    <!-- ============================================== -->
-    <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
+        function App() {
+            const [activeScreen, setActiveScreen] = useState('home');
+            const [tours, setTours] = useState([]);
+            const [isLoadingTours, setIsLoadingTours] = useState(true);
+            const [dynamicBookingLink, setDynamicBookingLink] = useState("");
+            const [sortOrder, setSortOrder] = useState('none');
+            const [touchStart, setTouchStart] = useState(null);
+            const [touchEnd, setTouchEnd] = useState(null);
+            const [reviews, setReviews] = useState([]);
+            const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+            const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+            const [reviewForm, setReviewForm] = useState({ name: '', text: '', rating: 5 });
+            const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [isAppLoading, setIsAppLoading] = useState(true);
+            const [isAppFading, setIsAppFading] = useState(false);
 
-        <!-- ВЕРХНЯЯ ПАНЕЛЬ (Воздушная, без плашки) -->
-        <div class="w-full flex justify-end items-center gap-3 px-2 -mt-4 -mb-4 fade-in relative z-10">
-            <button id="lang-btn" onclick="toggleLanguage()" class="text-white hover:text-gray-200 font-extrabold text-[11px] uppercase transition-colors active:scale-95 font-sans tracking-widest drop-shadow-md">
-                EN
-            </button>
-            <button id="share-btn" onclick="shareProfile()" class="text-white hover:text-gray-200 transition-colors active:scale-95 drop-shadow-md">
-                <i class="ph-bold ph-share-network text-[18px]"></i>
-            </button>
-        </div>
-
-        <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
-        <div class="w-full fade-in">
-            <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow transform-gpu will-change-transform">
-                <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
-                
-                <!-- Блик для 3D эффекта -->
-                <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
-                
-                <!-- Инфо и кнопки (Элегантный Вариант 2) -->
-                <div class="absolute bottom-5 left-5 right-5 text-white z-30 flex items-end justify-between gap-3">
-                    <h1 class="text-[28px] sm:text-3xl font-serif font-bold flex items-center gap-1.5 tracking-tight min-w-0">
-                        <span id="profile-name" class="truncate"></span>
-                        <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
-                    </h1>
-                </div>
-            </div>
-        </div>
-
-        <!-- КРАТКАЯ ИНФОРМАЦИЯ И КНОПКИ УПРАВЛЕНИЯ -->
-        <div class="w-full relative px-2 fade-in delay-1">
-            <p id="profile-bio" class="text-gray-900 font-bold text-sm leading-relaxed text-center px-4"></p>
-        </div>
-
-        <!-- КНОПКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
-        <div class="w-full fade-in delay-2 pt-2">
-            <button onclick="openSheet()" class="w-full relative rounded-3xl p-5 card-shadow transition-transform active:scale-[0.98] flex items-center justify-between text-left">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center shadow-sm bg-black/30 text-white">
-                        <i class="ph-bold ph-user text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-[16px] font-bold text-white" id="ui-about-btn-title">Давайте знакомиться</h3>
-                        <p class="text-[13px] font-medium text-gray-300" id="ui-about-btn-sub">Моя история и путь</p>
-                    </div>
-                </div>
-                <i class="ph-bold ph-caret-right text-gray-400 text-xl"></i>
-            </button>
-        </div>
-
-        <!-- КАРТОЧКИ-РУБРИКИ (Сетка) -->
-        <div class="grid grid-cols-2 gap-3 fade-in delay-2 mt-3" id="links-container">
-            <!-- Карточки сгенерируются через JS -->
-        </div>
-
-        <!-- ОТЗЫВЫ (Карусель без квадратов) -->
-        <div class="pt-5 fade-in delay-2">
-            <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-[18px] font-bold text-gray-900" id="ui-reviews-title">Отзывы</h2>
-                <button onclick="openReviewSheet()" id="ui-write-review-btn" class="text-[12px] font-bold text-white bg-black/30 px-4 py-2 rounded-full backdrop-blur-md active:scale-95 transition-transform shadow-lg">
-                    Написать отзыв
-                </button>
-            </div>
-            
-            <div id="reviews-container" class="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 hide-scrollbar">
-                <!-- Отзывы генерируются через JS -->
-            </div>
-        </div>
-
-        <!-- ИНТЕРАКТИВНАЯ КНОПКА "ПРЕДСКАЗАНИЕ" -->
-        <div class="pt-4 fade-in delay-3">
-            <button onclick="openFortuneSheet()" class="w-full relative card-shadow text-white rounded-[2rem] py-4 px-5 flex items-center justify-between transition-transform active:scale-[0.98] overflow-hidden group">
-                <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-500/10 opacity-70"></div>
-                <div class="flex items-center gap-4 relative z-10">
-                    <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                        🔮
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-[16px] font-bold text-white leading-tight" id="ui-fortune-btn-title">Пожелание дня</h3>
-                        <p class="text-[13px] font-medium text-gray-300 mt-0.5" id="ui-fortune-btn-sub">Получи заряд вдохновения</p>
-                    </div>
-                </div>
-                <i class="ph-bold ph-sparkle text-orange-400 relative z-10 animate-pulse text-2xl"></i>
-            </button>
-            
-            <!-- Футер -->
-            <div class="mt-6 text-center space-y-2">
-                <p class="text-xs text-gray-700 font-bold" id="ui-socials-title">Мои социальные сети</p>
-                <div class="flex justify-center gap-4 text-xs text-gray-800 font-bold">
-                    <a id="social-tg" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">Telegram</a>
-                    <span>|</span>
-                    <a id="social-inst" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">Instagram</a>
-                    <span>|</span>
-                    <a id="social-yt" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">YouTube</a>
-                    <span>|</span>
-                    <a id="social-vk" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">ВКонтакте</a>
-                </div>
-                
-                <!-- 👩‍💻 ССЫЛКА НА РАЗРАБОТЧИКА 👩‍💻 -->
-                <!-- Меняй ссылку в href="" на свою (например: https://t.me/твой_ник) -->
-                <div class="pt-6 pb-2">
-                    <a href="https://t.me/telegram" target="_blank" class="text-[10px] text-gray-500/50 font-medium uppercase tracking-widest" style="color: rgba(107, 114, 128, 0.5) !important; -webkit-tap-highlight-color: transparent;">
-                        design & code by Elena Sotnikova
-                    </a>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ЭКРАН "МОИ УСЛУГИ" (Отдельная страница) -->
-    <!-- ============================================== -->
-    <div id="services-screen" class="w-full max-w-md mx-auto space-y-6 hidden">
-        <!-- Кнопка назад и заголовок -->
-        <div class="flex items-center gap-4 mb-2">
-            <button onclick="closeServicesPage()" class="w-12 h-12 rounded-full border border-white/20 shadow-sm bg-black/30 text-white flex items-center justify-center text-xl active:scale-95 transition-transform">
-                <i class="ph-bold ph-arrow-left"></i>
-            </button>
-            <h2 class="text-2xl font-bold text-gray-900 tracking-tight" id="ui-services-page-title">Мои услуги</h2>
-        </div>
-        
-        <!-- Список услуг -->
-        <div id="services-list" class="space-y-3 pb-8">
-            <!-- Сюда вставятся карточки услуг -->
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
-    <!-- ============================================== -->
-    <div id="sheet-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
-    
-    <div id="about-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
-            <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-about-sheet-title">Обо мне</h2>
-            <!-- Галерея вместо статичного фото -->
-            <div id="about-gallery-container"></div>
-            <div id="about-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium"></div>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ПОСТЫ РУБРИКИ" -->
-    <!-- ============================================== -->
-    <div id="posts-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
-            <h2 id="posts-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white text-center"></h2>
-            <div id="posts-sheet-list" class="space-y-3">
-                <!-- Ссылки на посты -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ОБУЧЕНИЕ" -->
-    <!-- ============================================== -->
-    <div id="training-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
-            <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-training-sheet-title">Обучение</h2>
-            <img id="training-photo" src="" alt="Training" class="w-full aspect-square object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-            <div id="training-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
-            <a id="training-btn" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_5px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
-                Записаться
-            </a>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ОПИСАНИЕ УСЛУГИ" -->
-    <!-- ============================================== -->
-    <div id="service-details-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
-            <h2 id="service-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white leading-tight"></h2>
-            <!-- Галерея вместо статичного фото -->
-            <div id="service-gallery-container"></div>
-            
-            <div class="flex items-baseline gap-3 mb-5 px-1">
-                <span id="service-sheet-new-price" class="text-white font-extrabold text-[28px] drop-shadow-md tracking-tight"></span>
-                <span id="service-sheet-old-price" class="text-gray-400 font-medium text-[16px] line-through"></span>
-            </div>
-
-            <div id="service-sheet-desc" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
-            
-            <a id="service-sheet-btn" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_5px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
-                Записаться
-            </a>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "ПРЕДСКАЗАНИЕ НА ДЕНЬ" -->
-    <!-- ============================================== -->
-    <div id="fortune-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
-            <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-4xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                🔮
-            </div>
-            <h2 class="text-2xl font-bold mb-4 tracking-tight text-white" id="ui-fortune-sheet-title">Твое пожелание на день</h2>
-            <p id="fortune-text" class="text-gray-200 text-[16px] leading-relaxed font-medium mb-6 italic"></p>
-            <a id="fortune-link" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="block w-full text-center bg-white/10 border border-white/20 text-white rounded-2xl p-4 font-bold text-[14px] active:scale-[0.98] transition-transform flex items-center justify-between">
-                <span id="fortune-link-text"></span>
-                <i class="ph-bold ph-caret-right text-gray-400"></i>
-            </a>
-        </div>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ШТОРКА "НАПИСАТЬ ОТЗЫВ" (Модальное окно) -->
-    <!-- ============================================== -->
-    <div id="review-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
-            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
-        </div>
-        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
-            <h2 class="text-2xl font-bold mb-6 tracking-tight text-white" id="ui-review-sheet-title">Оставить отзыв</h2>
-            
-            <!-- Интерактивные звезды -->
-            <div class="flex justify-center gap-3 mb-6" id="star-rating">
-                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(1)"></i>
-                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(2)"></i>
-                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(3)"></i>
-                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(4)"></i>
-                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(5)"></i>
-            </div>
-
-            <!-- Поля ввода -->
-            <input type="text" id="review-input-name" placeholder="Ваше имя" class="w-full bg-white/10 text-white placeholder-gray-400 border-none rounded-2xl px-5 py-4 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-medium">
-            <textarea id="review-input-text" placeholder="Поделитесь впечатлениями..." rows="4" class="w-full bg-white/10 text-white placeholder-gray-400 border-none rounded-2xl px-5 py-4 mb-6 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none font-medium"></textarea>
-            
-            <button onclick="submitReview()" id="review-submit-btn" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_30px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
-                Отправить отзыв
-            </button>
-        </div>
-    </div>
-
-    <!-- ОСНОВНАЯ ЛОГИКА -->
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-        
-        try {
-            tg.disableVerticalSwipes();
-        } catch(e) {}
-        
-        tg.setHeaderColor('#b000ff');
-
-        // Запрет правой кнопки мыши (контекстного меню, п.1)
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        function renderApp() {
-            // Переводы статических элементов интерфейса
-            document.getElementById('ui-about-btn-title').textContent = CONFIG.ui.aboutBtnTitle;
-            document.getElementById('ui-about-btn-sub').textContent = CONFIG.ui.aboutBtnSub;
-            document.getElementById('ui-reviews-title').textContent = CONFIG.ui.reviewsTitle;
-            document.getElementById('ui-write-review-btn').textContent = CONFIG.ui.writeReview;
-            document.getElementById('ui-fortune-btn-title').textContent = CONFIG.ui.fortuneBtnTitle;
-            document.getElementById('ui-fortune-btn-sub').textContent = CONFIG.ui.fortuneBtnSub;
-            document.getElementById('ui-socials-title').textContent = CONFIG.ui.socialsTitle;
-            document.getElementById('ui-services-page-title').textContent = CONFIG.ui.servicesPageTitle;
-            document.getElementById('ui-about-sheet-title').textContent = CONFIG.ui.aboutSheetTitle;
-            document.getElementById('ui-training-sheet-title').textContent = CONFIG.ui.trainingSheetTitle;
-            document.getElementById('training-btn').textContent = CONFIG.ui.enrollBtn;
-            document.getElementById('service-sheet-btn').textContent = CONFIG.ui.enrollBtn;
-            document.getElementById('ui-fortune-sheet-title').textContent = CONFIG.ui.fortuneSheetTitle;
-            document.getElementById('ui-review-sheet-title').textContent = CONFIG.ui.reviewSheetTitle;
-            document.getElementById('review-input-name').placeholder = CONFIG.ui.reviewNamePlaceholder;
-            document.getElementById('review-input-text').placeholder = CONFIG.ui.reviewTextPlaceholder;
-            document.getElementById('review-submit-btn').textContent = CONFIG.ui.reviewSubmitBtn;
-
-            // Профиль
-            document.getElementById('profile-avatar').src = CONFIG.profile.avatar;
-            document.getElementById('profile-name').textContent = CONFIG.profile.name;
-            document.getElementById('profile-bio').textContent = CONFIG.profile.bio;
-
-            // Шторка "Давайте знакомиться" (Рендерим галерею)
-            renderGallery('about-gallery-container', CONFIG.about.photos || [CONFIG.about.photo]);
-            document.getElementById('about-text').innerHTML = CONFIG.about.text;
-
-            // Генерация квадратных карточек-рубрик
-            const container = document.getElementById('links-container');
-            container.innerHTML = '';
-            
-            CONFIG.categories.forEach((item, index) => {
-                let onClickAction = `openPostsSheet(${index})`;
-                if (item.action === 'training') onClickAction = `openTrainingSheet()`;
-                if (item.action === 'services') onClickAction = `openServicesPage()`;
-
-                if (item.type === 'wide') {
-                    const badgeHtml = item.badge 
-                        ? `<div class="absolute -top-3 left-6 bg-white text-black text-[10px] font-extrabold px-3 py-1 w-max rounded-full shadow-[0_5px_15px_rgba(255,255,255,0.3)] z-10">${item.badge}</div>` 
-                        : '';
-
-                    container.innerHTML += `
-                        <button onclick="${onClickAction}" class="col-span-2 block relative rounded-3xl p-5 card-shadow transition-transform active:scale-[0.98] flex items-center justify-between text-left w-full mt-1">
-                            ${badgeHtml}
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center bg-white/10 text-white text-2xl shadow-sm shrink-0">
-                                    ${item.icon}
-                                </div>
-                                <div>
-                                    <h3 class="text-[16px] font-bold text-white">${item.title}</h3>
-                                    ${item.subtitle ? `<p class="text-[13px] font-medium text-gray-300 mt-0.5">${item.subtitle}</p>` : ''}
-                                </div>
-                            </div>
-                            <i class="ph-bold ph-caret-right text-gray-400 text-xl"></i>
-                        </button>
-                    `;
-                } else {
-                    const badgeHtml = item.badge 
-                        ? `<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-extrabold px-3 py-1 w-max rounded-full shadow-[0_5px_15px_rgba(255,255,255,0.3)] z-10">${item.badge}</div>` 
-                        : '';
-
-                    container.innerHTML += `
-                        <button onclick="${onClickAction}" class="block relative rounded-3xl p-4 card-shadow transition-transform active:scale-[0.98] flex flex-col items-center justify-center aspect-square w-full text-center">
-                            ${badgeHtml}
-                            <div class="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center mb-3 bg-white/10 text-2xl text-white">
-                                ${item.icon}
-                            </div>
-                            <h3 class="text-[14px] font-bold text-white leading-tight">${item.title}</h3>
-                        </button>
-                    `;
-                }
-            });
-
-            // Рендер списка услуг для отдельной страницы
-            const servicesList = document.getElementById('services-list');
-            servicesList.innerHTML = '';
-            CONFIG.services.forEach((s, index) => {
-                const thumb = s.photos && s.photos.length > 0 ? s.photos[0] : s.photo;
-                servicesList.innerHTML += `
-                    <div class="card-shadow rounded-3xl p-4 flex gap-4 active:scale-[0.98] transition-transform text-left cursor-pointer" onclick="openServiceDetails(${index})">
-                        <img src="${thumb}" class="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-lg border border-white/10">
-                        <div class="flex flex-col justify-between w-full">
-                            <div>
-                                <h3 class="text-white font-bold text-[15px] mb-1 leading-tight">${s.title}</h3>
-                                <p class="text-gray-300 text-[12px] line-clamp-2 leading-tight">${s.shortDesc}</p>
-                            </div>
-                            <div class="flex items-end justify-between mt-2">
-                                <div class="flex flex-col">
-                                    ${s.oldPrice ? `<span class="text-gray-400 text-[11px] line-through leading-none mb-0.5">${s.oldPrice}</span>` : ''}
-                                    <span class="text-white font-bold text-[15px] leading-none drop-shadow-md">${s.newPrice}</span>
-                                </div>
-                                <div class="text-[11px] font-bold text-white bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
-                                    ${CONFIG.ui.moreBtn} <i class="ph-bold ph-caret-right"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Рендер карусели отзывов (Премиальные стеклянные плашки)
-            const reviewsContainer = document.getElementById('reviews-container');
-            reviewsContainer.innerHTML = '';
-            CONFIG.reviews.forEach(review => {
-                let starsHtml = '';
-                for(let i=0; i<5; i++) {
-                    if(i < review.stars) {
-                        starsHtml += '<i class="ph-fill ph-star text-orange-400 drop-shadow-md"></i>';
-                    } else {
-                        starsHtml += '<i class="ph ph-star text-gray-500"></i>';
+            useEffect(() => {
+                if (window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.ready();
+                    window.Telegram.WebApp.expand();
+                    if (window.Telegram.WebApp.disableVerticalSwipes) {
+                        window.Telegram.WebApp.disableVerticalSwipes();
                     }
                 }
-                
-                reviewsContainer.innerHTML += `
-                    <div class="snap-start shrink-0 w-[85%] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[1.5rem] p-5 flex flex-col justify-between relative overflow-hidden ml-1 my-2">
-                        <!-- Декоративный легкий блик -->
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                        
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2.5">
-                                    <!-- Аватарка (первая буква имени) -->
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xs border border-white/20 shadow-sm">
-                                        ${review.name.charAt(0)}
+
+                if (window.Papa && CONFIG.googleSheetUrl) {
+                    window.Papa.parse(CONFIG.googleSheetUrl, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            let foundGlobalLink = "";
+                            const validTours = results.data.map(row => {
+                                const linkKey = Object.keys(row).find(k => k.trim().toLowerCase() === 'bookinglink');
+                                const rowLink = linkKey ? row[linkKey].trim() : '';
+                                if (rowLink && !foundGlobalLink) foundGlobalLink = rowLink;
+                                return { ...row, _actualLink: rowLink };
+                            }).filter(row => row.title && row.price);
+                            setDynamicBookingLink(foundGlobalLink);
+                            setTours(validTours);
+                            setIsLoadingTours(false);
+                        },
+                        error: function(err) {
+                            console.error("Ошибка загрузки туров:", err);
+                            setIsLoadingTours(false);
+                        }
+                    });
+                } else {
+                    setIsLoadingTours(false);
+                }
+
+                if (window.Papa && CONFIG.reviewsCsvUrl) {
+                    window.Papa.parse(CONFIG.reviewsCsvUrl, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            const fetchedReviews = results.data
+                                .filter(row => row.name && row.text)
+                                .map((row, index) => ({
+                                    id: index,
+                                    name: row.name,
+                                    date: row.date,
+                                    rating: parseInt(row.rating) || 5,
+                                    text: row.text
+                                })).reverse();
+                            setReviews(fetchedReviews);
+                            setIsLoadingReviews(false);
+                        },
+                        error: function(err) {
+                            console.error("Ошибка загрузки отзывов:", err);
+                            setIsLoadingReviews(false);
+                        }
+                    });
+                } else {
+                    setIsLoadingReviews(false);
+                }
+
+                const fadeTimer = setTimeout(() => setIsAppFading(true), 1500);
+                const removeTimer = setTimeout(() => setIsAppLoading(false), 2000);
+                return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
+            }, []);
+
+            const triggerHaptic = () => {
+                if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                else if (navigator.vibrate) navigator.vibrate(50);
+            };
+
+            const navigateTo = (screen, customLink = null) => {
+                triggerHaptic();
+                if (screen === 'booking') {
+                    const linkToOpen = CONFIG.bookingLink;
+                    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(linkToOpen);
+                    else window.open(linkToOpen, '_blank');
+                    return;
+                }
+                if (screen === 'quiQuo') {
+                    const linkToOpen = customLink || dynamicBookingLink;
+                    if (!linkToOpen) { alert("Ссылка на подборку еще не добавлена!"); return; }
+                    if (window.Telegram?.WebApp?.openLink) window.Telegram.WebApp.openLink(linkToOpen);
+                    else window.open(linkToOpen, '_blank');
+                    return;
+                }
+                setActiveScreen(screen);
+                window.scrollTo(0, 0);
+            };
+
+            const extractPrice = (priceStr) => { if (!priceStr) return 0; return parseInt(priceStr.replace(/\D/g, ''), 10) || 0; };
+            const onTouchStart = (e) => { setTouchEnd(null); setTouchStart({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY }); };
+            const onTouchMove = (e) => { setTouchEnd({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY }); };
+            const onTouchEnd = () => {
+                if (!touchStart || !touchEnd) return;
+                const distanceX = touchEnd.x - touchStart.x;
+                const distanceY = Math.abs(touchEnd.y - touchStart.y);
+                const isEdgeSwipe = touchStart.x <= 30;
+                if (isEdgeSwipe && distanceX > 80 && distanceY < 50) {
+                    if (activeScreen !== 'home') navigateTo('home');
+                }
+            };
+
+            const handleSubmitReview = async (e) => {
+                e.preventDefault();
+                if (isSubmitting) return;
+                setIsSubmitting(true);
+                try {
+                    await fetch(CONFIG.reviewsPostUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(reviewForm) });
+                    setIsReviewSubmitted(true);
+                    const d = new Date();
+                    const newDateStr = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+                    setReviews(prev => [{ id: Date.now(), name: reviewForm.name, date: newDateStr, rating: reviewForm.rating, text: reviewForm.text }, ...prev]);
+                    setTimeout(() => { setIsReviewModalOpen(false); setIsReviewSubmitted(false); setReviewForm({ name: '', text: '', rating: 5 }); }, 3000);
+                } catch (error) { alert("Ошибка при отправке."); } finally { setIsSubmitting(false); }
+            };
+
+            const Polaroid = ({ src, className, tilt, children }) => (
+                <div className={`absolute p-2 pb-10 bg-[#fdfdfd] shadow-[2px_10px_20px_rgba(0,0,0,0.3)] border border-gray-200/50 rounded-[2px] ${className}`} style={{ transform: `rotate(${tilt}deg)`, boxShadow: 'inset 0 0 5px rgba(0,0,0,0.1), 2px 10px 20px rgba(0,0,0,0.3)' }}>
+                    <img src={src} alt="Travel" className="w-32 h-32 object-cover border border-gray-300/50" />
+                    {children}
+                </div>
+            );
+
+            return (
+                <div 
+                    className="app-container bg-paper text-[#2C2C2C] selection:bg-amber-200 hide-scrollbar"
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
+                >
+                    {isAppLoading && (
+                        <div className={`fixed inset-0 z-[100] bg-[#fce2b1] flex flex-col items-center justify-center transition-opacity duration-500 ${isAppFading ? 'opacity-0' : 'opacity-100'}`}>
+                            <div className="relative flex justify-center items-center">
+                                <div className="absolute w-20 h-20 border-[3px] border-[#E7D6BD] rounded-full"></div>
+                                <div className="absolute w-20 h-20 border-[3px] border-[#d4af37] rounded-full border-t-transparent animate-spin" style={{ animationDuration: '1.2s' }}></div>
+                                <div className="absolute w-14 h-14 border-[2px] border-[#d4af37]/40 rounded-full border-b-transparent animate-spin" style={{ animationDuration: '0.8s', animationDirection: 'reverse' }}></div>
+                                <IconMapPin size={22} className="text-[#d4af37] animate-pulse" />
+                            </div>
+                            <h2 className="mt-8 text-xs font-serif font-bold text-[#2C2C2C] tracking-[0.3em] uppercase animate-pulse text-center px-4">{CONFIG.brandName}</h2>
+                        </div>
+                    )}
+
+                    {activeScreen === 'home' && (
+                        <div className="relative min-h-screen flex flex-col items-center p-4 animate-fade">
+                            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-80">
+                                <img src="https://i.postimg.cc/d0Hphrqc/shablon-klev-club-oe00-p-shabloni-konvert-v-angliyu-22.jpg" alt="Конверт" className="absolute top-[350px] -left-[170px] w-[260px] h-[170px] transform -rotate-[12deg] z-0 shadow-[4px_6px_15px_rgba(0,0,0,0.2)] object-cover" />
+                                <Polaroid src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=300" className="top-10 -left-16 z-10" tilt={-12}>
+                                    <div className="absolute top-1 right-1 opacity-80 text-[#1a1a1a] rotate-[20deg]">
+                                        <svg width="100" height="40" viewBox="0 0 120 50" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                                            <circle cx="25" cy="25" r="20" /><circle cx="25" cy="25" r="14" />
+                                            <text x="25" y="23" textAnchor="middle" fontSize="6" fill="currentColor" strokeWidth="0" className="font-sans font-bold">PARIS</text>
+                                            <text x="25" y="32" textAnchor="middle" fontSize="5" fill="currentColor" strokeWidth="0" className="font-sans">24 OCT</text>
+                                            <path d="M 50 15 Q 55 10, 60 15 T 70 15 T 80 15 T 90 15 T 100 15 T 110 15" /><path d="M 50 20 Q 55 15, 60 20 T 70 20 T 80 20 T 90 20 T 100 20 T 110 20" />
+                                        </svg>
                                     </div>
-                                    <h4 class="text-white font-bold text-[15px]">${review.name}</h4>
+                                </Polaroid>
+                                <div className="absolute top-32 -right-6 transform rotate-[15deg] postage-stamp w-24 h-24">
+                                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=300" alt="Stamp" className="w-full h-full object-cover" />
                                 </div>
-                                <span class="text-gray-300 text-[11px] font-medium opacity-80">${review.date}</span>
+                                <Polaroid src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=300" className="bottom-20 -right-8" tilt={-8} />
+                                <Polaroid src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&q=80&w=300" className="bottom-10 -left-10" tilt={12} />
                             </div>
-                            <div class="flex gap-1 mb-3 text-[14px]">
-                                ${starsHtml}
+
+                            <div className="z-10 w-full flex flex-col items-center flex-1 mt-4">
+                                <div className="flex flex-col items-center animate-item" style={{animationDelay: '0.1s'}}>
+                                    <img src={CONFIG.avatarUrl} alt="Аватар" className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-xl mb-2" />
+                                    <h1 className="text-2xl font-serif font-bold text-[#2C2C2C] text-center uppercase tracking-wide">{CONFIG.brandName}</h1>
+                                    <p className="text-sm font-serif italic text-[#5c5c5c] text-center px-4 mt-1">{CONFIG.slogan}</p>
+                                </div>
+                                <div className="relative w-full flex justify-center items-center mt-6 mb-2 h-60 animate-item" style={{animationDelay: '0.15s'}}>
+                                    <div className="absolute z-10 p-1.5 pb-10 bg-[#fdfdfd] border border-gray-200/50 rounded-[2px] transform rotate-[8deg] -translate-x-[85px] -translate-y-[10px]" style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.1), 2px 10px 20px rgba(0,0,0,0.3)' }}>
+                                        <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&q=80&w=300" alt="Rome" className="w-32 h-32 object-cover border border-gray-300/50" />
+                                    </div>
+                                    <div className="absolute z-30 p-1.5 pb-10 bg-[#fdfdfd] border border-gray-200/50 rounded-[2px] transform -rotate-[6deg] translate-x-[95px] translate-y-4" style={{ boxShadow: 'inset 0 0 5px rgba(0,0,0,0.1), 2px 10px 20px rgba(0,0,0,0.3)' }}>
+                                        <img src="https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80&w=300" alt="Thailand" className="w-32 h-32 object-cover border border-gray-300/50" />
+                                        <div className="absolute bottom-1 left-0 right-0 text-center text-[#0033aa] text-2xl" style={{ fontFamily: "'Caveat', cursive", transform: "rotate(-2deg)" }}>Тайланд 2026</div>
+                                    </div>
+                                    <div className="absolute z-20 p-2 pb-10 bg-[#fdfdfd] border border-gray-200/50 rounded-[2px] transform -rotate-2" style={{ boxShadow: 'inset 0 0 6px rgba(0,0,0,0.1), 4px_15px_25px_rgba(0,0,0,0.4)' }}>
+                                        <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=400" alt="Paris" className="w-32 h-32 object-cover border border-gray-300/50" />
+                                    </div>
+                                </div>
+                                <div className="w-full flex flex-col gap-3 px-4 mt-auto mb-4">
+                                    <button onClick={() => navigateTo('about')} className="animate-item bg-[#F8F1E5]/70 backdrop-blur-sm border-2 border-black rounded-full py-3 text-base font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-1 transition-all" style={{animationDelay: '0.2s'}}>Обо мне</button>
+                                    <button onClick={() => navigateTo('tours')} className="animate-item bg-[#F8F1E5]/70 backdrop-blur-sm border-2 border-black rounded-full py-3 text-base font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-1 transition-all" style={{animationDelay: '0.3s'}}>Горящие туры</button>
+                                    <button onClick={() => navigateTo('contacts')} className="animate-item bg-[#F8F1E5]/70 backdrop-blur-sm border-2 border-black rounded-full py-3 text-base font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-1 transition-all" style={{animationDelay: '0.4s'}}>Контакты</button>
+                                    <button onClick={() => navigateTo('reviews')} className="animate-item bg-[#F8F1E5]/70 backdrop-blur-sm border-2 border-black rounded-full py-3 text-base font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-1 transition-all" style={{animationDelay: '0.5s'}}>Отзывы</button>
+                                </div>
                             </div>
-                            <p class="text-gray-100 text-[13px] leading-relaxed font-medium italic">"${review.text}"</p>
                         </div>
-                    </div>
-                `;
-            });
+                    )}
 
-            // Соцсети
-            document.getElementById('social-tg').href = CONFIG.socials.telegram;
-            document.getElementById('social-inst').href = CONFIG.socials.instagram;
-            document.getElementById('social-yt').href = CONFIG.socials.youtube;
-            document.getElementById('social-vk').href = CONFIG.socials.vk;
-        }
+                    {activeScreen === 'about' && (
+                        <div className="min-h-screen p-6 animate-fade bg-paper">
+                            <button onClick={() => navigateTo('home')} className="flex items-center gap-2 mb-6 font-medium text-black/70"><IconArrowLeft size={20} /> Назад</button>
+                            <div className="bg-white p-1 rounded-2xl shadow-md mb-6 rotate-1 max-w-sm mx-auto"><img src={CONFIG.about.photoUrl} alt="About" className="w-full h-64 object-cover rounded-xl" /></div>
+                            <div className="max-w-sm mx-auto text-center px-2">
+                                <h2 className="text-3xl font-serif font-bold mb-4">{CONFIG.about.title}</h2>
+                                <p className="text-lg font-serif italic text-[#5c5c5c] leading-relaxed whitespace-pre-line">{CONFIG.about.text}</p>
+                            </div>
+                        </div>
+                    )}
 
-        // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА ---
-        function toggleLanguage() {
-            tg.HapticFeedback.impactOccurred('medium');
-            const langBtn = document.getElementById('lang-btn');
-            
-            // Находим главные экраны для эффекта плавного затухания
-            const screens = [document.getElementById('main-screen'), document.getElementById('services-screen')];
-            
-            // Плавно прячем контент
-            screens.forEach(s => { 
-                if(s) {
-                    s.style.transition = 'opacity 0.2s ease'; 
-                    s.style.opacity = '0'; 
-                }
-            });
-            
-            // Меняем язык через 200мс (пока контент скрыт)
-            setTimeout(() => {
-                currentLang = currentLang === 'ru' ? 'en' : 'ru';
-                langBtn.textContent = currentLang === 'ru' ? 'EN' : 'RU';
-                
-                // Берем нужный конфиг (APP_DATA.ru или APP_DATA.en)
-                CONFIG = APP_DATA[currentLang];
-                
-                // Перерисовываем интерфейс с новыми данными
-                renderApp();
-                
-                // Плавно возвращаем контент
-                screens.forEach(s => { 
-                    if(s) s.style.opacity = '1'; 
-                });
-            }, 200);
-        }
+                    {activeScreen === 'tours' && (
+                        <div className="min-h-screen p-6 animate-fade bg-paper">
+                            <button onClick={() => navigateTo('home')} className="flex items-center gap-2 mb-6 font-medium text-black/70"><IconArrowLeft size={20} /> Назад</button>
+                            <h2 className="text-3xl font-serif font-bold mb-2 text-center">Горящие туры</h2>
+                            <div className="w-full flex justify-between items-center mb-4 px-2">
+                                <button onClick={() => setSortOrder(prev => prev === 'none' ? 'asc' : prev === 'asc' ? 'desc' : 'none')} className="bg-transparent border-b border-gray-400 text-sm font-serif outline-none py-1 text-gray-700 active:opacity-50 transition-opacity flex items-center gap-1">
+                                    {sortOrder === 'none' ? 'Сортировка' : sortOrder === 'asc' ? 'Дешевле' : 'Дороже'}
+                                    <span className="text-[10px]">{sortOrder === 'none' ? '↕' : sortOrder === 'asc' ? '↓' : '↑'}</span>
+                                </button>
+                                <div className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.6)] animate-pulse"></span><span className="text-[10px] font-serif italic text-[#5c5c5c]">Обновлено сегодня</span></div>
+                            </div>
+                            {isLoadingTours ? (
+                                <div className="flex justify-center items-center h-40"><div className="w-8 h-8 border-4 border-black/20 border-t-black rounded-full animate-spin"></div></div>
+                            ) : (
+                                <div className="flex flex-col gap-4 w-full">
+                                    {[...tours].sort((a, b) => {
+                                        if (sortOrder === 'asc') return extractPrice(a.price) - extractPrice(b.price);
+                                        if (sortOrder === 'desc') return extractPrice(b.price) - extractPrice(a.price);
+                                        return 0;
+                                    }).map((tour, index) => (
+                                        <div key={index} onClick={() => navigateTo('quiQuo', tour._actualLink)} className="relative bg-white p-3 rounded-2xl shadow-md flex gap-4 border border-[#E7D6BD] active:scale-95 transition-all cursor-pointer">
+                                            <div className="absolute top-2 right-2 w-6 h-6 bg-[#84cc16] text-white text-[10px] font-bold rounded shadow-sm flex items-center justify-center z-10">{tour.rating || "5.0"}</div>
+                                            <div className="shrink-0"><img src={tour.imageUrl} className="w-24 h-full min-h-[105px] object-cover rounded-xl" /></div>
+                                            <div className="flex flex-col justify-between w-full min-w-0 py-0.5">
+                                                <div><div className="font-bold text-[13px] leading-snug truncate">{tour.hotel}</div><div className="text-[11px] text-gray-500 truncate">{tour.dates}</div><div className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5 truncate"><IconMapPin size={12} className="text-gray-400" /><span>{tour.title}</span></div></div>
+                                                <div className="flex items-end justify-between mt-3">
+                                                    <div className="flex flex-col"><span className="line-through text-[10px] text-gray-400 mb-0.5">{tour.oldPrice}</span><span className="font-bold text-[15px]">{tour.price}</span></div>
+                                                    <button className="bg-black text-white text-[11px] font-semibold py-1.5 px-3 rounded-lg">Подробнее</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-        // --- ЛОГИКА ФОРМЫ ОТЗЫВОВ ---
-        let currentRating = 0;
-        function setRating(stars) {
-            currentRating = stars;
-            tg.HapticFeedback.impactOccurred('light');
-            const starElements = document.querySelectorAll('#star-rating i');
-            starElements.forEach((el, index) => {
-                if (index < stars) {
-                    el.classList.remove('text-gray-500');
-                    el.classList.add('text-orange-400');
-                } else {
-                    el.classList.remove('text-orange-400');
-                    el.classList.add('text-gray-500');
-                }
-            });
-        }
+                    {activeScreen === 'contacts' && (
+                        <div className="min-h-screen p-6 animate-fade bg-paper flex flex-col items-center justify-center">
+                            <div className="absolute top-6 left-6"><button onClick={() => navigateTo('home')} className="flex items-center gap-2 font-medium text-black/70"><IconArrowLeft size={20} /> Назад</button></div>
+                            <h2 className="text-3xl font-serif font-bold mb-8 text-center">Всегда на связи</h2>
+                            <div className="w-full flex flex-col gap-4 px-4">
+                                <a href={CONFIG.contacts.telegram} target="_blank" className="flex items-center gap-4 bg-white/70 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm active:scale-95 transition-all">
+                                    <div className="bg-white p-3 rounded-full text-[#0088cc]"><IconSend size={24} /></div><span className="text-lg font-medium">Написать в Telegram</span>
+                                </a>
+                                <a href={CONFIG.contacts.instagram} target="_blank" className="flex items-center gap-4 bg-white/70 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm active:scale-95 transition-all">
+                                    <div className="bg-white p-3 rounded-full text-[#E1306C]"><IconInstagram size={24} /></div><span className="text-lg font-medium">Мой Instagram</span>
+                                </a>
+                                <a href={`tel:${CONFIG.contacts.phone}`} className="flex items-center gap-4 bg-white/70 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm active:scale-95 transition-all">
+                                    <div className="bg-white p-3 rounded-full text-green-600"><IconPhone size={24} /></div><span className="text-lg font-medium">{CONFIG.contacts.phone}</span>
+                                </a>
+                            </div>
+                        </div>
+                    )}
 
-        function openReviewSheet() {
-            tg.HapticFeedback.impactOccurred('medium');
-            document.body.style.overflow = 'hidden'; 
-            
-            // Сброс формы перед открытием
-            setRating(0);
-            document.getElementById('review-input-name').value = '';
-            document.getElementById('review-input-text').value = '';
+                    {activeScreen === 'reviews' && (
+                        <div className="min-h-screen pt-6 px-6 animate-fade bg-paper flex flex-col relative">
+                            <button onClick={() => navigateTo('home')} className="flex items-center gap-2 mb-6 font-medium text-black/70 shrink-0"><IconArrowLeft size={20} /> Назад</button>
+                            <h2 className="text-3xl font-serif font-bold mb-8 text-center">Отзывы туристов</h2>
+                            <div className="flex flex-col gap-6 w-full max-w-sm mx-auto pb-32">
+                                {isLoadingReviews ? (<div className="flex justify-center h-40 items-center"><div className="w-8 h-8 border-4 border-black/20 border-t-black rounded-full animate-spin"></div></div>) : (
+                                    reviews.map(review => (
+                                        <div key={review.id} className="relative bg-[#FFFcf5] p-5 rounded-sm shadow-sm border border-[#e8dcc7] flex flex-col gap-3">
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-white/40 backdrop-blur-md rotate-[-2deg]"></div>
+                                            <div className="flex justify-between items-start">
+                                                <div><h3 className="font-bold text-lg font-serif">{review.name}</h3><div className="text-[9px] text-gray-400 tracking-wider mt-0.5">{review.date}</div></div>
+                                                <div className="flex gap-0.5 text-amber-400">{[...Array(5)].map((_, i) => <IconStar key={i} size={14} filled={i < review.rating} />)}</div>
+                                            </div>
+                                            <p className="text-[#5c5c5c] font-serif italic text-sm leading-relaxed">"{review.text}"</p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] pb-6 pt-16 px-6 bg-gradient-to-t from-[#fce2b1] via-[#fce2b1] to-transparent flex justify-center z-20 pointer-events-none">
+                                <button onClick={() => setIsReviewModalOpen(true)} className="w-full max-w-sm flex justify-center items-center gap-2 bg-[#F8F1E5]/90 border-2 border-black rounded-full py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-1 transition-all pointer-events-auto">
+                                    <IconEdit size={18} /> Написать отзыв
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
-            const sheet = document.getElementById('review-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        function submitReview() {
-            if (currentRating === 0) {
-                tg.HapticFeedback.notificationOccurred('warning');
-                showToast(CONFIG.ui.toastWarning, 'ph-fill ph-warning-circle');
-                return; // Не даем отправить без оценки
-            }
-            // Здесь в будущем будет отправка в Google Таблицы
-            showToast(CONFIG.ui.toastSuccess, 'ph-fill ph-heart');
-            closeSheet();
-        }
-
-        // Открытие шторки Предсказания
-        function openFortuneSheet() {
-            tg.HapticFeedback.impactOccurred('medium');
-            document.body.style.overflow = 'hidden'; 
-
-            const randomIndex = Math.floor(Math.random() * CONFIG.fortunes.length);
-            const fortune = CONFIG.fortunes[randomIndex];
-
-            document.getElementById('fortune-text').innerHTML = `«${fortune.text}»`;
-            document.getElementById('fortune-link-text').textContent = fortune.postTitle;
-            document.getElementById('fortune-link').href = fortune.postLink;
-
-            const sheet = document.getElementById('fortune-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        // --- ЛОГИКА ОТКРЫТИЯ ЭКРАНОВ И ШТОРОК ---
-
-        // Открытие страницы Услуг
-        function openServicesPage() {
-            tg.HapticFeedback.impactOccurred('light');
-            document.getElementById('main-screen').classList.add('hidden');
-            const servicesScreen = document.getElementById('services-screen');
-            servicesScreen.classList.remove('hidden');
-            servicesScreen.classList.add('fade-in');
-            window.scrollTo(0, 0);
-        }
-
-        // Закрытие страницы Услуг
-        function closeServicesPage() {
-            tg.HapticFeedback.impactOccurred('light');
-            document.getElementById('services-screen').classList.add('hidden');
-            document.getElementById('main-screen').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        // Открытие шторки с конкретной услугой
-        function openServiceDetails(index) {
-            tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden';
-
-            const service = CONFIG.services[index];
-            document.getElementById('service-sheet-title').textContent = service.title;
-            renderGallery('service-gallery-container', service.photos || [service.photo]);
-            document.getElementById('service-sheet-desc').innerHTML = service.fullDesc;
-            document.getElementById('service-sheet-new-price').textContent = service.newPrice;
-            document.getElementById('service-sheet-old-price').textContent = service.oldPrice || '';
-            document.getElementById('service-sheet-btn').href = service.buttonLink;
-
-            const sheet = document.getElementById('service-details-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        // Открытие шторки Обучения
-        function openTrainingSheet() {
-            tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
-
-            document.getElementById('training-photo').src = CONFIG.training.photo;
-            document.getElementById('training-text').innerHTML = CONFIG.training.text;
-            document.getElementById('training-btn').href = CONFIG.training.buttonLink;
-
-            const sheet = document.getElementById('training-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        // Открытие шторки с постами
-        function openPostsSheet(index) {
-            tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
-            
-            const category = CONFIG.categories[index];
-            document.getElementById('posts-sheet-title').textContent = category.title;
-            
-            const list = document.getElementById('posts-sheet-list');
-            list.innerHTML = '';
-            category.posts.forEach(post => {
-                list.innerHTML += `
-                    <a href="${post.link}" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
-                        <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
-                        <i class="ph-bold ph-caret-right text-gray-300"></i>
-                    </a>
-                `;
-            });
-
-            const sheet = document.getElementById('posts-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        // Открытие шторки "Обо мне"
-        function openSheet() {
-            tg.HapticFeedback.impactOccurred('light');
-            document.body.style.overflow = 'hidden'; 
-            const sheet = document.getElementById('about-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.remove('hidden');
-            setTimeout(() => {
-                overlay.classList.remove('opacity-0');
-                sheet.classList.remove('translate-y-full');
-            }, 10);
-        }
-
-        // Универсальное закрытие любой шторки
-        function closeSheet() {
-            document.body.style.overflow = ''; 
-            const aboutSheet = document.getElementById('about-sheet');
-            const postsSheet = document.getElementById('posts-sheet');
-            const trainingSheet = document.getElementById('training-sheet');
-            const serviceDetailsSheet = document.getElementById('service-details-sheet');
-            const fortuneSheet = document.getElementById('fortune-sheet');
-            const reviewSheet = document.getElementById('review-sheet');
-            const overlay = document.getElementById('sheet-overlay');
-            
-            overlay.classList.add('opacity-0');
-            aboutSheet.classList.add('translate-y-full');
-            postsSheet.classList.add('translate-y-full');
-            trainingSheet.classList.add('translate-y-full');
-            serviceDetailsSheet.classList.add('translate-y-full');
-            fortuneSheet.classList.add('translate-y-full');
-            reviewSheet.classList.add('translate-y-full');
-            
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 300);
-        }
-
-        // --- НОВЫЕ ФУНКЦИИ (ТОСТЫ, ГАЛЕРЕЯ, ПОДЕЛИТЬСЯ) ---
-        
-        // Всплывающее уведомление (Toast)
-        let toastTimeout;
-        function showToast(message, iconClass = 'ph-fill ph-check-circle') {
-            tg.HapticFeedback.notificationOccurred('success');
-            const toast = document.getElementById('toast');
-            toast.innerHTML = `<i class="${iconClass} text-orange-400 text-lg"></i><span>${message}</span>`;
-            
-            toast.classList.remove('-translate-y-24', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-            
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('-translate-y-24', 'opacity-0');
-            }, 2500);
-        }
-
-        // Кнопка Поделиться (Share)
-        function shareProfile() {
-            tg.HapticFeedback.impactOccurred('medium');
-            // Здесь должна быть ссылка на твоего бота, который открывает это приложение
-            const shareUrl = "https://t.me/telegram"; 
-            const shareText = "🔥 Смотри крутое фаер-шоу Полины Чубакиной!";
-            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
-            tg.openTelegramLink(telegramUrl);
-        }
-
-        // Рендер галереи-свайпера с точками
-        function renderGallery(containerId, photos) {
-            const wrapper = document.getElementById(containerId);
-            if (!photos || photos.length === 0) return;
-            
-            const aspectClass = containerId === 'service-gallery-container' ? 'aspect-video' : 'aspect-square';
-            
-            let html = `
-            <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" id="${containerId}-scroll" onscroll="updateGalleryDots('${containerId}')">
-                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-cover shrink-0 snap-center">`).join('')}
+                    {isReviewModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade">
+                            <div className="bg-[#FFFcf5] w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-item border border-[#e8dcc7]">
+                                <button onClick={() => setIsReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                {isReviewSubmitted ? (
+                                    <div className="py-10 flex flex-col items-center text-center animate-fade">
+                                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                        <h3 className="text-2xl font-serif font-bold mb-2">Спасибо!</h3>
+                                        <p className="text-sm">Ваш отзыв скоро появится.</p>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleSubmitReview} className="flex flex-col gap-6">
+                                        <h3 className="text-2xl font-serif font-bold">Ваш отзыв</h3>
+                                        <div className="flex flex-col gap-2"><label className="text-xs uppercase tracking-wide">Оценка</label><div className="flex gap-2 text-amber-400">{[1, 2, 3, 4, 5].map((star) => <button type="button" key={star} onClick={() => setReviewForm({...reviewForm, rating: star})} className="active:scale-75 transition-all"><IconStar size={36} filled={star <= reviewForm.rating} /></button>)}</div></div>
+                                        <div className="flex flex-col gap-1"><label className="text-xs uppercase tracking-wide">Имя</label><input type="text" required value={reviewForm.name} onChange={(e) => setReviewForm({...reviewForm, name: e.target.value})} className="w-full bg-transparent border-b-2 border-[#d4af37]/30 focus:border-[#d4af37] transition-colors py-2 outline-none font-serif text-lg" placeholder="Например: Мария" /></div>
+                                        <div className="flex flex-col gap-1"><label className="text-xs uppercase tracking-wide">Впечатления</label><textarea required rows="3" value={reviewForm.text} onChange={(e) => setReviewForm({...reviewForm, text: e.target.value})} className="w-full bg-transparent border-b-2 border-[#d4af37]/30 focus:border-[#d4af37] transition-colors py-2 outline-none font-serif text-base resize-none" placeholder="Пару слов об отдыхе..."></textarea></div>
+                                        <button type="submit" disabled={isSubmitting} className="w-full bg-[#d4af37] text-white py-4 rounded-xl font-bold mt-2 shadow-lg active:scale-95 transition-all">{isSubmitting ? 'Отправка...' : 'Отправить отзыв'}</button>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
-                ${photos.length > 1 ? `
-                <div class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10" id="${containerId}-dots">
-                    ${photos.map((_, i) => `<div class="w-2 h-2 rounded-full bg-white transition-all duration-300 shadow-md ${i === 0 ? 'opacity-100 scale-125' : 'opacity-40'}"></div>`).join('')}
-                </div>
-                ` : ''}
-            </div>
-            `;
-            wrapper.innerHTML = html;
+            );
         }
 
-        // Обновление активной точки при свайпе галереи
-        function updateGalleryDots(containerId) {
-            const scrollContainer = document.getElementById(`${containerId}-scroll`);
-            const dotsContainer = document.getElementById(`${containerId}-dots`);
-            if (!scrollContainer || !dotsContainer) return;
-            
-            const scrollLeft = scrollContainer.scrollLeft;
-            const width = scrollContainer.clientWidth;
-            const index = Math.round(scrollLeft / width);
-            
-            Array.from(dotsContainer.children).forEach((dot, i) => {
-                if (i === index) {
-                    dot.classList.remove('opacity-40');
-                    dot.classList.add('opacity-100', 'scale-125');
-                } else {
-                    dot.classList.remove('opacity-100', 'scale-125');
-                    dot.classList.add('opacity-40');
-                }
-            });
-        }
-
-        window.onload = () => {
-            renderApp();
-            
-            // --- ЛОГИКА 3D-НАКЛОНА (TILT EFFECT) ДЛЯ ГЛАВНОГО ФОТО ---
-            const tiltCard = document.getElementById('tilt-card');
-            const tiltGlare = document.getElementById('tilt-glare');
-            
-            if(tiltCard) {
-                function handleTiltMove(e) {
-                    // Убираем CSS-задержку во время движения, чтобы фото мгновенно следовало за пальцем
-                    tiltCard.style.transition = 'none';
-                    if(tiltGlare) tiltGlare.style.transition = 'none';
-
-                    const rect = tiltCard.getBoundingClientRect();
-                    // Получаем координаты мыши или пальца
-                    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                    
-                    const x = clientX - rect.left;
-                    const y = clientY - rect.top;
-                    
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    
-                    // Вычисляем угол наклона (максимум 12 градусов)
-                    const rotateX = ((y - centerY) / centerY) * -12; 
-                    const rotateY = ((x - centerX) / centerX) * 12;
-                    
-                    // Применяем наклон
-                    tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-                    
-                    // Двигаем блик
-                    if(tiltGlare) {
-                        tiltGlare.style.opacity = '1';
-                        const glareX = (x / rect.width) * 100;
-                        const glareY = (y / rect.height) * 100;
-                        tiltGlare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.4) 0%, transparent 60%)`;
-                    }
-                }
-                
-                function handleTiltLeave() {
-                    // Возвращаем в исходное положение (Включаем плавную анимацию возврата)
-                    tiltCard.style.transition = 'transform 0.5s ease-out';
-                    tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-                    if(tiltGlare) {
-                        tiltGlare.style.transition = 'opacity 0.5s ease-out';
-                        tiltGlare.style.opacity = '0';
-                    }
-                }
-                
-                // Слушатели для мыши (ПК) и пальцев (Сенсор)
-                tiltCard.addEventListener('mousemove', handleTiltMove);
-                tiltCard.addEventListener('mouseleave', handleTiltLeave);
-                tiltCard.addEventListener('touchmove', handleTiltMove, {passive: true});
-                tiltCard.addEventListener('touchend', handleTiltLeave);
-            }
-
-            // Логика свайпа вниз для закрытия шторок
-            let touchStartY = 0;
-            let touchCurrentY = 0;
-            document.querySelectorAll('.drag-handle').forEach(handle => {
-                handle.addEventListener('touchstart', (e) => {
-                    touchStartY = e.touches[0].clientY;
-                }, {passive: true});
-                handle.addEventListener('touchmove', (e) => {
-                    touchCurrentY = e.touches[0].clientY;
-                }, {passive: true});
-                handle.addEventListener('touchend', (e) => {
-                    if (touchCurrentY > touchStartY + 40) { // Если потянули вниз больше чем на 40px
-                        closeSheet();
-                    }
-                });
-            });
-            
-            setTimeout(() => {
-                const loader = document.getElementById('app-loader');
-                if(loader) {
-                    loader.classList.add('opacity-0');
-                    setTimeout(() => loader.remove(), 500);
-                }
-            }, 600);
-        };
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
