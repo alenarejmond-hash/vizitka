@@ -3,36 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Tracks & Stories - Modern Explorer</title>
+  <title>Tracks & Stories - Modern Boutique</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Подключение премиальных шрифтов: Archivo Black (для огромных заголовков) и Inter (для интерфейса) -->
+  <!-- Подключение премиальных шрифтов: Playfair Display (Serif) и Montserrat (Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
-  <!-- Настройки Tailwind для эстетики Modern Explorer -->
+  <!-- Настройки Tailwind для эстетики Modern Boutique -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            charcoal: '#1A1A1C',      // Угольно-черный фон
-            surface: '#242427',       // Цвет карточек
-            adventure: '#FF5722',     // Adventure Orange (Главный акцент)
-            'adventure-dark': '#E64A19', 
-            paper: '#F4F4F6',         // Цвет светлого текста/бумаги
-            silver: '#A1A1AA',
+            pearl: '#F3F4F6',      // Жемчужно-серый фон
+            charcoal: '#1A1A1A',   // Угольно-черный для текста и кнопок
+            gold: '#C5A059',       // Золотой песок для акцентов
+            surface: '#FFFFFF',    // Белый для карточек
           },
           fontFamily: {
-            black: ['"Archivo Black"', 'sans-serif'], // Дерзкий шрифт
-            sans: ['"Inter"', 'sans-serif'],          // Чистый интерфейсный шрифт
+            serif: ['"Playfair Display"', 'serif'], // Элегантный шрифт
+            sans: ['"Montserrat"', 'sans-serif'],   // Чистый гротеск
           },
           boxShadow: {
-            'card': '-10px 10px 30px rgba(0,0,0,0.5)',
-            'glow-orange': '0 0 25px -5px rgba(255,87,34,0.4)',
+            'soft': '0 8px 30px rgba(0, 0, 0, 0.04)',
+            'soft-inner': 'inset 0 2px 10px rgba(0, 0, 0, 0.02)',
+            'float': '0 15px 40px -10px rgba(26, 26, 26, 0.3)',
           }
         }
       }
@@ -50,113 +49,50 @@
   </script>
 
   <style>
+    /* Прячем скроллбар */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
     
     body {
-      touch-action: pan-y; /* Разрешаем только вертикальный скролл внутри, горизонт ловим сами */
+      background-color: #F3F4F6;
     }
 
+    /* Сброс стандартных стилей полей ввода */
     input[type="text"], textarea, select {
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
     }
+    
+    select option {
+      background-color: #FFFFFF;
+      color: #1A1A1A;
+    }
 
-    /* Эффект выходящего за края текста */
-    .text-out-of-bounds {
-      white-space: nowrap;
-      position: absolute;
-      font-size: 5rem;
-      line-height: 0.8;
-      color: rgba(255,255,255,0.03);
-      z-index: 0;
+    /* Эффект блюра для фона при открытии шторок */
+    .app-wrapper {
+      transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .app-wrapper.blurred {
+      filter: blur(8px) brightness(0.95);
+      transform: scale(0.98);
       pointer-events: none;
-      font-family: 'Archivo Black', sans-serif;
     }
 
-    /* Карточки в стопке */
-    .stack-card {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                  opacity 0.5s ease, 
-                  box-shadow 0.5s ease;
-      transform-origin: bottom right;
-      will-change: transform;
+    /* Специфичное скругление как у iOS иконок (squircle) */
+    .squircle {
+      border-radius: 26%;
     }
 
-    /* Эффект скотча для стикера-кнопки */
-    .tape-effect::after {
-      content: '';
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%) rotate(-2deg);
-      width: 60px;
-      height: 25px;
-      background: rgba(255,255,255,0.3);
-      backdrop-filter: blur(2px);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      z-index: 20;
-    }
-
-    /* Анимация заливки экрана цветом */
-    .color-fill-transition {
-      clip-path: circle(0% at 50% 100%);
-      transition: clip-path 0.7s cubic-bezier(0.8, 0, 0.2, 1);
-    }
-    .color-fill-transition.open {
-      clip-path: circle(150% at 50% 100%);
-    }
-
-    /* Плавающая кнопка хаба */
-    .fab-menu-item {
-      position: absolute;
-      top: 0; left: 0;
-      transform: scale(0);
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-    .fab-container.active .fab-menu-item.pos-1 { transform: translate(-60px, -15px) scale(1); opacity: 1; }
-    .fab-container.active .fab-menu-item.pos-2 { transform: translate(-45px, -60px) scale(1); opacity: 1; }
-    .fab-container.active .fab-menu-item.pos-3 { transform: translate(0px, -75px) scale(1); opacity: 1; }
-    .fab-icon {
-      transition: transform 0.3s ease;
-    }
-    .fab-container.active .fab-icon {
-      transform: rotate(135deg);
-    }
-
-    /* Карта маршрутов */
-    .map-bg {
-      background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-    .map-dot {
-      transition: all 0.3s ease;
-      animation: pulse-dot 2s infinite;
-    }
-    @keyframes pulse-dot {
-      0% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); }
-    }
-
-    /* Бабблы личности */
-    .fact-bubble {
-      animation: float 6s ease-in-out infinite;
-    }
-    @keyframes float {
-      0% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-10px) rotate(2deg); }
-      100% { transform: translateY(0px) rotate(0deg); }
+    /* Градиент для затемнения фото на главной карточке Bento */
+    .bento-img-overlay {
+      background: linear-gradient(to top, rgba(26,26,26,0.8) 0%, rgba(26,26,26,0) 60%);
     }
   </style>
 </head>
-<body class="bg-[#121212] text-paper font-sans h-screen w-screen overflow-hidden flex flex-col relative selection:bg-adventure selection:text-white antialiased">
+<body class="text-charcoal font-sans leading-relaxed overscroll-none selection:bg-gold/20 selection:text-charcoal antialiased">
 
   <!-- =======================================================================
-  ✨✨✨ БЛОК НАСТРОЕК (ПЕРЕНЕСЕН БЕЗ ИЗМЕНЕНИЙ) ✨✨✨
+  ✨✨✨ БЛОК ДЛЯ ВАЙБКОДЕРА (НАСТРОЙКИ ПРИЛОЖЕНИЯ) - НЕ ТРОГАЕМ ✨✨✨
   ======================================================================= -->
   <script>
     const APP_DATA = {
@@ -207,550 +143,497 @@
     };
   </script>
 
-  <!-- Прелоадер -->
-  <div id="preloader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-700 bg-charcoal text-adventure">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-adventure mb-4"></div>
-    <p class="font-black text-xl uppercase tracking-widest text-white">LOADING</p>
-  </div>
-
-  <!-- Главный контейнер (Stack) -->
-  <div class="relative w-full flex-grow pt-4 pb-24 px-4 max-w-lg mx-auto overflow-hidden">
+  <!-- Оболочка приложения для эффекта блюра -->
+  <div id="app-wrapper" class="app-wrapper min-h-screen relative pb-32 w-full max-w-md md:max-w-xl mx-auto overflow-hidden flex flex-col pt-6 px-5">
     
-    <!-- КАРТОЧКА 1: ЛИЧНОСТЬ (Индекс 0 в верстке, логически 3-я) -->
-    <div id="card-personality" class="stack-card bg-surface rounded-3xl border border-white/5 shadow-card overflow-hidden flex flex-col">
-      <div class="relative w-full h-[55%] bg-charcoal">
-        <img id="ui-hero-img" src="" class="w-full h-full object-cover opacity-70 mix-blend-luminosity">
-        <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
-        <div class="text-out-of-bounds top-4 -left-4">GUIDE</div>
+    <!-- БЛОК 1: Профиль (Header) -->
+    <header class="flex items-center gap-5 mb-8 mt-2">
+      <!-- Квадратная аватарка со скруглением squircle -->
+      <div class="w-20 h-20 shrink-0 squircle overflow-hidden shadow-soft relative">
+        <img id="cfg-hero-image" src="" alt="Avatar" class="w-full h-full object-cover">
+      </div>
+      <div>
+        <h1 id="cfg-author-name" class="font-serif text-2xl font-semibold text-charcoal leading-tight mb-1"></h1>
+        <p class="font-sans text-[10px] uppercase tracking-widest text-charcoal/50 font-medium">Автор ваших лучших путешествий</p>
+      </div>
+    </header>
+
+    <!-- БЛОК 2: Асимметричная сетка кнопок (Bento Grid) -->
+    <main class="flex-grow flex flex-col gap-4">
+      
+      <!-- Сетка 2 колонки -->
+      <div class="grid grid-cols-2 gap-4 h-56">
         
-        <!-- Плавающие бабблы (заполняются JS) -->
-        <div id="ui-bubbles" class="absolute inset-0 pointer-events-none"></div>
-      </div>
-      <div class="p-6 relative z-10 flex-grow flex flex-col justify-end">
-        <h2 id="ui-author-name" class="font-black text-4xl uppercase leading-none mb-2 text-white"></h2>
-        <p id="ui-author-sub" class="font-sans text-sm text-adventure font-medium uppercase tracking-widest mb-6"></p>
-        <p class="text-silver text-sm leading-relaxed mb-4">Создаю истории, а не просто маршруты. Присоединяйся к экспедициям, где каждая деталь продумана до мелочей.</p>
-      </div>
-    </div>
-
-    <!-- КАРТОЧКА 2: ГОЛОСА (Индекс 1 в верстке) -->
-    <div id="card-voices" class="stack-card bg-charcoal rounded-3xl border border-white/10 shadow-card overflow-hidden flex flex-col">
-      <div class="p-6 pb-2 border-b border-white/10 shrink-0 relative overflow-hidden">
-        <div class="text-out-of-bounds -top-2 -left-2 text-white/5">VOICES</div>
-        <h2 class="font-black text-3xl uppercase text-white relative z-10 mt-6">Голоса</h2>
-        <p class="text-silver text-xs font-medium uppercase tracking-widest relative z-10">Плейлист впечатлений</p>
-      </div>
-      <div class="flex-grow overflow-y-auto p-4 space-y-2 relative" id="ui-reviews-list">
-        <!-- Отзывы генерируются здесь -->
-      </div>
-      <div class="p-4 shrink-0 border-t border-white/10 bg-surface/50">
-        <button onclick="openReviewForm()" class="w-full py-4 rounded-xl border border-adventure/50 text-adventure font-black uppercase text-sm tracking-widest hover:bg-adventure hover:text-white transition-colors">
-          Оставить свой след
-        </button>
-      </div>
-    </div>
-
-    <!-- КАРТОЧКА 3: МАРШРУТЫ (Индекс 2 в верстке, по умолчанию наверху) -->
-    <div id="card-routes" class="stack-card bg-surface rounded-3xl border border-white/5 shadow-card overflow-hidden flex flex-col">
-      <div class="relative w-full h-[65%] map-bg bg-charcoal overflow-hidden" id="ui-map-container">
-        <div class="text-out-of-bounds top-10 -left-6 opacity-10">MAP</div>
-        <div class="absolute top-6 left-6 z-10">
-          <h2 class="font-black text-4xl uppercase leading-none text-white">Маршруты</h2>
-          <p class="font-sans text-xs text-adventure font-bold uppercase tracking-[0.2em] mt-1">Выбери точку на карте</p>
-        </div>
-        <!-- Точки на карте генерируются JS -->
-      </div>
-      
-      <!-- Панель превью тура (выезжает снизу внутри карточки) -->
-      <div class="flex-grow bg-charcoal p-5 relative border-t border-white/10 flex flex-col justify-between">
-        <div id="ui-tour-empty" class="absolute inset-0 flex items-center justify-center text-silver/40 text-sm font-medium">
-          Тапни на пульсирующую точку
-        </div>
-        <div id="ui-tour-preview" class="hidden flex-col h-full opacity-0 transition-opacity duration-300 z-10">
-          <div>
-            <div class="flex justify-between items-start mb-2">
-              <h3 id="prev-title" class="font-black text-2xl text-white uppercase leading-tight"></h3>
-              <span id="prev-price" class="font-sans font-bold text-adventure whitespace-nowrap ml-4"></span>
-            </div>
-            <p id="prev-dates" class="text-xs text-silver tracking-wider uppercase mb-3"></p>
-            <p id="prev-desc" class="text-sm text-silver/80 line-clamp-2 leading-relaxed mb-4"></p>
+        <!-- Кнопка 1: ТУРЫ (Большая, левая) -->
+        <button onclick="openExpeditions()" class="group relative rounded-3xl overflow-hidden shadow-soft shadow-soft-inner col-span-1 row-span-2 flex flex-col justify-end p-5 text-left active:scale-[0.98] transition-all bg-charcoal">
+          <img id="cfg-bento-tour-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bento-img-overlay"></div>
+          <div class="relative z-10">
+            <span class="block font-sans text-[9px] uppercase tracking-[0.2em] text-white/70 mb-1">Маршруты</span>
+            <span class="block font-serif text-2xl text-white">Туры</span>
           </div>
-          <a id="prev-btn" href="#" target="_blank" class="block w-full text-center py-3 bg-white text-charcoal font-black uppercase text-sm tracking-widest rounded-xl hover:bg-gray-200 transition-colors mt-auto">
-            Узнать программу
-          </a>
+        </button>
+
+        <!-- Правая колонка: 2 горизонтальные кнопки -->
+        <div class="col-span-1 row-span-2 flex flex-col gap-4">
+          
+          <!-- Кнопка 2: ОБО МНЕ (Верхняя правая) -->
+          <button onclick="openPhilosophy()" class="group bg-surface rounded-3xl shadow-soft shadow-soft-inner flex-1 flex flex-col justify-center p-5 text-left active:scale-[0.98] transition-all relative overflow-hidden">
+            <div class="absolute right-[-10px] top-[-10px] opacity-5 group-hover:scale-110 transition-transform duration-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="7" r="4"/><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/></svg>
+            </div>
+            <span class="block font-sans text-[9px] uppercase tracking-[0.2em] text-gold mb-1 relative z-10">Личность</span>
+            <span class="block font-serif text-xl text-charcoal relative z-10">Обо мне</span>
+          </button>
+
+          <!-- Кнопка 3: ОТЗЫВЫ (Нижняя правая) -->
+          <button onclick="openReviews()" class="group bg-surface rounded-3xl shadow-soft shadow-soft-inner flex-1 flex flex-col justify-center p-5 text-left active:scale-[0.98] transition-all relative overflow-hidden">
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gold/20 group-hover:text-gold group-hover:scale-110 transition-all duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="opacity-30"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <span class="block font-sans text-[9px] uppercase tracking-[0.2em] text-charcoal/40 mb-1 relative z-10">Эмоции</span>
+            <span class="block font-serif text-xl text-charcoal relative z-10">Отзывы</span>
+          </button>
+
         </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Дополнительная кнопка АРХИВ (встраивается под сетку органично) -->
+      <button onclick="openArchive()" class="w-full bg-surface rounded-2xl shadow-soft shadow-soft-inner p-4 mt-2 flex justify-between items-center active:scale-[0.98] transition-all">
+        <div class="text-left">
+          <span class="block font-sans text-[9px] uppercase tracking-[0.2em] text-charcoal/40 mb-0.5">Вспомнить</span>
+          <span class="block font-serif text-lg text-charcoal">Архив экспедиций</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-pearl flex items-center justify-center text-charcoal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </button>
 
-  <!-- ================= ИНТЕРАКТИВНЫЕ ЭЛЕМЕНТЫ ПОВЕРХ СТОПКИ ================= -->
+      <!-- Декоративный элемент-заполнитель -->
+      <div class="flex-grow flex flex-col items-center justify-center py-4 mt-2">
+        <div class="w-[1px] h-12 bg-gradient-to-b from-transparent via-gold/30 to-transparent mb-4"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold/60 mb-3"><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/><circle cx="12" cy="12" r="10"/></svg>
+        <p class="font-serif italic text-charcoal/50 text-[13px] text-center tracking-wide leading-relaxed">
+          Искусство ускользать<br>от обыденности
+        </p>
+        <div class="w-[1px] h-12 bg-gradient-to-b from-transparent via-gold/30 to-transparent mt-4"></div>
+      </div>
 
-  <!-- Floating Action Hub (Заменяет блок контактов) -->
-  <div class="fixed bottom-[100px] right-6 z-40">
-    <div id="fab-container" class="fab-container relative">
-      <!-- Иконки соцсетей (вылетают при клике) -->
-      <a id="fab-wa" href="#" target="_blank" class="fab-menu-item pos-1 w-12 h-12 bg-surface border border-white/10 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-adventure transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      </a>
-      <a id="fab-tg" href="#" target="_blank" class="fab-menu-item pos-2 w-12 h-12 bg-surface border border-white/10 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-adventure transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-18.6 7.143a2.25 2.25 0 0 0-.122 4.22l5.594 1.714 2.143 6.643a1.5 1.5 0 0 0 2.829-.029l2.76-5.807 5.178 3.834a2.25 2.25 0 0 0 3.535-1.503L23.493 3.51a2.25 2.25 0 0 0-2.295-1.077Z"/><path d="m10.5 15.5 4.5-4.5"/></svg>
-      </a>
-      <a id="fab-ig" href="#" target="_blank" class="fab-menu-item pos-3 w-12 h-12 bg-surface border border-white/10 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-adventure transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="4" ry="4"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-      </a>
-      
-      <!-- Главная кнопка хаба -->
-      <button onclick="toggleFab()" class="relative w-14 h-14 bg-adventure rounded-full flex items-center justify-center text-white shadow-glow-orange focus:outline-none">
-        <svg class="fab-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    </main>
+
+    <!-- БЛОК 3: Блок контактов (Круглые монохромные иконки) -->
+    <footer class="mt-auto pt-2 pb-6 flex flex-col items-center">
+      <div class="flex gap-4">
+        <a id="cfg-contact-wa" href="#" target="_blank" class="w-12 h-12 rounded-full bg-surface shadow-soft flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </a>
+        <a id="cfg-contact-tg" href="#" target="_blank" class="w-12 h-12 rounded-full bg-surface shadow-soft flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.198 2.433a2.242 2.242 0 0 0-1.022.215l-18.6 7.143a2.25 2.25 0 0 0-.122 4.22l5.594 1.714 2.143 6.643a1.5 1.5 0 0 0 2.829-.029l2.76-5.807 5.178 3.834a2.25 2.25 0 0 0 3.535-1.503L23.493 3.51a2.25 2.25 0 0 0-2.295-1.077Z"/><path d="m10.5 15.5 4.5-4.5"/></svg>
+        </a>
+        <a id="cfg-contact-ig" href="#" target="_blank" class="w-12 h-12 rounded-full bg-surface shadow-soft flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="4" ry="4"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        </a>
+      </div>
+    </footer>
+
+  </div> <!-- End of app-wrapper -->
+
+  <!-- БЛОК 4: Fixed CTA (Главная кнопка внизу) -->
+  <div class="fixed bottom-0 left-0 right-0 p-5 md:p-8 z-50 pointer-events-none pb-8 bg-gradient-to-t from-pearl via-pearl/90 to-transparent">
+    <div class="w-full max-w-md md:max-w-xl mx-auto">
+      <button onclick="openForm()" class="pointer-events-auto w-full bg-charcoal text-white py-5 px-6 rounded-full shadow-float flex justify-center items-center gap-2 active:scale-[0.98] transition-all">
+        <span class="font-sans text-[11px] uppercase tracking-[0.25em] font-semibold">Записаться в тур</span>
       </button>
     </div>
   </div>
 
-  <!-- Индикатор свайпа (подсказка) -->
-  <div class="fixed top-6 left-0 right-0 pointer-events-none flex justify-center z-50 opacity-50">
-    <div class="bg-charcoal/80 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10 flex items-center gap-2">
-      <svg class="animate-pulse" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      <span class="text-[10px] font-bold uppercase tracking-widest text-white">Свайпай карты</span>
-      <svg class="animate-pulse" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-    </div>
-  </div>
 
-  <!-- Sticker Button (Форма заявки) -->
-  <div class="fixed bottom-6 left-4 right-4 max-w-lg mx-auto z-40">
-    <button onclick="openLeadForm()" class="tape-effect w-full bg-adventure text-white py-5 px-6 font-black text-xl uppercase tracking-widest shadow-card transform rotate-[-1deg] hover:rotate-0 transition-transform flex items-center justify-center gap-3">
-      ХОЧУ В ТУР
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-    </button>
-  </div>
-
-
-  <!-- ================= ПОЛНОЭКРАННЫЕ ФОРМЫ (COLOR FILL EFFECT) ================= -->
+  <!-- ================= СВЕТЛЫЕ ШТОРКИ (BOTTOM SHEETS) ================= -->
   
-  <!-- Форма "ХОЧУ В ТУР" -->
-  <div id="full-form-screen" class="fixed inset-0 z-[100] bg-adventure color-fill-transition flex flex-col pointer-events-none">
-    <div class="flex justify-between items-center p-6 pt-10 border-b border-black/10">
-      <h2 class="font-black text-3xl uppercase text-charcoal tracking-wide">Забронировать</h2>
-      <button onclick="closeLeadForm()" class="w-10 h-10 bg-charcoal text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    
-    <div class="flex-grow overflow-y-auto p-6 relative">
-      <div id="form-success-overlay" class="hidden absolute inset-0 bg-adventure z-20 flex flex-col items-center justify-center text-center p-6">
-        <div class="w-20 h-20 bg-charcoal rounded-full flex items-center justify-center text-white mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>
-        <h3 class="font-black text-4xl text-charcoal uppercase mb-2">Принято!</h3>
-        <p class="font-sans font-medium text-charcoal/80 text-lg">Скоро свяжемся с деталями.</p>
-      </div>
-
-      <form id="lead-form" onsubmit="submitLead(event)" class="space-y-6">
-        <div>
-          <label class="block font-black text-charcoal/60 text-sm uppercase tracking-wider mb-2">Имя</label>
-          <input type="text" name="name" required class="w-full bg-transparent border-b-4 border-charcoal/20 text-charcoal font-black text-2xl py-3 px-0 focus:outline-none focus:border-charcoal transition-colors placeholder:text-charcoal/30">
-        </div>
-        <div>
-          <label class="block font-black text-charcoal/60 text-sm uppercase tracking-wider mb-2">Контакт (@username или телефон)</label>
-          <input type="text" name="contact" required class="w-full bg-transparent border-b-4 border-charcoal/20 text-charcoal font-black text-2xl py-3 px-0 focus:outline-none focus:border-charcoal transition-colors placeholder:text-charcoal/30">
-        </div>
-        <div>
-          <label class="block font-black text-charcoal/60 text-sm uppercase tracking-wider mb-2">Куда едем?</label>
-          <div class="relative">
-            <select id="tour-select" name="tour" required class="w-full bg-transparent border-b-4 border-charcoal/20 text-charcoal font-black text-xl py-3 px-0 focus:outline-none focus:border-charcoal transition-colors cursor-pointer appearance-none">
-              <!-- Опции из JS -->
-            </select>
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-charcoal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </div>
-          </div>
-        </div>
-        <button type="submit" id="submit-btn" class="w-full bg-charcoal text-white py-5 mt-8 font-black text-xl uppercase tracking-widest hover:bg-black transition-colors flex items-center justify-center rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.3)]">
-          Отправить
-          <svg id="submit-loader" class="animate-spin hidden ml-3" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+  <!-- Общий стиль шторок: Белый фон, темный текст -->
+  
+  <!-- Шторка "ТУРЫ" -->
+  <div id="expeditions-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="expeditions-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closeExpeditions()"></div>
+    <div id="expeditions-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 cubic-bezier(0.3, 0.9, 0.4, 1) flex flex-col max-h-[85vh]">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center bg-surface rounded-t-3xl sticky top-0 z-10">
+        <h2 class="font-serif text-2xl text-charcoal">Маршруты</h2>
+        <button onclick="closeExpeditions()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-      </form>
+      </div>
+      <div id="cfg-tours-container" class="overflow-y-auto p-6 pb-32 space-y-6">
+        <!-- Карточки генерируются скриптом -->
+      </div>
     </div>
   </div>
 
-  <!-- Форма "Оставить отзыв" -->
-  <div id="full-review-screen" class="fixed inset-0 z-[100] bg-charcoal color-fill-transition flex flex-col pointer-events-none">
-    <div class="flex justify-between items-center p-6 pt-10 border-b border-white/10">
-      <h2 class="font-black text-2xl uppercase text-white tracking-wide">Твоя история</h2>
-      <button onclick="closeReviewForm()" class="w-10 h-10 bg-surface border border-white/10 text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
-    </div>
-    
-    <div class="flex-grow overflow-y-auto p-6 relative">
-      <div id="review-success-overlay" class="hidden absolute inset-0 bg-charcoal z-20 flex flex-col items-center justify-center text-center p-6">
-        <div class="w-20 h-20 bg-adventure rounded-full flex items-center justify-center text-white mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>
-        <h3 class="font-black text-3xl text-white uppercase mb-2">Сохранено</h3>
-      </div>
-
-      <form id="review-form" onsubmit="submitReview(event)" class="space-y-6">
-        <div>
-          <label class="block font-sans text-silver text-xs uppercase tracking-widest mb-2">Имя и маршрут</label>
-          <input type="text" name="reviewer_name" required placeholder="Макс, Алтай" class="w-full bg-transparent border-b-2 border-white/20 text-white font-black text-xl py-3 px-0 focus:outline-none focus:border-adventure transition-colors placeholder:text-white/20">
-        </div>
-        <div>
-          <label class="block font-sans text-silver text-xs uppercase tracking-widest mb-2">Впечатления</label>
-          <textarea name="reviewer_text" required rows="5" class="w-full bg-surface border border-white/10 rounded-xl text-white font-sans text-lg p-4 focus:outline-none focus:border-adventure transition-colors resize-none placeholder:text-white/20"></textarea>
-        </div>
-        <button type="submit" id="review-submit-btn" class="w-full bg-white text-charcoal py-5 mt-4 font-black text-lg uppercase tracking-widest hover:bg-adventure hover:text-white transition-colors flex items-center justify-center rounded-xl">
-          Опубликовать
-          <svg id="review-loader" class="animate-spin hidden ml-3" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+  <!-- Шторка "ОБО МНЕ" -->
+  <div id="philosophy-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="philosophy-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closePhilosophy()"></div>
+    <div id="philosophy-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 flex flex-col max-h-[90vh]">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center sticky top-0 bg-surface rounded-t-3xl z-10">
+        <h2 class="font-serif text-2xl text-charcoal">Обо мне</h2>
+        <button onclick="closePhilosophy()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-      </form>
+      </div>
+      <div class="overflow-y-auto px-8 pb-16 pt-4 flex flex-col text-center">
+        <div class="w-32 h-32 mx-auto squircle overflow-hidden mb-6 shadow-soft">
+          <img id="cfg-philosophy-popup-img" src="" alt="Guide" class="w-full h-full object-cover" />
+        </div>
+        <h2 id="cfg-philosophy-popup-title" class="font-serif text-2xl text-charcoal mb-8"></h2>
+        <ul id="cfg-philosophy-bullets" class="space-y-4 font-sans text-[14px] text-charcoal/80 text-left border-y border-pearl py-8 mx-auto w-full">
+          <!-- Буллиты генерируются из скрипта -->
+        </ul>
+      </div>
     </div>
   </div>
 
-  <!-- ================= ОСНОВНАЯ ЛОГИКА (JS) ================= -->
-  <script>
-    // --- 1. ЛОГИКА СТОПКИ КАРТОЧЕК (STACK) ---
-    const cards = Array.from(document.querySelectorAll('.stack-card'));
-    // Индексы в DOM: 0 (Personality), 1 (Voices), 2 (Routes).
-    // Порядок отображения: первый элемент массива - верхняя карта. По умолчанию ставим Routes наверх.
-    let stackOrder = [2, 1, 0]; 
+  <!-- Шторка "АРХИВ" -->
+  <div id="archive-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="archive-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closeArchive()"></div>
+    <div id="archive-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 flex flex-col max-h-[90vh]">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center sticky top-0 bg-surface rounded-t-3xl z-10">
+        <h2 class="font-serif text-2xl text-charcoal">Архив</h2>
+        <button onclick="closeArchive()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="overflow-y-auto px-6 py-6 pb-32">
+        <p id="cfg-archive-sheet-text" class="font-sans text-[14px] text-center text-charcoal/60 mb-8 px-4"></p>
+        <div id="cfg-archive-gallery" class="grid grid-cols-2 gap-3 mb-8">
+          <!-- Фото -->
+        </div>
+        <a id="cfg-archive-sheet-btn" href="#" target="_blank" class="w-full inline-flex items-center justify-center bg-pearl text-charcoal rounded-2xl py-4 font-sans text-[11px] uppercase tracking-[0.2em] font-semibold hover:bg-gold hover:text-white transition-colors">
+          <span id="cfg-archive-sheet-btn-text"></span>
+        </a>
+      </div>
+    </div>
+  </div>
 
-    function renderStack() {
-      stackOrder.forEach((domIndex, positionInStack) => {
-        const card = cards[domIndex];
-        if (positionInStack === 0) {
-          // Верхняя карта
-          card.style.zIndex = 30;
-          card.style.transform = 'translateY(0) scale(1) rotate(0deg)';
-          card.style.opacity = 1;
-          card.style.filter = 'brightness(1)';
-        } else if (positionInStack === 1) {
-          // Вторая карта (чуть выглядывает справа/сверху)
-          card.style.zIndex = 20;
-          card.style.transform = 'translate(15px, -15px) scale(0.95) rotate(3deg)';
-          card.style.opacity = 0.9;
-          card.style.filter = 'brightness(0.7)';
-        } else if (positionInStack === 2) {
-          // Третья карта
-          card.style.zIndex = 10;
-          card.style.transform = 'translate(30px, -30px) scale(0.9) rotate(6deg)';
-          card.style.opacity = 0.7;
-          card.style.filter = 'brightness(0.4)';
-        }
-      });
-    }
+  <!-- Шторка "ОТЗЫВЫ" -->
+  <div id="reviews-sheet" class="fixed inset-0 z-[110] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="reviews-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closeReviews()"></div>
+    <div id="reviews-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 flex flex-col max-h-[90vh]">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center sticky top-0 bg-surface rounded-t-3xl z-10 border-b border-pearl">
+        <h2 class="font-serif text-2xl text-charcoal">Отзывы</h2>
+        <button onclick="closeReviews()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div id="cfg-reviews-container" class="overflow-y-auto p-6 pb-32 space-y-4">
+        <!-- Отзывы -->
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-surface via-surface/90 to-transparent">
+        <button onclick="openWriteReview()" class="w-full bg-pearl text-charcoal font-sans text-[11px] uppercase tracking-[0.2em] font-semibold py-4 rounded-full active:scale-[0.98] transition-all">
+          Оставить отзыв
+        </button>
+      </div>
+    </div>
+  </div>
 
-    // Сдвиг стопки (циклично)
-    function nextCard() {
-      stackOrder.push(stackOrder.shift());
-      renderStack();
-    }
-    function prevCard() {
-      stackOrder.unshift(stackOrder.pop());
-      renderStack();
-    }
-
-    // Клик по карточке выводит ее на передний план
-    cards.forEach((card, domIndex) => {
-      card.addEventListener('click', (e) => {
-        // Если клик внутри интерактивного элемента (кнопки, формы, скролла), не листаем
-        if(e.target.closest('button, a, input, textarea, .map-dot, #ui-reviews-list')) return;
-        
-        const pos = stackOrder.indexOf(domIndex);
-        if (pos !== 0) {
-          // Прокручиваем массив пока эта карта не станет нулевой
-          while(stackOrder[0] !== domIndex) {
-            nextCard();
-          }
-        }
-      });
-    });
-
-    // Свайп логика
-    let touchStartX = 0;
-    let touchStartY = 0;
-    document.addEventListener('touchstart', e => {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }, {passive: true});
-
-    document.addEventListener('touchend', e => {
-      // Игнорируем свайпы по элементам со скроллом
-      if(e.target.closest('#ui-reviews-list, form')) return;
-
-      const touchEndX = e.changedTouches[0].screenX;
-      const touchEndY = e.changedTouches[0].screenY;
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
-
-      // Если горизонтальный свайп сильнее вертикального
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
-        if (deltaX < 0) {
-          nextCard(); // Свайп влево
-        } else {
-          prevCard(); // Свайп вправо
-        }
-      }
-    }, {passive: true});
-
-
-    // --- 2. ГЕНЕРАЦИЯ ДАННЫХ И UI ---
-    function buildModernUI() {
-      // Personality (Личность)
-      document.getElementById('ui-hero-img').src = APP_DATA.philosophyPopupImage || APP_DATA.heroImage;
-      document.getElementById('ui-author-name').textContent = APP_DATA.authorName;
-      document.getElementById('ui-author-sub').textContent = APP_DATA.authorSubtitle;
-      
-      const bubblesContainer = document.getElementById('ui-bubbles');
-      bubblesContainer.innerHTML = '';
-      const positions = [
-        {top: '15%', left: '10%'}, {top: '40%', right: '10%'}, {top: '65%', left: '15%'}
-      ];
-      APP_DATA.philosophyPopupBullets.slice(0, 3).forEach((text, i) => {
-        let pos = positions[i] || {top: '50%', left: '50%'};
-        let style = `top: ${pos.top};`;
-        if(pos.left) style += ` left: ${pos.left};`;
-        if(pos.right) style += ` right: ${pos.right};`;
-        
-        bubblesContainer.innerHTML += `
-          <div class="absolute fact-bubble bg-adventure text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg max-w-[140px] text-center" style="${style} animation-delay: ${i*0.5}s;">
-            ${text}
+  <!-- Шторка "НАПИСАТЬ ОТЗЫВ" -->
+  <div id="write-review-sheet" class="fixed inset-0 z-[140] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="write-review-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closeWriteReview()"></div>
+    <div id="write-review-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 flex flex-col">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center sticky top-0">
+        <h2 class="font-serif text-2xl text-charcoal">Новая история</h2>
+        <button onclick="closeWriteReview()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 pb-12 relative">
+        <div id="review-success-msg" class="hidden absolute inset-0 bg-surface z-20 flex flex-col items-center justify-center p-8 text-center rounded-t-3xl">
+          <div class="w-16 h-16 rounded-full bg-pearl flex items-center justify-center mb-4 text-gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </div>
-        `;
-      });
+          <p class="font-serif text-2xl text-charcoal mb-2">Отправлено</p>
+          <p class="text-xs text-charcoal/50 font-sans">Ваш отзыв сохранен</p>
+        </div>
+        <form id="write-review-form" onsubmit="submitNewReview(event)" class="space-y-6">
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-charcoal/40 mb-2 font-semibold">Имя и маршрут</label>
+            <input type="text" name="reviewer_name" required placeholder="Анна, Марокко" class="w-full bg-pearl text-charcoal font-sans text-sm px-4 py-4 rounded-xl focus:ring-1 focus:ring-gold outline-none">
+          </div>
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-charcoal/40 mb-2 font-semibold">Впечатления</label>
+            <textarea name="reviewer_text" required rows="4" placeholder="Поделитесь вашими эмоциями..." class="w-full bg-pearl text-charcoal font-sans text-sm px-4 py-4 rounded-xl focus:ring-1 focus:ring-gold outline-none resize-none"></textarea>
+          </div>
+          <button type="submit" id="review-submit-btn" class="w-full bg-charcoal text-white py-4 mt-2 text-[11px] uppercase tracking-[0.2em] font-sans font-semibold rounded-full flex justify-center items-center">
+            <span>Отправить</span>
+            <svg id="review-btn-loader" class="animate-spin hidden ml-3 text-white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
 
-      // Voices (Отзывы - стиль аудиоплеера)
-      const reviewsList = document.getElementById('ui-reviews-list');
-      reviewsList.innerHTML = '';
-      APP_DATA.reviews.forEach((rev, i) => {
-        reviewsList.innerHTML += `
-          <div class="bg-surface/60 rounded-xl p-4 flex items-start gap-4 cursor-pointer hover:bg-surface transition-colors group" onclick="this.querySelector('.rev-text').classList.toggle('line-clamp-2')">
-            <div class="w-10 h-10 rounded-full bg-charcoal border border-white/10 flex items-center justify-center shrink-0 group-hover:border-adventure transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </div>
-            <div class="flex-grow min-w-0">
-              <div class="flex justify-between items-baseline mb-1">
-                <h4 class="font-bold text-white text-sm truncate pr-2">${rev.name}</h4>
-                <span class="text-[10px] text-silver font-mono tracking-widest shrink-0">TRACK ${String(i+1).padStart(2, '0')}</span>
+  <!-- Шторка "ФОРМА ЗАЯВКИ" -->
+  <div id="form-sheet" class="fixed inset-0 z-[130] flex flex-col justify-end pointer-events-none transition-all duration-500">
+    <div id="form-backdrop" class="absolute inset-0 bg-charcoal/20 opacity-0 transition-opacity duration-500" onclick="closeForm()"></div>
+    <div id="form-content" class="relative bg-surface w-full max-w-md md:max-w-xl mx-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-500 flex flex-col">
+      <div class="pt-6 pb-2 px-6 flex justify-between items-center sticky top-0">
+        <h2 id="cfg-form-title" class="font-serif text-2xl text-charcoal"></h2>
+        <button onclick="closeForm()" class="w-8 h-8 bg-pearl rounded-full flex items-center justify-center text-charcoal/50 hover:text-charcoal transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 pb-12 relative">
+        <p id="cfg-form-subtitle" class="font-sans text-[12px] text-charcoal/60 mb-8 font-light"></p>
+        
+        <div id="form-success-msg" class="hidden absolute inset-0 bg-surface z-20 flex flex-col items-center justify-center p-8 text-center rounded-t-3xl">
+          <div class="w-16 h-16 rounded-full bg-pearl flex items-center justify-center mb-4 text-gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <p id="cfg-form-success-text" class="font-serif text-2xl text-charcoal mb-2"></p>
+        </div>
+
+        <form id="lead-form" onsubmit="submitForm(event)" class="space-y-5">
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-charcoal/40 mb-1 font-semibold">Имя</label>
+            <input type="text" id="name" name="name" required placeholder="Ваше имя" class="w-full bg-pearl text-charcoal font-sans text-sm px-4 py-4 rounded-xl focus:ring-1 focus:ring-gold outline-none">
+          </div>
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-charcoal/40 mb-1 font-semibold">Контакт</label>
+            <input type="text" id="contact" name="contact" required placeholder="@username или телефон" class="w-full bg-pearl text-charcoal font-sans text-sm px-4 py-4 rounded-xl focus:ring-1 focus:ring-gold outline-none">
+          </div>
+          <div>
+            <label class="block font-sans text-[10px] uppercase tracking-[0.2em] text-charcoal/40 mb-1 font-semibold">Маршрут</label>
+            <div class="relative">
+              <select id="tour-select" name="tour" required class="w-full bg-pearl text-charcoal font-sans text-sm px-4 py-4 rounded-xl focus:ring-1 focus:ring-gold outline-none cursor-pointer">
+              </select>
+              <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-charcoal/40">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
               </div>
-              <p class="rev-text text-xs text-silver leading-relaxed line-clamp-2 transition-all duration-300">${rev.text}</p>
+            </div>
+          </div>
+          <button type="submit" id="form-submit-btn" class="w-full bg-charcoal text-white py-4 mt-6 text-[11px] uppercase tracking-[0.2em] font-sans font-semibold rounded-full flex justify-center items-center">
+            <span id="cfg-form-btn-text"></span>
+            <svg id="form-btn-loader" class="animate-spin hidden ml-3 text-white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function applyVibeConfig() {
+      // 1. Профиль и Bento
+      document.getElementById('cfg-hero-image').src = APP_DATA.heroImage;
+      document.getElementById('cfg-author-name').textContent = APP_DATA.authorName;
+      
+      const nearestTour = APP_DATA.tours.find(t => !t.isSoldOut) || APP_DATA.tours[0];
+      if (nearestTour || APP_DATA.expeditionsImage) {
+        document.getElementById('cfg-bento-tour-img').src = nearestTour ? nearestTour.image : APP_DATA.expeditionsImage;
+      }
+
+      // Соцсети
+      if(APP_DATA.socialLinks) {
+        const wa = document.getElementById('cfg-contact-wa');
+        if(APP_DATA.socialLinks.whatsapp) { wa.href = APP_DATA.socialLinks.whatsapp; wa.style.display = 'flex'; } else { wa.style.display = 'none'; }
+        
+        const tg = document.getElementById('cfg-contact-tg');
+        if(APP_DATA.socialLinks.telegram) { tg.href = APP_DATA.socialLinks.telegram; tg.style.display = 'flex'; } else { tg.style.display = 'none'; }
+        
+        const ig = document.getElementById('cfg-contact-ig');
+        if(APP_DATA.socialLinks.instagram) { ig.href = APP_DATA.socialLinks.instagram; ig.style.display = 'flex'; } else { ig.style.display = 'none'; }
+      }
+
+      // Форма заявки
+      document.getElementById('cfg-form-title').textContent = APP_DATA.formTitle;
+      document.getElementById('cfg-form-subtitle').textContent = APP_DATA.formSubtitle;
+      document.getElementById('cfg-form-btn-text').textContent = APP_DATA.formSubmitBtnText;
+      document.getElementById('cfg-form-success-text').textContent = APP_DATA.formSuccessText;
+
+      // Обо мне
+      document.getElementById('cfg-philosophy-popup-img').src = APP_DATA.philosophyPopupImage;
+      document.getElementById('cfg-philosophy-popup-title').textContent = APP_DATA.philosophyPopupTitle;
+      
+      const bulletsContainer = document.getElementById('cfg-philosophy-bullets');
+      bulletsContainer.innerHTML = '';
+      APP_DATA.philosophyPopupBullets.forEach(text => {
+        const html = `<li class="flex items-start"><span class="text-gold mr-3 mt-0.5 font-bold text-sm">•</span><span class="leading-relaxed">${text}</span></li>`;
+        bulletsContainer.insertAdjacentHTML('beforeend', html);
+      });
+
+      // Архив
+      document.getElementById('cfg-archive-sheet-text').textContent = `«${APP_DATA.archiveSheetText}»`;
+      document.getElementById('cfg-archive-sheet-btn-text').textContent = APP_DATA.archiveSheetBtnText;
+      document.getElementById('cfg-archive-sheet-btn').href = APP_DATA.archiveSheetBtnLink;
+
+      const galleryContainer = document.getElementById('cfg-archive-gallery');
+      galleryContainer.innerHTML = '';
+      APP_DATA.archivePhotos.forEach(photoUrl => {
+        const html = `<div class="rounded-2xl overflow-hidden shadow-soft bg-pearl"><img src="${photoUrl}" class="w-full aspect-square object-cover" alt="Archive"></div>`;
+        galleryContainer.insertAdjacentHTML('beforeend', html);
+      });
+
+      // Туры (Светлые карточки)
+      const toursContainer = document.getElementById('cfg-tours-container');
+      toursContainer.innerHTML = ''; 
+      
+      APP_DATA.tours.forEach((tour) => {
+        const isSold = tour.isSoldOut;
+        const html = `
+          <div class="bg-pearl rounded-3xl overflow-hidden ${isSold ? 'opacity-70 grayscale-[20%]' : ''}">
+            <div class="relative w-full aspect-[4/3] overflow-hidden bg-pearl">
+              <img src="${tour.image}" class="w-full h-full object-cover" alt="${tour.title}">
+              <div class="absolute top-4 left-4 bg-surface text-charcoal px-3 py-1 rounded-full text-[9px] uppercase tracking-[0.2em] font-sans font-semibold shadow-soft">
+                ${tour.badge || "TOUR"}
+              </div>
+            </div>
+            <div class="p-6">
+              <h3 class="font-serif text-[22px] text-charcoal mb-2">${tour.title}</h3>
+              <div class="flex justify-between items-center font-sans text-[10px] tracking-[0.1em] text-charcoal/50 uppercase mb-4 font-semibold">
+                <span>${tour.dates}</span>
+                ${tour.location ? `<span>${tour.location}</span>` : ''}
+              </div>
+              ${tour.desc ? `<p class="text-[13px] text-charcoal/70 leading-relaxed mb-6 font-sans">${tour.desc}</p>` : ''}
+              <div class="flex items-center justify-between mt-4">
+                <span class="font-sans font-semibold text-lg text-charcoal ${isSold ? 'line-through opacity-50' : ''}">${tour.price}</span>
+                ${isSold 
+                  ? `<span class="text-charcoal/40 text-[9px] uppercase tracking-[0.2em] font-sans border border-charcoal/10 rounded-full px-4 py-2 font-semibold">${tour.soldOutText || "Закрыто"}</span>`
+                  : `<a href="${tour.link}" target="_blank" class="inline-flex items-center font-sans text-[9px] uppercase tracking-[0.2em] font-semibold text-white bg-charcoal rounded-full px-5 py-2.5 hover:bg-gold transition-colors">Программа</a>`
+                }
+              </div>
             </div>
           </div>
         `;
+        toursContainer.insertAdjacentHTML('beforeend', html);
       });
 
-      // Routes (Маршруты - интерактивная карта)
-      const mapContainer = document.getElementById('ui-map-container');
-      // Удаляем старые точки если есть
-      mapContainer.querySelectorAll('.map-dot').forEach(el => el.remove());
-      
       const tourSelect = document.getElementById('tour-select');
-      tourSelect.innerHTML = '<option value="" disabled selected class="bg-charcoal text-white">ВЫБРАТЬ НАПРАВЛЕНИЕ</option>';
-
-      APP_DATA.tours.forEach((tour, index) => {
-        if(!tour.isSoldOut) {
-          tourSelect.innerHTML += `<option value="${tour.title}" class="bg-charcoal text-white">${tour.title}</option>`;
-        }
-        
-        // Рандомно-контролируемое позиционирование точек на абстрактной карте
-        // Чтобы точки не слипались, разбиваем на сетку
-        const row = Math.floor(index / 2);
-        const col = index % 2;
-        const top = 20 + (row * 30) + (Math.random() * 10 - 5); // %
-        const left = 20 + (col * 40) + (Math.random() * 20 - 10); // %
-
-        const dot = document.createElement('button');
-        dot.className = `map-dot absolute w-4 h-4 rounded-full bg-adventure border-2 border-charcoal z-20 focus:outline-none ${tour.isSoldOut ? 'opacity-50 !bg-silver' : ''}`;
-        dot.style.top = `${top}%`;
-        dot.style.left = `${left}%`;
-        
-        // Ярлычок над точкой
-        dot.innerHTML = `<span class="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-charcoal/80 backdrop-blur-sm text-[9px] text-white font-bold uppercase px-2 py-0.5 rounded border border-white/10 pointer-events-none">${tour.title.split(' ')[0]}</span>`;
-
-        dot.onclick = (e) => {
-          e.stopPropagation(); // не листать карту
-          showTourPreview(tour);
-        };
-        mapContainer.appendChild(dot);
+      tourSelect.innerHTML = '<option value="" disabled selected>Выберите направление</option><option value="Нужна помощь">Помогите выбрать</option>';
+      APP_DATA.tours.forEach(tour => {
+        tourSelect.insertAdjacentHTML('beforeend', `<option value="${tour.title} ${tour.isSoldOut?'(Резерв)':''}">${tour.title} ${tour.isSoldOut?'(Резерв)':''}</option>`);
       });
 
-      // Социалки (Плавающий хаб)
-      if(APP_DATA.socialLinks) {
-        if(APP_DATA.socialLinks.whatsapp) document.getElementById('fab-wa').href = APP_DATA.socialLinks.whatsapp; else document.getElementById('fab-wa').style.display = 'none';
-        if(APP_DATA.socialLinks.telegram) document.getElementById('fab-tg').href = APP_DATA.socialLinks.telegram; else document.getElementById('fab-tg').style.display = 'none';
-        if(APP_DATA.socialLinks.instagram) document.getElementById('fab-ig').href = APP_DATA.socialLinks.instagram; else document.getElementById('fab-ig').style.display = 'none';
-      }
+      // Отзывы
+      const reviewsContainer = document.getElementById('cfg-reviews-container');
+      reviewsContainer.innerHTML = '';
+      APP_DATA.reviews.forEach((review) => {
+        const html = `
+          <div class="bg-pearl p-6 rounded-3xl relative">
+            <div class="text-gold opacity-30 mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.99c1.03 0 1.01 0 1.01 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/></svg>
+            </div>
+            <p class="font-sans text-[13px] text-charcoal/80 leading-relaxed mb-4">${review.text}</p>
+            <div class="flex flex-col pt-4 border-t border-charcoal/5">
+              <span class="text-sm font-serif text-charcoal">${review.name}</span>
+              <span class="font-sans text-[10px] text-charcoal/40 uppercase tracking-widest mt-1">${review.tour}</span>
+            </div>
+          </div>
+        `;
+        reviewsContainer.insertAdjacentHTML('beforeend', html);
+      });
     }
 
-    // Показ превью тура в нижней части карты маршрутов
-    function showTourPreview(tour) {
-      document.getElementById('ui-tour-empty').classList.add('hidden');
-      const prev = document.getElementById('ui-tour-preview');
-      prev.classList.remove('hidden');
-      
-      // Небольшая задержка для анимации opacity
-      setTimeout(() => {
-        prev.classList.replace('opacity-0', 'opacity-100');
-        document.getElementById('prev-title').textContent = tour.title;
-        document.getElementById('prev-price').textContent = tour.isSoldOut ? 'SOLD' : tour.price;
-        document.getElementById('prev-dates').textContent = tour.dates;
-        document.getElementById('prev-desc').textContent = tour.desc || '';
-        const btn = document.getElementById('prev-btn');
-        btn.href = tour.link || '#';
-        if(tour.isSoldOut) {
-          btn.textContent = 'Лист ожидания';
-          btn.classList.replace('bg-white', 'bg-silver/20');
-          btn.classList.replace('text-charcoal', 'text-white');
-        } else {
-          btn.textContent = 'Узнать программу';
-          btn.classList.replace('bg-silver/20', 'bg-white');
-          btn.classList.replace('text-white', 'text-charcoal');
-        }
-      }, 50);
-    }
-
-    // Управление FAB
-    function toggleFab() {
-      document.getElementById('fab-container').classList.toggle('active');
-    }
-
-    // --- УПРАВЛЕНИЕ ФОРМАМИ (COLOR FILL) ---
-    function openLeadForm() {
-      const screen = document.getElementById('full-form-screen');
-      screen.classList.remove('pointer-events-none');
-      // Задержка для применения display:block перед анимацией
-      setTimeout(() => {
-        screen.classList.add('open');
-      }, 10);
-    }
-    function closeLeadForm() {
-      const screen = document.getElementById('full-form-screen');
-      screen.classList.remove('open');
-      setTimeout(() => {
-        screen.classList.add('pointer-events-none');
-        document.getElementById('form-success-overlay').classList.add('hidden');
-        document.getElementById('lead-form').reset();
-      }, 700);
-    }
-
-    function openReviewForm() {
-      const screen = document.getElementById('full-review-screen');
-      screen.classList.remove('pointer-events-none');
-      setTimeout(() => { screen.classList.add('open'); }, 10);
-    }
-    function closeReviewForm() {
-      const screen = document.getElementById('full-review-screen');
-      screen.classList.remove('open');
-      setTimeout(() => {
-        screen.classList.add('pointer-events-none');
-        document.getElementById('review-success-overlay').classList.add('hidden');
-        document.getElementById('review-form').reset();
-      }, 700);
-    }
-
-    // Отправка форм (Google Sheets)
-    function submitLead(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submit-btn');
-      const loader = document.getElementById('submit-loader');
-      btn.disabled = true; loader.classList.remove('hidden');
-      
-      const formData = new URLSearchParams(new FormData(e.target));
-      if (APP_DATA.googleSheetSubmitUrl) { 
-        fetch(APP_DATA.googleSheetSubmitUrl, { method: 'POST', body: formData, mode: 'no-cors' })
-          .then(() => showSuccess())
-          .catch(() => showSuccess()); 
-      } else { 
-        setTimeout(showSuccess, 1000); 
-      }
-      
-      function showSuccess() {
-        btn.disabled = false; loader.classList.add('hidden');
-        document.getElementById('form-success-overlay').classList.remove('hidden');
-        setTimeout(closeLeadForm, 2500);
-      }
-    }
-
-    function submitReview(e) {
-      e.preventDefault();
-      const btn = document.getElementById('review-submit-btn');
-      const loader = document.getElementById('review-loader');
-      btn.disabled = true; loader.classList.remove('hidden');
-      
-      const formData = new URLSearchParams(new FormData(e.target));
-      if (APP_DATA.googleSheetSubmitReviewUrl) { 
-        fetch(APP_DATA.googleSheetSubmitReviewUrl, { method: 'POST', body: formData, mode: 'no-cors' })
-          .then(() => showSuccess())
-          .catch(() => showSuccess()); 
-      } else { 
-        setTimeout(showSuccess, 1000); 
-      }
-      
-      function showSuccess() {
-        btn.disabled = false; loader.classList.add('hidden');
-        document.getElementById('review-success-overlay').classList.remove('hidden');
-        setTimeout(closeReviewForm, 2500);
-      }
-    }
-
-
-    // --- ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА ДАННЫХ ---
+    // Загрузка
     window.addEventListener('load', function() {
-      // Изначально строим UI с дефолтными данными (если есть)
-      buildModernUI();
-      renderStack();
-
+      applyVibeConfig();
       const fetches = [];
-
-      // Загрузка туров
+      // (Логика парсинга Google Sheets оставлена без изменений)
       if (APP_DATA.googleSheetUrl) {
-        fetches.push(
-          fetch(APP_DATA.googleSheetUrl).then(res => res.text()).then(csvText => {
-            const rows = csvText.split('\n');
-            const fetchedTours = [];
+        fetches.push(fetch(APP_DATA.googleSheetUrl).then(res => res.text()).then(csvText => {
+            const rows = csvText.split('\n'); const fetchedTours = [];
             for (let i = 1; i < rows.length; i++) { 
-              const row = rows[i].trim();
-              if (!row) continue;
+              const row = rows[i].trim(); if (!row) continue;
               const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
-              fetchedTours.push({
-                title: cols[0] || "", dates: cols[1] || "", price: cols[2] || "",
-                badge: cols[3] || "", image: cols[4] || "", link: cols[5] || "",
-                isSoldOut: (cols[6] && cols[6].toLowerCase() === 'да'),
-                location: cols[7] || "", desc: cols[8] || ""
-              });
+              fetchedTours.push({ title: cols[0] || "", dates: cols[1] || "", price: cols[2] || "", badge: cols[3] || "", image: cols[4] || "", link: cols[5] || "", isSoldOut: (cols[6] && cols[6].toLowerCase() === 'да'), soldOutText: "Ожидание", location: cols[7] || "", desc: cols[8] || "" });
             }
             if (fetchedTours.length > 0) APP_DATA.tours = fetchedTours;
-          }).catch(e => console.log('Tours load error'))
-        );
+          }).catch(e => console.error(e)));
       }
-
-      // Загрузка отзывов
-      if (APP_DATA.googleSheetReviewsUrl) {
-        fetches.push(
-          fetch(APP_DATA.googleSheetReviewsUrl).then(res => res.text()).then(csvText => {
-            const rows = csvText.split('\n');
-            const fetchedReviews = [];
+      if (APP_DATA.googleSheetArchiveUrl) {
+        fetches.push(fetch(APP_DATA.googleSheetArchiveUrl).then(res => res.text()).then(csvText => {
+            const rows = csvText.split('\n'); const fetchedPhotos = [];
             for (let i = 1; i < rows.length; i++) { 
-              const row = rows[i].trim();
-              if (!row) continue;
+              const row = rows[i].trim(); if (!row) continue;
               const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
-              if (cols[0] && cols[2]) {
-                fetchedReviews.push({ name: cols[0] || "Гость", tour: cols[1] || "", text: cols[2] || "" });
-              }
+              if (cols[0]) fetchedPhotos.push(cols[0]); 
+            }
+            if (fetchedPhotos.length > 0) APP_DATA.archivePhotos = fetchedPhotos;
+          }).catch(e => console.error(e)));
+      }
+      if (APP_DATA.googleSheetReviewsUrl) {
+        fetches.push(fetch(APP_DATA.googleSheetReviewsUrl).then(res => res.text()).then(csvText => {
+            const rows = csvText.split('\n'); const fetchedReviews = [];
+            for (let i = 1; i < rows.length; i++) { 
+              const row = rows[i].trim(); if (!row) continue;
+              const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
+              if (cols[0] && cols[2]) fetchedReviews.push({ name: cols[0] || "Гость", tour: cols[1] || "", text: cols[2] || "" });
             }
             if (fetchedReviews.length > 0) APP_DATA.reviews = fetchedReviews;
-          }).catch(e => console.log('Reviews load error'))
-        );
+          }).catch(e => console.error(e)));
       }
-
-      // Ждем все данные, обновляем UI и прячем прелоадер
-      Promise.allSettled(fetches).then(() => { 
-        buildModernUI(); 
-        const preloader = document.getElementById('preloader');
-        preloader.style.opacity = '0';
-        setTimeout(() => preloader.style.display = 'none', 700);
-      });
+      Promise.allSettled(fetches).then(() => applyVibeConfig());
     });
+
+    // --- УПРАВЛЕНИЕ ШТОРКАМИ (С ЭФФЕКТОМ БЛЮРА) ---
+    function toggleBlur(enable) {
+      if(enable) document.getElementById('app-wrapper').classList.add('blurred');
+      else document.getElementById('app-wrapper').classList.remove('blurred');
+    }
+
+    function openSheet(sheetId, backdropId, contentId) {
+      document.getElementById(sheetId).classList.remove('pointer-events-none');
+      document.getElementById(backdropId).classList.replace('opacity-0', 'opacity-100');
+      document.getElementById(contentId).classList.replace('translate-y-full', 'translate-y-0');
+      document.body.style.overflow = 'hidden';
+      toggleBlur(true);
+    }
+    
+    function closeSheet(sheetId, backdropId, contentId, keepBlur = false) {
+      document.getElementById(backdropId).classList.replace('opacity-100', 'opacity-0');
+      document.getElementById(contentId).classList.replace('translate-y-0', 'translate-y-full');
+      setTimeout(() => {
+        document.getElementById(sheetId).classList.add('pointer-events-none');
+        if(!keepBlur) { document.body.style.overflow = ''; toggleBlur(false); }
+      }, 400); // ускорил анимацию закрытия для snappy эффекта
+    }
+
+    function openExpeditions() { openSheet('expeditions-sheet', 'expeditions-backdrop', 'expeditions-content'); }
+    function closeExpeditions() { closeSheet('expeditions-sheet', 'expeditions-backdrop', 'expeditions-content'); }
+    function openPhilosophy() { openSheet('philosophy-sheet', 'philosophy-backdrop', 'philosophy-content'); }
+    function closePhilosophy() { closeSheet('philosophy-sheet', 'philosophy-backdrop', 'philosophy-content'); }
+    function openArchive() { openSheet('archive-sheet', 'archive-backdrop', 'archive-content'); }
+    function closeArchive() { closeSheet('archive-sheet', 'archive-backdrop', 'archive-content'); }
+    function openForm() { openSheet('form-sheet', 'form-backdrop', 'form-content'); document.getElementById('form-success-msg').classList.add('hidden'); document.getElementById('lead-form').reset(); document.getElementById('form-submit-btn').disabled = false; document.getElementById('form-btn-loader').classList.add('hidden'); }
+    function closeForm() { closeSheet('form-sheet', 'form-backdrop', 'form-content'); }
+    function openReviews() { openSheet('reviews-sheet', 'reviews-backdrop', 'reviews-content'); }
+    function closeReviews() { closeSheet('reviews-sheet', 'reviews-backdrop', 'reviews-content'); }
+    
+    function openWriteReview() { 
+      closeSheet('reviews-sheet', 'reviews-backdrop', 'reviews-content', true); 
+      setTimeout(() => {
+        openSheet('write-review-sheet', 'write-review-backdrop', 'write-review-content');
+        document.getElementById('review-success-msg').classList.add('hidden'); 
+        document.getElementById('write-review-form').reset(); 
+        document.getElementById('review-submit-btn').disabled = false; 
+        document.getElementById('review-btn-loader').classList.add('hidden');
+      }, 300); 
+    }
+    function closeWriteReview() { closeSheet('write-review-sheet', 'write-review-backdrop', 'write-review-content'); }
+
+    // Отправка форм
+    function submitNewReview(event) {
+      event.preventDefault();
+      const form = document.getElementById('write-review-form'); const btn = document.getElementById('review-submit-btn'); const loader = document.getElementById('review-btn-loader'); const successMsg = document.getElementById('review-success-msg');
+      btn.disabled = true; loader.classList.remove('hidden');
+      const formData = new URLSearchParams(new FormData(form));
+      if (APP_DATA.googleSheetSubmitReviewUrl) { fetch(APP_DATA.googleSheetSubmitReviewUrl, { method: 'POST', body: formData, mode: 'no-cors' }).then(() => showReviewSuccess()).catch(err => showReviewSuccess()); } else { setTimeout(showReviewSuccess, 1000); }
+      function showReviewSuccess() { successMsg.classList.remove('hidden'); setTimeout(() => { closeWriteReview(); }, 2500); }
+    }
+
+    function submitForm(event) {
+      event.preventDefault(); 
+      const form = document.getElementById('lead-form'); const btn = document.getElementById('form-submit-btn'); const loader = document.getElementById('form-btn-loader'); const successMsg = document.getElementById('form-success-msg');
+      btn.disabled = true; loader.classList.remove('hidden');
+      const formData = new URLSearchParams(new FormData(form));
+      if (APP_DATA.googleSheetSubmitUrl) { fetch(APP_DATA.googleSheetSubmitUrl, { method: 'POST', body: formData, mode: 'no-cors' }).then(() => { showSuccess(); }).catch(err => { showSuccess(); }); } else { setTimeout(showSuccess, 1000); }
+      function showSuccess() { successMsg.classList.remove('hidden'); setTimeout(() => { closeForm(); }, 2500); }
+    }
   </script>
 </body>
 </html>
