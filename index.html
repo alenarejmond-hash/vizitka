@@ -3,680 +3,1182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Эзотерик | Премиум Визитка</title>
-    
-    <!-- Telegram Web App JS -->
+    <title>Навигатор Канала</title>
+    <!-- Подключение Telegram Web App API -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Tailwind CSS -->
+    <!-- Подключение Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Иконки Phosphor -->
+    <!-- Подключение шрифта -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Иконки Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Премиальные Google Шрифты -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        app: {
+                            bg: '#e2e2e6',
+                            card: 'rgba(255, 255, 255, 0.6)',
+                            dark: '#1c1c1e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
+        /* ========================================================================= */
+        /* 🌈 НАСТРОЙКИ ЦВЕТА ФОНА (АНИМИРОВАННЫЙ ГРАДИЕНТ) 🌈 */
+        /* Меняйте цвета ниже. Можно использовать HEX-коды или английские названия */
+        /* ========================================================================= */
         :root {
-            --gold: #d4af37;
-            --gold-light: #f3e5ab;
-            --glass-bg: rgba(20, 20, 25, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.15);
+            --bg-color-1: #ffcf00; /* Желтый */
+            --bg-color-2: #ff7700; /* Оранжевый */
+            --bg-color-3: #b000ff; /* Фиолетовый */
+        }
+
+        .dynamic-bg {
+            background: linear-gradient(-45deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3), var(--bg-color-1));
+            background-size: 300% 300%;
+            animation: gradient-bg 12s ease infinite;
+        }
+
+        @keyframes gradient-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        html, body {
+            overscroll-behavior-y: none; /* Запрет прыжков/резинки при скролле (п.6) */
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            color: #e2e8f0;
-            background-color: #0f172a;
-            /* Разрешаем скролл, так как добавили карусель на главную */
-            overflow-x: hidden; 
-            overflow-y: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            overscroll-behavior-y: none; /* Предотвращает оттягивание аппки вниз */
-        }
-        body::-webkit-scrollbar { display: none; }
-
-        h1, h2, h3, .font-serif {
-            font-family: 'Cormorant Garamond', serif;
+            color: #1c1c1e;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none; /* Запрет долгого нажатия на iOS (п.1) */
+            -webkit-user-select: none; /* Запрет выделения в Safari (п.1) */
+            user-select: none; /* Запрет выделения текста (п.1) */
         }
 
-        /* --- Загрузочный экран (Loader) --- */
-        #global-loader {
-            position: fixed;
-            inset: 0;
-            background: #0f172a;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.4s ease;
-        }
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 2px solid rgba(212, 175, 55, 0.1);
-            border-top-color: #d4af37;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* --- Плавный движущийся фон (Ken Burns Effect) --- */
-        .bg-photo {
-            position: fixed;
-            top: -10%; left: -10%;
-            width: 120%; height: 120%;
-            /* Замени ссылку на свое фото (звезды, дым, кристаллы, космос) */
-            background: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1080&auto=format&fit=crop') center/cover no-repeat;
-            animation: slowPan 40s alternate infinite ease-in-out;
-            z-index: -2;
-        }
-        
-        .bg-overlay {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(10, 15, 25, 0.95) 100%);
-            z-index: -1;
+        /* Парящие тени как на референсе */
+        .floating-shadow {
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3), 0 20px 30px -10px rgba(0, 0, 0, 0.2);
         }
 
-        @keyframes slowPan {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.08) translate(-2%, -2%); }
+        /* Воздушные полупрозрачные карточки (Чистый эффект парения) */
+        .card-shadow {
+            background: rgba(20, 20, 24, 0.5) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            /* Аккуратная тень без "грязи" вокруг и легкий стеклянный блик, чтобы элементы не сливались */
+            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.5), 
+                        0 10px 20px -10px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transform: translateZ(0);
         }
 
-        /* --- Темный Глассморфизм --- */
-        .glass-dark {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        /* Кнопка "Subscribe" стайл */
+        .black-pill-btn {
+            background-color: #1a1a1c;
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
         }
-        
-        .glass-btn {
-            background: rgba(30, 30, 40, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .glass-btn:active {
+        .black-pill-btn:active {
             transform: scale(0.97);
-            background: rgba(40, 40, 50, 0.7);
-            border-color: var(--gold-light);
+            background-color: #000000;
         }
 
-        /* --- Карусель Отзывов --- */
-        .carousel-container {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            gap: 1rem;
-            padding-bottom: 1rem;
-            /* Скрываем скроллбар */
+        /* Кастомный скроллбар (скрыт для красоты) */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        .carousel-container::-webkit-scrollbar { display: none; }
+
+        /* Плавное появление */
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
         
-        .carousel-item {
-            scroll-snap-align: center;
-            min-width: 85%;
-            max-width: 85%;
-        }
-
-        /* --- Блокировка скролла фона --- */
-        body.no-scroll {
-            overflow: hidden !important;
-        }
-
-        /* --- Шторки (Bottom Sheets) --- */
-        .sheet-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 40;
-        }
-        .sheet-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .bottom-sheet {
-            position: fixed;
-            left: 0; right: 0; bottom: 0;
-            height: 85vh;
-            background: rgba(20, 20, 28, 0.95);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px 28px 0 0;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1);
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 -15px 50px rgba(0,0,0,0.5);
-        }
-        .bottom-sheet.active {
-            transform: translateY(0);
-        }
-
-        .sheet-header {
-            padding: 1.25rem 1rem 0.5rem;
-            text-align: center;
-            position: relative;
-        }
-        .sheet-drag-handle {
-            width: 36px; height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            margin: 0 auto 12px auto;
-        }
-        .sheet-content {
-            padding: 1rem 1.5rem 2.5rem;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-
-        /* Золотое свечение для Руны */
-        .gold-glow {
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 0 0 30px rgba(212, 175, 55, 0.3);
-            animation: pulseGold 2.5s infinite alternate;
-        }
-        @keyframes pulseGold {
-            from { text-shadow: 0 0 10px rgba(212, 175, 55, 0.4); }
-            to { text-shadow: 0 0 25px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.5); }
-        }
-
-        .text-gold { color: var(--gold); }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
     </style>
 </head>
-<body class="relative w-full min-h-screen pb-10">
+<body class="dynamic-bg min-h-screen pb-12 pt-6 px-5 flex flex-col items-center">
 
-    <!-- Загрузочный экран -->
-    <div id="global-loader">
-        <div class="spinner"></div>
+    <!-- TOAST УВЕДОМЛЕНИЕ (Glassmorphism вайб под дизайн, п.4) -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-white/20 backdrop-blur-xl border border-white/40 text-white px-5 py-3 rounded-full flex items-center gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.3)] transition-all duration-300 transform -translate-y-24 opacity-0 font-medium text-sm"></div>
+
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН (Огненный лоадер) -->
+    <div id="app-loader" class="fixed inset-0 z-[100] dynamic-bg flex items-center justify-center transition-opacity duration-500">
+        <div class="relative w-20 h-20 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-orange-500/20"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-orange-500 border-r-red-500 border-b-yellow-400 animate-spin shadow-[0_0_30px_rgba(249,115,22,0.6)]"></div>
+            <i class="ph-fill ph-fire text-orange-500 text-3xl animate-pulse"></i>
+        </div>
     </div>
 
-    <!-- ======================================================== -->
-    <!-- ⬇️ ВАШ БЛОК ДЛЯ РЕДАКТИРОВАНИЯ (МЕНЯЙТЕ ДАННЫЕ ТОЛЬКО ЗДЕСЬ) ⬇️ -->
-    <!-- ======================================================== -->
+    <!-- ========================================================================= -->
+    <!-- 🛑 НАСТРОЙКИ: МЕНЯЙТЕ ФОТО, ТЕКСТЫ И ССЫЛКИ ТОЛЬКО ЗДЕСЬ 🛑 -->
+    <!-- ========================================================================= -->
     <script>
-        const MY_DATA = {
-            // --- 📸 ФОТО И ФОН ---
-            // Ссылка на фоновое изображение (красиво смотрится космос, туманность или кристаллы)
-            backgroundPhoto: "https://i.postimg.cc/WbrgM5qb/unnamed-13.webp",
-            // Ваше главное фото (аватарка)
-            avatarPhoto: "https://i.postimg.cc/pVjVpSp7/unnamed-(2).jpg",
-            
-            // --- 📝 ОСНОВНАЯ ИНФОРМАЦИЯ ---
-            name: "Елена Световая",
-            // Три главных слова под вашим именем (через запятую, в кавычках)
-            tags: ["Руны", "Таро", "Энергия"],
-
-            // --- ⚙️ ИНТЕГРАЦИЯ С GOOGLE (ДЛЯ ОТЗЫВОВ) ---
-            // Чтобы активировать:
-            // 1. Вставьте ссылку на ваш Web App из Google Apps Script ниже
-            // 2. В функции submitReview (внизу кода) найдите закомментированный код для отправки и раскомментируйте его.
-            googleScriptUrl: "", // Вставьте сюда ссылку "https://script.google.com/macros/s/.../exec"
-            googleSheetUrl: "",  // Ссылка на саму таблицу (просто чтобы не потерять)
-
-            // --- 🔗 ССЫЛКИ НА СОЦСЕТИ ---
-            socialLinks: {
-                telegram: "https://t.me/YOUR_USERNAME",
-                instagram: "https://instagram.com/YOUR_USERNAME",
-                whatsapp: "https://wa.me/YOUR_NUMBER" // укажите номер в международном формате, например 79991234567
-            },
-
-            // --- 🎁 БЕСПЛАТНЫЙ ГАЙД ---
-            guide: {
-                title: "Бесплатный гайд",
-                subtitle: "Знаки Вселенной",
-                link: "https://t.me/YOUR_USERNAME" // Ссылка на скачивание гайда или бота
-            },
-
-            // --- 🔮 БЛОК «ОБО МНЕ» ---
-            about: {
-                photo: "https://images.unsplash.com/photo-1608744882201-52a7f7f3dd22?q=80&w=800&auto=format&fit=crop", // фото внутри шторки
-                text: "Я работаю с тонкими материями более 7 лет. Мой подход исключает запугивание и фатализм. Будущее многовариантно, и карты лишь подсвечивают лучшую из дорог.",
-                quote: "«Мы сами творцы своей реальности. Магия — лишь инструмент, помогающий услышать голос Души.»",
-                tools: ["Скандинавские Руны", "Таро Тота", "Рейки", "Астрология"] // Ваши инструменты
-            },
-
-            // --- 💎 ВАШИ УСЛУГИ И ЦЕНЫ ---
-            // Чтобы добавить новую услугу, скопируйте блок в фигурных скобках { ... } и поставьте запятую
-            services: [
-                {
-                    title: "Расклад «Путь»",
-                    price: "2 500 ₽",
-                    description: "Глубокий анализ текущей ситуации, диагностика блоков и просмотр вариантов будущего.",
-                    telegramMessage: "Здравствуйте! Записываюсь на расклад «Путь»." // Это сообщение клиент автоматически отправит вам в ЛС
+        const APP_DATA = {
+            // ================= РУССКИЙ ЯЗЫК =================
+            ru: {
+                profile: {
+                    name: "Полина Чубакина", 
+                    avatar: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
+                    bio: "Зажигаю сердца и сцены. Фаер-шоу, акробатика и жизнь в движении 🔥"
                 },
-                {
-                    title: "Чистка Ауры",
-                    price: "5 000 ₽",
-                    description: "Снятие негативных программ, восстановление энергобаланса. Дистанционная работа.",
-                    telegramMessage: "Здравствуйте! Интересует чистка ауры."
+                about: {
+                    photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
+                    photos: [
+                        "https://i.postimg.cc/jjCJXtLx/photo-2026-03-13-17-39-13.jpg",
+                        "https://i.postimg.cc/rpztJMKF/photo-2026-03-14-02-15-02.jpg",
+                        "https://i.postimg.cc/Bvt1g4Xv/photo-2026-03-14-02-15-07.jpg",
+                        "https://i.postimg.cc/VN5bRmdk/photo-2026-03-14-02-15-15.jpg"
+                    ],
+                    text: "Привет! Меня зовут Полина. Я занимаюсь фаер-шоу уже более 2 лет...<br><br>Мой путь начался с простой искры, а теперь я зажигаю целые стадионы. В этом блоге я делюсь самым сокровенным." 
+                },
+                categories: [
+                    { 
+                        title: "Огненные выступления", 
+                        icon: "🔥", badge: "Хит!", action: "posts",
+                        posts: [
+                            { title: "Моё лучшее соло с веерами", link: "https://t.me/telegram" },
+                            { title: "Выступление на фестивале", link: "https://t.me/telegram" },
+                            { title: "Огонь и танцы: бэкстейдж", link: "https://t.me/telegram" }
+                        ]
+                    },
+                    { 
+                        title: "Акробатика", 
+                        icon: "🤸‍♀️", badge: null, action: "posts",
+                        posts: [
+                            { title: "Как я научилась делать сальто", link: "https://t.me/telegram" },
+                            { title: "Секреты идеальной растяжки", link: "https://t.me/telegram" }
+                        ]
+                    },
+                    { 
+                        title: "Обучение", 
+                        icon: '<i class="ph-bold ph-graduation-cap"></i>', subtitle: "Индивидуальные занятия", badge: "Идет набор", action: "training", type: "wide"
+                    },
+                    { 
+                        title: "Мои услуги", 
+                        icon: '<i class="ph-bold ph-sparkle"></i>', subtitle: "Шоу и мастер-классы", badge: "New!", action: "services", type: "wide"
+                    }
+                ],
+                training: {
+                    photo: "https://i.postimg.cc/xdb18CXc/x1-2-webp-pagespeed-ic-q-Qce-BTDec4.webp", 
+                    text: "Открой для себя мир танца и движения! Я провожу индивидуальные занятия для любого уровня подготовки.<br><br>Мы изучим базу и поставим твой первый номер.",
+                    buttonLink: "https://t.me/telegram"
+                },
+                services: [
+                    {
+                        title: "Огненное шоу на свадьбу",
+                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                        photos: [
+                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                        ],
+                        shortDesc: "Незабываемое соло-выступление с огнем.",
+                        fullDesc: "Полная программа на 15 минут, включающая работу с веерами, поями и огнеметом. Идеально для свадеб и корпоративов!<br><br>В стоимость включен трансфер по городу и пиротехника.",
+                        oldPrice: "15 000 ₽", newPrice: "12 000 ₽", buttonLink: "https://t.me/telegram"
+                    },
+                    {
+                        title: "Мастер-класс на мероприятие",
+                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                        photos: [
+                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                        ],
+                        shortDesc: "Интерактив с гостями (без огня).",
+                        fullDesc: "Проведение безопасного интерактива со световым реквизитом. Гости смогут сами попробовать покрутить пои и веера!",
+                        oldPrice: "", newPrice: "8 000 ₽", buttonLink: "https://t.me/telegram"
+                    }
+                ],
+                fortunes: [
+                    { text: "Твоя стихия сегодня — Искра. Самое время начинать новые проекты!", postTitle: "Заряд мотивации здесь", postLink: "https://t.me/telegram" },
+                    { text: "Сегодня ты — Дикий Огонь. Не бойся выделяться и быть в центре внимания.", postTitle: "Смотри, как я зажигаю", postLink: "https://t.me/telegram" },
+                    { text: "Время разжечь пламя! Сделай то, что давно откладывала.", postTitle: "Пост о преодолении страхов", postLink: "https://t.me/telegram" },
+                    { text: "Твой день пройдет ярко! Лови момент и наслаждайся каждой минутой.", postTitle: "Бэкстейдж с фестиваля", postLink: "https://t.me/telegram" },
+                    { text: "Гибкость — твое оружие сегодня. Подстройся под ситуацию, и ты выиграешь!", postTitle: "Секреты идеальной растяжки", postLink: "https://t.me/telegram" },
+                    { text: "Даже маленькая искра может зажечь большое пламя. Твои усилия окупятся.", postTitle: "Моя история пути", postLink: "https://t.me/telegram" },
+                    { text: "Сегодня идеальный день для тренировки или танца. Дай телу свободу!", postTitle: "Туториал для новичков", postLink: "https://t.me/telegram" },
+                    { text: "Ты горишь своим делом, и это вдохновляет других. Продолжай сиять!", postTitle: "Мое лучшее выступление", postLink: "https://t.me/telegram" },
+                    { text: "Не бойся обжечься. Риск сегодня оправдан, действуй смело!", postTitle: "Как я приручила огонь", postLink: "https://t.me/telegram" },
+                    { text: "Сохраняй баланс. Как в акробатике, так и в жизни — важна точка опоры.", postTitle: "Акробатика: с чего начать", postLink: "https://t.me/telegram" },
+                    { text: "Твой внутренний огонь согревает близких. Подари им сегодня свою улыбку.", postTitle: "Лайфстайл пост", postLink: "https://t.me/telegram" },
+                    { text: "Сегодня ты притягиваешь взгляды, словно фаер-шоу в ночном городе.", postTitle: "Смотреть горячее соло", postLink: "https://t.me/telegram" },
+                    { text: "Пламя не знает преград. Иди к своей цели, не останавливаясь!", postTitle: "Про мотивацию и спорт", postLink: "https://t.me/telegram" },
+                    { text: "Выдохни и расслабься. Огню тоже нужно время, чтобы разгореться с новой силой.", postTitle: "Как я восстанавливаюсь", postLink: "https://t.me/telegram" },
+                    { text: "Звезды говорят: пора добавить в жизнь немного магии и драйва!", postTitle: "Магия огня на сцене", postLink: "https://t.me/telegram" }
+                ],
+                reviews: [
+                    { name: "Екатерина", date: "10 марта 2026", stars: 5, text: "Потрясающее шоу! Гости были в полном восторге. Полина — настоящий профессионал своего дела. Огонь был завораживающим!" },
+                    { name: "Михаил", date: "25 февраля 2026", stars: 5, text: "Заказывали мастер-класс на корпоратив. Все супер, очень атмосферно и безопасно. Коллеги до сих пор вспоминают." },
+                    { name: "Ольга", date: "14 февраля 2026", stars: 5, text: "Невероятная энергетика и грация! Спасибо за эмоции, это было незабываемо." }
+                ],
+                socials: {
+                    telegram: "https://t.me/telegram", instagram: "https://instagram.com", youtube: "https://youtube.com", vk: "https://vk.com"
+                },
+                ui: {
+                    aboutBtnTitle: "Давайте знакомиться", aboutBtnSub: "Моя история и путь",
+                    reviewsTitle: "Отзывы", writeReview: "Написать отзыв",
+                    fortuneBtnTitle: "Пожелание дня", fortuneBtnSub: "Получи заряд вдохновения",
+                    socialsTitle: "Мои социальные сети", servicesPageTitle: "Мои услуги",
+                    aboutSheetTitle: "Обо мне", trainingSheetTitle: "Обучение",
+                    enrollBtn: "Записаться", fortuneSheetTitle: "Твое пожелание на день",
+                    reviewSheetTitle: "Оставить отзыв", reviewNamePlaceholder: "Ваше имя",
+                    reviewTextPlaceholder: "Поделитесь впечатлениями...", reviewSubmitBtn: "Отправить отзыв",
+                    moreBtn: "Подробнее", toastSuccess: "Отзыв успешно отправлен! 💖", toastWarning: "Пожалуйста, поставьте оценку"
                 }
-            ],
+            },
 
-            // --- ⭐ ОТЗЫВЫ НА ГЛАВНОЙ ---
-            reviews: [
-                {
-                    name: "Анна В.",
-                    date: "12 Мая 2024",
-                    text: "Делала расклад на отношения. Елена невероятно чуткий мастер. Всё встало на свои места, ушла тревога. Очень красивый и глубокий подход!"
+            // ================= АНГЛИЙСКИЙ ЯЗЫК =================
+            en: {
+                profile: {
+                    name: "Polina Chubakina", 
+                    avatar: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
+                    bio: "Igniting hearts and stages. Fire shows, acrobatics, and life in motion 🔥"
                 },
-                {
-                    name: "Мария К.",
-                    date: "05 Мая 2024",
-                    text: "Энергетическая чистка просто вернула меня к жизни. Будто сняли тяжелый рюкзак, который я носила годами. Огромная благодарность."
+                about: {
+                    photo: "https://i.postimg.cc/vT8f0F1c/photo-2026-03-13-17-39-13.jpg", 
+                    photos: [
+                        "https://i.postimg.cc/jjCJXtLx/photo-2026-03-13-17-39-13.jpg",
+                        "https://i.postimg.cc/rpztJMKF/photo-2026-03-14-02-15-02.jpg",
+                        "https://i.postimg.cc/Bvt1g4Xv/photo-2026-03-14-02-15-07.jpg",
+                        "https://i.postimg.cc/VN5bRmdk/photo-2026-03-14-02-15-15.jpg"
+                    ],
+                    text: "Hi! I'm Polina. I've been performing fire shows for over 2 years...<br><br>My journey started with a simple spark, and now I light up entire stadiums. In this blog, I share my most cherished moments." 
                 },
-                {
-                    name: "Светлана",
-                    date: "28 Апр 2024",
-                    text: "Обращаюсь за рунической подсказкой перед важными сделками. Работает как швейцарские часы. Уровень профессионализма на высоте."
+                categories: [
+                    { 
+                        title: "Fire Performances", 
+                        icon: "🔥", badge: "Hit!", action: "posts",
+                        posts: [
+                            { title: "My best solo with fans", link: "https://t.me/telegram" },
+                            { title: "Performance at the festival", link: "https://t.me/telegram" },
+                            { title: "Fire and dance: backstage", link: "https://t.me/telegram" }
+                        ]
+                    },
+                    { 
+                        title: "Acrobatics", 
+                        icon: "🤸‍♀️", badge: null, action: "posts",
+                        posts: [
+                            { title: "How I learned to do a backflip", link: "https://t.me/telegram" },
+                            { title: "Secrets of perfect stretching", link: "https://t.me/telegram" }
+                        ]
+                    },
+                    { 
+                        title: "Training", 
+                        icon: '<i class="ph-bold ph-graduation-cap"></i>', subtitle: "Individual lessons", badge: "Hiring", action: "training", type: "wide"
+                    },
+                    { 
+                        title: "My Services", 
+                        icon: '<i class="ph-bold ph-sparkle"></i>', subtitle: "Shows and master classes", badge: "New!", action: "services", type: "wide"
+                    }
+                ],
+                training: {
+                    photo: "https://i.postimg.cc/xdb18CXc/x1-2-webp-pagespeed-ic-q-Qce-BTDec4.webp", 
+                    text: "Discover the world of dance and movement! I conduct individual lessons for any skill level.<br><br>We will learn the basics and choreograph your first routine.",
+                    buttonLink: "https://t.me/telegram"
+                },
+                services: [
+                    {
+                        title: "Fire show for a wedding",
+                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                        photos: [
+                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                        ],
+                        shortDesc: "Unforgettable solo fire performance.",
+                        fullDesc: "Full 15-minute program including work with fans, poi, and a flamethrower. Ideal for weddings and corporate events!<br><br>Price includes city transfer and pyrotechnics.",
+                        oldPrice: "15 000 ₽", newPrice: "12 000 ₽", buttonLink: "https://t.me/telegram"
+                    },
+                    {
+                        title: "Master class for an event",
+                        photo: "https://i.postimg.cc/8Pq3DzgB/photo-2026-03-14-02-26-30.jpg",
+                        photos: [
+                            "https://i.postimg.cc/SKGtWL2w/photo-2026-03-14-02-27-17.jpg",
+                            "https://i.postimg.cc/tTSScXz3/photo-2026-03-14-02-27-23.jpg"
+                        ],
+                        shortDesc: "Interactive session with guests (no fire).",
+                        fullDesc: "Conducting a safe interactive session with light props. Guests will be able to try spinning poi and fans themselves!",
+                        oldPrice: "", newPrice: "8 000 ₽", buttonLink: "https://t.me/telegram"
+                    }
+                ],
+                fortunes: [
+                    { text: "Your element today is Spark. It's time to start new projects!", postTitle: "Motivation boost here", postLink: "https://t.me/telegram" },
+                    { text: "Today you are Wild Fire. Don't be afraid to stand out.", postTitle: "See how I ignite", postLink: "https://t.me/telegram" },
+                    { text: "Time to light the flame! Do what you've been putting off.", postTitle: "Post about overcoming fears", postLink: "https://t.me/telegram" },
+                    { text: "Your day will be bright! Catch the moment and enjoy every minute.", postTitle: "Backstage from the festival", postLink: "https://t.me/telegram" },
+                    { text: "Flexibility is your weapon today. Adapt to the situation, and you will win!", postTitle: "Secrets of perfect stretching", postLink: "https://t.me/telegram" },
+                    { text: "Even a small spark can ignite a big flame. Your efforts will pay off.", postTitle: "My life story", postLink: "https://t.me/telegram" },
+                    { text: "Today is a perfect day for training or dancing. Give your body freedom!", postTitle: "Tutorial for beginners", postLink: "https://t.me/telegram" },
+                    { text: "You burn for your craft, and it inspires others. Keep shining!", postTitle: "My best performance", postLink: "https://t.me/telegram" },
+                    { text: "Don't be afraid to get burned. Risk is justified today, act boldly!", postTitle: "How I tamed the fire", postLink: "https://t.me/telegram" },
+                    { text: "Keep your balance. In acrobatics as in life, a fulcrum is important.", postTitle: "Acrobatics: where to start", postLink: "https://t.me/telegram" },
+                    { text: "Your inner fire warms your loved ones. Give them a smile today.", postTitle: "Lifestyle post", postLink: "https://t.me/telegram" },
+                    { text: "Today you catch everyone's eyes, like a fire show in the night city.", postTitle: "Watch hot solo", postLink: "https://t.me/telegram" },
+                    { text: "The flame knows no barriers. Go to your goal without stopping!", postTitle: "About motivation and sports", postLink: "https://t.me/telegram" },
+                    { text: "Exhale and relax. Fire also needs time to flare up with renewed vigor.", postTitle: "How I recover", postLink: "https://t.me/telegram" },
+                    { text: "The stars say: it's time to add some magic and drive to your life!", postTitle: "Magic of fire on stage", postLink: "https://t.me/telegram" }
+                ],
+                reviews: [
+                    { name: "Ekaterina", date: "March 10, 2026", stars: 5, text: "Amazing show! Guests were absolutely thrilled. Polina is a true professional. The fire was mesmerizing!" },
+                    { name: "Mikhail", date: "February 25, 2026", stars: 5, text: "Ordered a master class for a corporate party. Everything was super, very atmospheric and safe. Colleagues still remember it." },
+                    { name: "Olga", date: "February 14, 2026", stars: 5, text: "Incredible energy and grace! Thank you for the emotions, it was unforgettable." }
+                ],
+                socials: {
+                    telegram: "https://t.me/telegram", instagram: "https://instagram.com", youtube: "https://youtube.com", vk: "https://vk.com"
+                },
+                ui: {
+                    aboutBtnTitle: "Let's get acquainted", aboutBtnSub: "My story and journey",
+                    reviewsTitle: "Reviews", writeReview: "Write a review",
+                    fortuneBtnTitle: "Wish of the day", fortuneBtnSub: "Get inspired for the day",
+                    socialsTitle: "My social networks", servicesPageTitle: "My Services",
+                    aboutSheetTitle: "About Me", trainingSheetTitle: "Training",
+                    enrollBtn: "Sign up", fortuneSheetTitle: "Your wish for today",
+                    reviewSheetTitle: "Leave a review", reviewNamePlaceholder: "Your name",
+                    reviewTextPlaceholder: "Share your impressions...", reviewSubmitBtn: "Submit Review",
+                    moreBtn: "Details", toastSuccess: "Review sent successfully! 💖", toastWarning: "Please rate us with stars"
                 }
-            ]
+            }
         };
+
+        // Текущий выбранный язык
+        let currentLang = 'ru';
+        let CONFIG = APP_DATA[currentLang];
     </script>
-    <!-- ======================================================== -->
-    <!-- ⬆️ КОНЕЦ БЛОКА ДЛЯ РЕДАКТИРОВАНИЯ ⬆️ -->
-    <!-- ======================================================== -->
+    <!-- ========================================================================= -->
+    <!-- 🛑 КОНЕЦ НАСТРОЕК 🛑 -->
+    <!-- ========================================================================= -->
 
-    <!-- Фоновые элементы -->
-    <div id="dynamic-bg" class="bg-photo"></div>
-    <div class="bg-overlay"></div>
+    <!-- ============================================== -->
+    <!-- ГЛАВНЫЙ ЭКРАН -->
+    <!-- ============================================== -->
+    <div id="main-screen" class="w-full max-w-md mx-auto space-y-6">
 
-    <main class="w-full max-w-md mx-auto px-4 pt-10 relative z-10 flex flex-col items-center">
-        
-        <!-- Аватар и Заголовок -->
-        <div class="flex flex-col items-center mb-10 w-full">
-            <div class="relative mb-5 group">
-                <!-- Тонкая анимированная рамка вокруг фото -->
-                <div class="absolute inset-0 rounded-full border border-[#d4af37]/30 scale-[1.1] animate-pulse"></div>
-                <div class="absolute inset-0 rounded-full border border-[#d4af37]/50 scale-[1.05]"></div>
-                
-                <img id="dynamic-avatar" src="" 
-                     alt="Мастер" 
-                     class="w-28 h-28 rounded-full object-cover shadow-[0_0_20px_rgba(212,175,55,0.2)]">
-            </div>
-            <h1 id="dynamic-name" class="text-4xl text-white tracking-wide mb-1 text-center"></h1>
-            <div id="dynamic-tags" class="flex items-center gap-2 text-gold/80 text-xs tracking-[0.2em] uppercase font-light">
-                <!-- Теги загрузятся скриптом -->
-            </div>
-        </div>
-
-        <!-- Кнопка интерактива: Руна дня -->
-        <button onclick="drawRune()" class="w-full glass-dark rounded-2xl p-6 mb-8 flex flex-col items-center justify-center relative overflow-hidden active:scale-95 transition-transform duration-300">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-[#d4af37] rounded-full blur-[80px] opacity-10"></div>
-            <span class="text-5xl mb-3 gold-glow text-[#f3e5ab]">ᛟ</span>
-            <span class="font-serif text-2xl text-white tracking-wide">Руна Дня</span>
-            <span class="text-xs text-gray-400 mt-2 font-light tracking-wider uppercase">Открыть послание</span>
-        </button>
-
-        <!-- Навигация (2 кнопки в ряд для стиля) -->
-        <div class="w-full grid grid-cols-2 gap-3 mb-3">
-            <button onclick="openSheet('services-sheet')" class="glass-btn p-4 rounded-xl flex flex-col items-center justify-center gap-2 group">
-                <i class="ph ph-sparkle text-2xl text-gold"></i>
-                <span class="font-serif text-lg tracking-wide">Услуги</span>
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ (Воздушная, без плашки) -->
+        <div class="w-full flex justify-end items-center gap-3 px-2 -mt-4 -mb-4 fade-in relative z-10">
+            <button id="lang-btn" onclick="toggleLanguage()" class="text-white hover:text-gray-200 font-extrabold text-[11px] uppercase transition-colors active:scale-95 font-sans tracking-widest drop-shadow-md">
+                EN
             </button>
-            <button onclick="openSheet('about-sheet')" class="glass-btn p-4 rounded-xl flex flex-col items-center justify-center gap-2 group">
-                <i class="ph ph-moon-stars text-2xl text-gold"></i>
-                <span class="font-serif text-lg tracking-wide">Обо мне</span>
+            <button id="share-btn" onclick="shareProfile()" class="text-white hover:text-gray-200 transition-colors active:scale-95 drop-shadow-md">
+                <i class="ph-bold ph-share-network text-[18px]"></i>
             </button>
         </div>
 
-        <!-- Блок: Гайд (Ссылка) -->
-        <a id="dynamic-guide-link" href="#" target="_blank" class="w-full glass-btn p-4 rounded-xl flex items-center justify-between mb-10 group relative overflow-hidden border border-white/5 hover:border-gold/30 transition-all">
-            <div class="absolute inset-0 bg-gradient-to-r from-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-11 h-11 rounded-full bg-black/30 border border-gold/20 flex items-center justify-center text-gold shadow-[0_0_10px_rgba(212,175,55,0.1)]">
-                    <i class="ph ph-book-open-text text-xl"></i>
+        <!-- ГЛАВНОЕ ФОТО (С 3D-ЭФФЕКТОМ TILT) -->
+        <div class="w-full fade-in">
+            <div id="tilt-card" class="relative w-full aspect-[3.5/4] rounded-[2.5rem] overflow-hidden floating-shadow transform-gpu will-change-transform">
+                <img id="profile-avatar" src="" alt="Avatar" class="absolute inset-0 w-full h-full object-cover z-0">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10"></div>
+                
+                <!-- Блик для 3D эффекта -->
+                <div id="tilt-glare" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-overlay"></div>
+                
+                <!-- Инфо и кнопки (Элегантный Вариант 2) -->
+                <div class="absolute bottom-5 left-5 right-5 text-white z-30 flex items-end justify-between gap-3">
+                    <h1 class="text-[28px] sm:text-3xl font-serif font-bold flex items-center gap-1.5 tracking-tight min-w-0">
+                        <span id="profile-name" class="truncate"></span>
+                        <i class="ph-fill ph-check-circle text-white/90 text-[20px] shrink-0 mt-1"></i>
+                    </h1>
                 </div>
-                <div class="text-left">
-                    <h3 id="dynamic-guide-title" class="font-serif text-lg text-white tracking-wide leading-tight"></h3>
-                    <p id="dynamic-guide-subtitle" class="text-[10px] text-gray-400 font-light uppercase tracking-widest mt-0.5"></p>
-                </div>
-            </div>
-            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center relative z-10 group-hover:bg-gold/10 transition-colors">
-                <i class="ph ph-arrow-right text-gold text-sm group-hover:translate-x-0.5 transition-transform"></i>
-            </div>
-        </a>
-
-        <!-- Раздел: Отзывы (Свайп-Карусель) -->
-        <div class="w-full mb-8">
-            <div class="flex justify-between items-end mb-4 px-1">
-                <h2 class="text-2xl text-white tracking-wide">Отзывы</h2>
-                <button onclick="openSheet('add-review-sheet')" class="text-xs text-gold/80 hover:text-gold uppercase tracking-wider">Оставить свой</button>
-            </div>
-            
-            <!-- Контейнер карусели -->
-            <div class="carousel-container -mx-4 px-4" id="reviews-carousel">
-                <!-- Отзывы загрузятся скриптом -->
             </div>
         </div>
 
-        <!-- Подвал / Соцсети -->
-        <footer class="w-full mt-4">
-            <div class="glass-dark rounded-2xl p-4 flex justify-center gap-8 items-center">
-                <a id="dynamic-tg" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
-                    <i class="ph ph-telegram-logo text-3xl"></i>
-                </a>
-                <a id="dynamic-inst" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
-                    <i class="ph ph-instagram-logo text-3xl"></i>
-                </a>
-                <a id="dynamic-wa" href="#" target="_blank" class="text-gray-400 hover:text-white transition-colors p-2">
-                    <i class="ph ph-whatsapp-logo text-3xl"></i>
-                </a>
-            </div>
-        </footer>
-
-    </main>
-
-
-    <!-- ==================== ШТОРКИ (MODALS) ==================== -->
-    <div id="overlay" class="sheet-overlay" onclick="closeAllSheets()"></div>
-
-    <!-- Шторка: Руна Дня -->
-    <div id="rune-sheet" class="bottom-sheet">
-        <div class="sheet-header" onclick="closeAllSheets()">
-            <div class="sheet-drag-handle"></div>
-            <button class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <!-- КРАТКАЯ ИНФОРМАЦИЯ И КНОПКИ УПРАВЛЕНИЯ -->
+        <div class="w-full relative px-2 fade-in delay-1">
+            <p id="profile-bio" class="text-gray-900 font-bold text-sm leading-relaxed text-center px-4"></p>
         </div>
-        <div class="sheet-content flex flex-col items-center text-center">
-            <div class="w-32 h-40 glass-dark border border-[#d4af37]/30 rounded-2xl flex items-center justify-center mb-8 relative">
-                <!-- Декоративные уголки -->
-                <div class="absolute top-2 left-2 w-2 h-2 border-t border-l border-gold/50"></div>
-                <div class="absolute top-2 right-2 w-2 h-2 border-t border-r border-gold/50"></div>
-                <div class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-gold/50"></div>
-                <div class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-gold/50"></div>
-                
-                <span id="rune-symbol" class="text-7xl gold-glow text-[#f3e5ab]"></span>
-            </div>
-            <h3 id="rune-name" class="font-serif text-3xl text-white mb-4 tracking-widest uppercase"></h3>
-            <p id="rune-desc" class="text-gray-300 font-light leading-relaxed text-sm max-w-[280px]"></p>
-        </div>
-    </div>
 
-    <!-- Шторка: Услуги -->
-    <div id="services-sheet" class="bottom-sheet">
-        <div class="sheet-header" onclick="closeAllSheets()">
-            <div class="sheet-drag-handle"></div>
-            <h2 class="font-serif text-2xl text-white">Мои Услуги</h2>
-            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
-        </div>
-        <div id="dynamic-services" class="sheet-content space-y-4 mt-2">
-            <!-- Услуги загрузятся скриптом -->
-        </div>
-    </div>
-
-    <!-- Шторка: Обо мне -->
-    <div id="about-sheet" class="bottom-sheet">
-        <div class="sheet-header" onclick="closeAllSheets()">
-            <div class="sheet-drag-handle"></div>
-            <h2 class="font-serif text-2xl text-white">О мастере</h2>
-            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
-        </div>
-        <div class="sheet-content">
-            <img id="dynamic-about-img" src="" 
-                 alt="Эстетика" 
-                 class="w-full h-40 object-cover rounded-xl mb-6 shadow-lg opacity-80 border border-white/10">
-            
-            <div class="space-y-4 text-gray-300 font-light text-sm leading-relaxed">
-                <p id="dynamic-about-text"></p>
-                
-                <blockquote id="dynamic-about-quote" class="border-l-2 border-gold pl-4 py-1 italic text-gray-400">
-                </blockquote>
-                
-                <div class="pt-2">
-                    <h4 class="text-white font-serif text-lg mb-3">Мои инструменты:</h4>
-                    <div id="dynamic-about-tools" class="flex flex-wrap gap-2">
-                        <!-- Инструменты загрузятся скриптом -->
+        <!-- КНОПКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
+        <div class="w-full fade-in delay-2 pt-2">
+            <button onclick="openSheet()" class="w-full relative rounded-3xl p-5 card-shadow transition-transform active:scale-[0.98] flex items-center justify-between text-left">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center shadow-sm bg-black/30 text-white">
+                        <i class="ph-bold ph-user text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[16px] font-bold text-white" id="ui-about-btn-title">Давайте знакомиться</h3>
+                        <p class="text-[13px] font-medium text-gray-300" id="ui-about-btn-sub">Моя история и путь</p>
                     </div>
                 </div>
+                <i class="ph-bold ph-caret-right text-gray-400 text-xl"></i>
+            </button>
+        </div>
+
+        <!-- КАРТОЧКИ-РУБРИКИ (Сетка) -->
+        <div class="grid grid-cols-2 gap-3 fade-in delay-2 mt-3" id="links-container">
+            <!-- Карточки сгенерируются через JS -->
+        </div>
+
+        <!-- ОТЗЫВЫ (Карусель без квадратов) -->
+        <div class="pt-5 fade-in delay-2">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <h2 class="text-[18px] font-bold text-gray-900" id="ui-reviews-title">Отзывы</h2>
+                <button onclick="openReviewSheet()" id="ui-write-review-btn" class="text-[12px] font-bold text-white bg-black/30 px-4 py-2 rounded-full backdrop-blur-md active:scale-95 transition-transform shadow-lg">
+                    Написать отзыв
+                </button>
+            </div>
+            
+            <div id="reviews-container" class="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 hide-scrollbar">
+                <!-- Отзывы генерируются через JS -->
+            </div>
+        </div>
+
+        <!-- ИНТЕРАКТИВНАЯ КНОПКА "ПРЕДСКАЗАНИЕ" -->
+        <div class="pt-4 fade-in delay-3">
+            <button onclick="openFortuneSheet()" class="w-full relative card-shadow text-white rounded-[2rem] py-4 px-5 flex items-center justify-between transition-transform active:scale-[0.98] overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-purple-500/10 opacity-70"></div>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-2xl border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                        🔮
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-[16px] font-bold text-white leading-tight" id="ui-fortune-btn-title">Пожелание дня</h3>
+                        <p class="text-[13px] font-medium text-gray-300 mt-0.5" id="ui-fortune-btn-sub">Получи заряд вдохновения</p>
+                    </div>
+                </div>
+                <i class="ph-bold ph-sparkle text-orange-400 relative z-10 animate-pulse text-2xl"></i>
+            </button>
+            
+            <!-- Футер -->
+            <div class="mt-6 text-center space-y-2">
+                <p class="text-xs text-gray-700 font-bold" id="ui-socials-title">Мои социальные сети</p>
+                <div class="flex justify-center gap-4 text-xs text-gray-800 font-bold">
+                    <a id="social-tg" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">Telegram</a>
+                    <span>|</span>
+                    <a id="social-inst" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">Instagram</a>
+                    <span>|</span>
+                    <a id="social-yt" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">YouTube</a>
+                    <span>|</span>
+                    <a id="social-vk" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="hover:text-black transition-colors">ВКонтакте</a>
+                </div>
+                
+                <!-- 👩‍💻 ССЫЛКА НА РАЗРАБОТЧИКА 👩‍💻 -->
+                <!-- Меняй ссылку в href="" на свою (например: https://t.me/твой_ник) -->
+                <div class="pt-6 pb-2">
+                    <a href="https://t.me/telegram" target="_blank" class="text-[10px] text-gray-500/50 font-medium uppercase tracking-widest" style="color: rgba(107, 114, 128, 0.5) !important; -webkit-tap-highlight-color: transparent;">
+                        design & code by Elena Sotnikova
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ЭКРАН "МОИ УСЛУГИ" (Отдельная страница) -->
+    <!-- ============================================== -->
+    <div id="services-screen" class="w-full max-w-md mx-auto space-y-6 hidden">
+        <!-- Кнопка назад и заголовок -->
+        <div class="flex items-center gap-4 mb-2">
+            <button onclick="closeServicesPage()" class="w-12 h-12 rounded-full border border-white/20 shadow-sm bg-black/30 text-white flex items-center justify-center text-xl active:scale-95 transition-transform">
+                <i class="ph-bold ph-arrow-left"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-gray-900 tracking-tight" id="ui-services-page-title">Мои услуги</h2>
+        </div>
+        
+        <!-- Список услуг -->
+        <div id="services-list" class="space-y-3 pb-8">
+            <!-- Сюда вставятся карточки услуг -->
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ШТОРКА "ДАВАЙТЕ ЗНАКОМИТЬСЯ" -->
+    <!-- ============================================== -->
+    <div id="sheet-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
+    
+    <div id="about-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
+            <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-about-sheet-title">Обо мне</h2>
+            <!-- Галерея вместо статичного фото -->
+            <div id="about-gallery-container"></div>
+            <div id="about-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium"></div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ШТОРКА "ПОСТЫ РУБРИКИ" -->
+    <!-- ============================================== -->
+    <div id="posts-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar">
+            <h2 id="posts-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white text-center"></h2>
+            <div id="posts-sheet-list" class="space-y-3">
+                <!-- Ссылки на посты -->
             </div>
         </div>
     </div>
 
-    <!-- Шторка: Оставить отзыв -->
-    <div id="add-review-sheet" class="bottom-sheet">
-        <div class="sheet-header" onclick="closeAllSheets()">
-            <div class="sheet-drag-handle"></div>
-            <h2 class="font-serif text-2xl text-white">Ваш отзыв</h2>
-            <button class="absolute top-4 right-4 text-gray-400"><i class="ph ph-x text-xl"></i></button>
+    <!-- ============================================== -->
+    <!-- ШТОРКА "ОБУЧЕНИЕ" -->
+    <!-- ============================================== -->
+    <div id="training-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
         </div>
-        <div class="sheet-content">
-            <form id="review-form" class="flex flex-col gap-4" onsubmit="submitReview(event)">
-                <input type="text" id="rev-name" placeholder="Ваше имя" required 
-                       class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-light focus:outline-none focus:border-gold/50 transition-colors placeholder:text-gray-600">
-                
-                <textarea id="rev-text" placeholder="Поделитесь впечатлениями..." required rows="4" 
-                          class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-white font-light focus:outline-none focus:border-gold/50 transition-colors resize-none placeholder:text-gray-600"></textarea>
-                
-                <button type="submit" id="submit-btn" class="mt-4 w-full bg-gold hover:bg-[#b5952f] text-black font-semibold py-3.5 rounded-xl uppercase tracking-widest text-sm transition-colors flex justify-center items-center">
-                    Отправить
-                </button>
-                <p id="form-message" class="text-sm text-center font-light hidden mt-2"></p>
-            </form>
+        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
+            <h2 class="text-2xl font-bold mb-5 tracking-tight text-white" id="ui-training-sheet-title">Обучение</h2>
+            <img id="training-photo" src="" alt="Training" class="w-full aspect-square object-cover rounded-[2rem] mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <div id="training-text" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
+            <a id="training-btn" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_5px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
+                Записаться
+            </a>
         </div>
     </div>
 
+    <!-- ============================================== -->
+    <!-- ШТОРКА "ОПИСАНИЕ УСЛУГИ" -->
+    <!-- ============================================== -->
+    <div id="service-details-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto px-6 pb-8 custom-scrollbar">
+            <h2 id="service-sheet-title" class="text-2xl font-bold mb-5 tracking-tight text-white leading-tight"></h2>
+            <!-- Галерея вместо статичного фото -->
+            <div id="service-gallery-container"></div>
+            
+            <div class="flex items-baseline gap-3 mb-5 px-1">
+                <span id="service-sheet-new-price" class="text-white font-extrabold text-[28px] drop-shadow-md tracking-tight"></span>
+                <span id="service-sheet-old-price" class="text-gray-400 font-medium text-[16px] line-through"></span>
+            </div>
+
+            <div id="service-sheet-desc" class="text-gray-200 space-y-3 leading-relaxed text-[15px] font-medium mb-6"></div>
+            
+            <a id="service-sheet-btn" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('medium')" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_5px_20px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
+                Записаться
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ШТОРКА "ПРЕДСКАЗАНИЕ НА ДЕНЬ" -->
+    <!-- ============================================== -->
+    <div id="fortune-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
+            <div class="w-20 h-20 mx-auto rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-4xl mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                🔮
+            </div>
+            <h2 class="text-2xl font-bold mb-4 tracking-tight text-white" id="ui-fortune-sheet-title">Твое пожелание на день</h2>
+            <p id="fortune-text" class="text-gray-200 text-[16px] leading-relaxed font-medium mb-6 italic"></p>
+            <a id="fortune-link" href="#" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="block w-full text-center bg-white/10 border border-white/20 text-white rounded-2xl p-4 font-bold text-[14px] active:scale-[0.98] transition-transform flex items-center justify-between">
+                <span id="fortune-link-text"></span>
+                <i class="ph-bold ph-caret-right text-gray-400"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- ШТОРКА "НАПИСАТЬ ОТЗЫВ" (Модальное окно) -->
+    <!-- ============================================== -->
+    <div id="review-sheet" class="fixed bottom-0 left-0 w-full bg-black/45 backdrop-blur-2xl border-t border-white/10 rounded-t-[2.5rem] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[90vh] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <div class="w-full flex justify-center py-4 drag-handle" onclick="closeSheet()">
+            <div class="w-14 h-1.5 bg-white/30 rounded-full"></div>
+        </div>
+        <div class="overflow-y-auto px-6 pb-12 custom-scrollbar text-center">
+            <h2 class="text-2xl font-bold mb-6 tracking-tight text-white" id="ui-review-sheet-title">Оставить отзыв</h2>
+            
+            <!-- Интерактивные звезды -->
+            <div class="flex justify-center gap-3 mb-6" id="star-rating">
+                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(1)"></i>
+                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(2)"></i>
+                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(3)"></i>
+                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(4)"></i>
+                <i class="ph-fill ph-star text-4xl text-gray-500 transition-colors cursor-pointer" onclick="setRating(5)"></i>
+            </div>
+
+            <!-- Поля ввода -->
+            <input type="text" id="review-input-name" placeholder="Ваше имя" class="w-full bg-white/10 text-white placeholder-gray-400 border-none rounded-2xl px-5 py-4 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-medium">
+            <textarea id="review-input-text" placeholder="Поделитесь впечатлениями..." rows="4" class="w-full bg-white/10 text-white placeholder-gray-400 border-none rounded-2xl px-5 py-4 mb-6 focus:outline-none focus:ring-2 focus:ring-orange-500/50 resize-none font-medium"></textarea>
+            
+            <button onclick="submitReview()" id="review-submit-btn" class="block w-full text-center bg-white text-black rounded-full py-4 px-6 font-bold text-[15px] shadow-[0_10px_30px_rgba(255,255,255,0.2)] active:scale-[0.98] transition-transform">
+                Отправить отзыв
+            </button>
+        </div>
+    </div>
+
+    <!-- ОСНОВНАЯ ЛОГИКА -->
     <script>
-        // Инициализация Telegram
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready(); // Сообщает ТГ, что аппка готова (ускоряет отображение)
-        tg.setHeaderColor('#0f172a'); // Подстраиваем цвет шапки тг
-
-        // Запрещаем вертикальные свайпы, чтобы аппка не улетала при случайном касании
-        if (tg.disableVerticalSwipes) {
+        tg.ready();
+        
+        try {
             tg.disableVerticalSwipes();
-        }
+        } catch(e) {}
+        
+        tg.setHeaderColor('#b000ff');
 
-        // --- Убираем загрузчик после загрузки страницы ---
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('global-loader');
-            if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 400);
-            }
-        });
+        // Запрет правой кнопки мыши (контекстного меню, п.1)
+        document.addEventListener('contextmenu', event => event.preventDefault());
 
-        // --- Логика Шторок ---
-        const overlay = document.getElementById('overlay');
-        let activeSheet = null;
+        function renderApp() {
+            // Переводы статических элементов интерфейса
+            document.getElementById('ui-about-btn-title').textContent = CONFIG.ui.aboutBtnTitle;
+            document.getElementById('ui-about-btn-sub').textContent = CONFIG.ui.aboutBtnSub;
+            document.getElementById('ui-reviews-title').textContent = CONFIG.ui.reviewsTitle;
+            document.getElementById('ui-write-review-btn').textContent = CONFIG.ui.writeReview;
+            document.getElementById('ui-fortune-btn-title').textContent = CONFIG.ui.fortuneBtnTitle;
+            document.getElementById('ui-fortune-btn-sub').textContent = CONFIG.ui.fortuneBtnSub;
+            document.getElementById('ui-socials-title').textContent = CONFIG.ui.socialsTitle;
+            document.getElementById('ui-services-page-title').textContent = CONFIG.ui.servicesPageTitle;
+            document.getElementById('ui-about-sheet-title').textContent = CONFIG.ui.aboutSheetTitle;
+            document.getElementById('ui-training-sheet-title').textContent = CONFIG.ui.trainingSheetTitle;
+            document.getElementById('training-btn').textContent = CONFIG.ui.enrollBtn;
+            document.getElementById('service-sheet-btn').textContent = CONFIG.ui.enrollBtn;
+            document.getElementById('ui-fortune-sheet-title').textContent = CONFIG.ui.fortuneSheetTitle;
+            document.getElementById('ui-review-sheet-title').textContent = CONFIG.ui.reviewSheetTitle;
+            document.getElementById('review-input-name').placeholder = CONFIG.ui.reviewNamePlaceholder;
+            document.getElementById('review-input-text').placeholder = CONFIG.ui.reviewTextPlaceholder;
+            document.getElementById('review-submit-btn').textContent = CONFIG.ui.reviewSubmitBtn;
 
-        function openSheet(sheetId) {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            closeAllSheets();
-            const sheet = document.getElementById(sheetId);
-            sheet.classList.add('active');
-            overlay.classList.add('active');
-            activeSheet = sheet;
-            document.body.classList.add('no-scroll'); // Блокируем скролл фона
-        }
+            // Профиль
+            document.getElementById('profile-avatar').src = CONFIG.profile.avatar;
+            document.getElementById('profile-name').textContent = CONFIG.profile.name;
+            document.getElementById('profile-bio').textContent = CONFIG.profile.bio;
 
-        function closeAllSheets() {
-            if (activeSheet) {
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                activeSheet.classList.remove('active');
-                activeSheet = null;
-            }
-            overlay.classList.remove('active');
-            document.body.classList.remove('no-scroll'); // Возвращаем скролл фона
-        }
+            // Шторка "Давайте знакомиться" (Рендерим галерею)
+            renderGallery('about-gallery-container', CONFIG.about.photos || [CONFIG.about.photo]);
+            document.getElementById('about-text').innerHTML = CONFIG.about.text;
 
-        // --- Логика Руны Дня ---
-        const runes = [
-            { symbol: 'ᚠ', name: 'Феху', desc: 'Энергия созидания и ресурса. Сегодня прекрасный день для закладки финансового фундамента.' },
-            { symbol: 'ᚢ', name: 'Уруз', desc: 'Первозданная мощь. В вас скрыт огромный потенциал для прорыва. Действуйте смело.' },
-            { symbol: 'ᚱ', name: 'Райдо', desc: 'Дорога открыта. Доверьтесь потоку событий, ваш внутренний компас настроен верно.' },
-            { symbol: 'ᚨ', name: 'Ансуз', desc: 'Мудрость Вселенной. Обратите внимание на знаки, сны и случайно услышанные слова.' },
-            { symbol: 'ᚷ', name: 'Гебо', desc: 'Гармония обмена. Отдавая — получаете. Прекрасное время для союзов и искренней любви.' },
-            { symbol: 'ᚹ', name: 'Вуньо', desc: 'Радость и свет. Позвольте себе насладиться моментом, тьма отступила.' },
-            { symbol: 'ᛟ', name: 'Одал', desc: 'Связь с родом. Ваша опора сегодня — ваши корни и внутренний духовный дом.' },
-            { symbol: 'ᛉ', name: 'Альгиз', desc: 'Высшая защита. Вы под покровительством. Страхи иллюзорны, слушайте интуицию.' }
-        ];
-
-        function drawRune() {
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            // Генерация квадратных карточек-рубрик
+            const container = document.getElementById('links-container');
+            container.innerHTML = '';
             
-            const randomRune = runes[Math.floor(Math.random() * runes.length)];
-            
-            document.getElementById('rune-symbol').innerText = randomRune.symbol;
-            document.getElementById('rune-name').innerText = randomRune.name;
-            document.getElementById('rune-desc').innerText = randomRune.desc;
-            
-            openSheet('rune-sheet');
-        }
+            CONFIG.categories.forEach((item, index) => {
+                let onClickAction = `openPostsSheet(${index})`;
+                if (item.action === 'training') onClickAction = `openTrainingSheet()`;
+                if (item.action === 'services') onClickAction = `openServicesPage()`;
 
-        // --- Заглушка отправки отзыва ---
-        function submitReview(event) {
-            event.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            const msg = document.getElementById('form-message');
-            const name = document.getElementById('rev-name').value;
-            const text = document.getElementById('rev-text').value;
-            
-            btn.innerHTML = 'Отправка...';
-            btn.disabled = true;
+                if (item.type === 'wide') {
+                    const badgeHtml = item.badge 
+                        ? `<div class="absolute -top-3 left-6 bg-white text-black text-[10px] font-extrabold px-3 py-1 w-max rounded-full shadow-[0_5px_15px_rgba(255,255,255,0.3)] z-10">${item.badge}</div>` 
+                        : '';
 
-            // === ЗАГЛУШКА (Удалите или закомментируйте этот блок, когда подключите Google Script) ===
-            setTimeout(() => {
-                btn.innerHTML = 'Отправить';
-                btn.disabled = false;
-                document.getElementById('review-form').reset();
-                msg.innerHTML = 'Благодарю. Отзыв отправлен на модерацию ✨';
-                msg.classList.remove('hidden', 'text-red-400');
-                msg.classList.add('text-gold');
-            }, 1000);
-            // === КОНЕЦ ЗАГЛУШКИ ===
+                    container.innerHTML += `
+                        <button onclick="${onClickAction}" class="col-span-2 block relative rounded-3xl p-5 card-shadow transition-transform active:scale-[0.98] flex items-center justify-between text-left w-full mt-1">
+                            ${badgeHtml}
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center bg-white/10 text-white text-2xl shadow-sm shrink-0">
+                                    ${item.icon}
+                                </div>
+                                <div>
+                                    <h3 class="text-[16px] font-bold text-white">${item.title}</h3>
+                                    ${item.subtitle ? `<p class="text-[13px] font-medium text-gray-300 mt-0.5">${item.subtitle}</p>` : ''}
+                                </div>
+                            </div>
+                            <i class="ph-bold ph-caret-right text-gray-400 text-xl"></i>
+                        </button>
+                    `;
+                } else {
+                    const badgeHtml = item.badge 
+                        ? `<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-extrabold px-3 py-1 w-max rounded-full shadow-[0_5px_15px_rgba(255,255,255,0.3)] z-10">${item.badge}</div>` 
+                        : '';
 
-            /* // === РЕАЛЬНАЯ ОТПРАВКА В GOOGLE SCRIPT (Раскомментируйте, когда добавите ссылку в MY_DATA) ===
-            if (MY_DATA.googleScriptUrl) {
-                const formData = new FormData();
-                formData.append('action', 'addReview');
-                formData.append('name', name);
-                formData.append('text', text);
-
-                fetch(MY_DATA.googleScriptUrl, {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'no-cors'
-                }).then(() => {
-                    btn.innerHTML = 'Отправить';
-                    btn.disabled = false;
-                    document.getElementById('review-form').reset();
-                    msg.innerHTML = 'Благодарю. Отзыв отправлен на модерацию ✨';
-                    msg.classList.remove('hidden', 'text-red-400');
-                    msg.classList.add('text-gold');
-                }).catch(err => {
-                    btn.innerHTML = 'Отправить';
-                    btn.disabled = false;
-                    msg.innerHTML = 'Произошла ошибка. Попробуйте позже.';
-                    msg.classList.remove('hidden', 'text-gold');
-                    msg.classList.add('text-red-400');
-                });
-            }
-            // === КОНЕЦ РЕАЛЬНОЙ ОТПРАВКИ ===
-            */
-        }
-
-        // --- МАГИЯ: ПОДСТАНОВКА ВАШИХ ДАННЫХ В ДИЗАЙН ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Фон и Аватар
-            document.getElementById('dynamic-bg').style.backgroundImage = `url('${MY_DATA.backgroundPhoto}')`;
-            document.getElementById('dynamic-avatar').src = MY_DATA.avatarPhoto;
-            
-            // Имя и теги
-            document.getElementById('dynamic-name').innerText = MY_DATA.name;
-            const tagsContainer = document.getElementById('dynamic-tags');
-            MY_DATA.tags.forEach((tag, index) => {
-                tagsContainer.innerHTML += `<span>${tag}</span>`;
-                if (index < MY_DATA.tags.length - 1) {
-                    tagsContainer.innerHTML += `<span class="w-1 h-1 rounded-full bg-gold/50"></span>`;
+                    container.innerHTML += `
+                        <button onclick="${onClickAction}" class="block relative rounded-3xl p-4 card-shadow transition-transform active:scale-[0.98] flex flex-col items-center justify-center aspect-square w-full text-center">
+                            ${badgeHtml}
+                            <div class="w-12 h-12 rounded-full border border-white/40 flex items-center justify-center mb-3 bg-white/10 text-2xl text-white">
+                                ${item.icon}
+                            </div>
+                            <h3 class="text-[14px] font-bold text-white leading-tight">${item.title}</h3>
+                        </button>
+                    `;
                 }
             });
 
-            // Гайд
-            document.getElementById('dynamic-guide-title').innerText = MY_DATA.guide.title;
-            document.getElementById('dynamic-guide-subtitle').innerText = MY_DATA.guide.subtitle;
-            document.getElementById('dynamic-guide-link').href = MY_DATA.guide.link;
-
-            // Соцсети
-            document.getElementById('dynamic-tg').href = MY_DATA.socialLinks.telegram;
-            document.getElementById('dynamic-inst').href = MY_DATA.socialLinks.instagram;
-            document.getElementById('dynamic-wa').href = MY_DATA.socialLinks.whatsapp;
-
-            // Отзывы
-            const reviewsContainer = document.getElementById('reviews-carousel');
-            MY_DATA.reviews.forEach(rev => {
-                reviewsContainer.innerHTML += `
-                <div class="carousel-item glass-dark rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex justify-between items-start mb-3">
+            // Рендер списка услуг для отдельной страницы
+            const servicesList = document.getElementById('services-list');
+            servicesList.innerHTML = '';
+            CONFIG.services.forEach((s, index) => {
+                const thumb = s.photos && s.photos.length > 0 ? s.photos[0] : s.photo;
+                servicesList.innerHTML += `
+                    <div class="card-shadow rounded-3xl p-4 flex gap-4 active:scale-[0.98] transition-transform text-left cursor-pointer" onclick="openServiceDetails(${index})">
+                        <img src="${thumb}" class="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-lg border border-white/10">
+                        <div class="flex flex-col justify-between w-full">
                             <div>
-                                <h4 class="font-serif text-lg text-white">${rev.name}</h4>
-                                <span class="text-[10px] text-gray-400 uppercase tracking-wider">${rev.date}</span>
+                                <h3 class="text-white font-bold text-[15px] mb-1 leading-tight">${s.title}</h3>
+                                <p class="text-gray-300 text-[12px] line-clamp-2 leading-tight">${s.shortDesc}</p>
                             </div>
-                            <div class="flex text-gold text-sm gap-0.5">
-                                <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                            <div class="flex items-end justify-between mt-2">
+                                <div class="flex flex-col">
+                                    ${s.oldPrice ? `<span class="text-gray-400 text-[11px] line-through leading-none mb-0.5">${s.oldPrice}</span>` : ''}
+                                    <span class="text-white font-bold text-[15px] leading-none drop-shadow-md">${s.newPrice}</span>
+                                </div>
+                                <div class="text-[11px] font-bold text-white bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                                    ${CONFIG.ui.moreBtn} <i class="ph-bold ph-caret-right"></i>
+                                </div>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-300 font-light leading-relaxed mb-2">${rev.text}</p>
                     </div>
-                </div>`;
+                `;
             });
 
-            // Услуги
-            const servicesContainer = document.getElementById('dynamic-services');
-            const tgLink = MY_DATA.socialLinks.telegram;
-            const tgDomain = tgLink.includes('/') ? tgLink.split('/').pop() : tgLink.replace('@', '');
+            // Рендер карусели отзывов (Премиальные стеклянные плашки)
+            const reviewsContainer = document.getElementById('reviews-container');
+            reviewsContainer.innerHTML = '';
+            CONFIG.reviews.forEach(review => {
+                let starsHtml = '';
+                for(let i=0; i<5; i++) {
+                    if(i < review.stars) {
+                        starsHtml += '<i class="ph-fill ph-star text-orange-400 drop-shadow-md"></i>';
+                    } else {
+                        starsHtml += '<i class="ph ph-star text-gray-500"></i>';
+                    }
+                }
+                
+                reviewsContainer.innerHTML += `
+                    <div class="snap-start shrink-0 w-[85%] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[1.5rem] p-5 flex flex-col justify-between relative overflow-hidden ml-1 my-2">
+                        <!-- Декоративный легкий блик -->
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <!-- Аватарка (первая буква имени) -->
+                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xs border border-white/20 shadow-sm">
+                                        ${review.name.charAt(0)}
+                                    </div>
+                                    <h4 class="text-white font-bold text-[15px]">${review.name}</h4>
+                                </div>
+                                <span class="text-gray-300 text-[11px] font-medium opacity-80">${review.date}</span>
+                            </div>
+                            <div class="flex gap-1 mb-3 text-[14px]">
+                                ${starsHtml}
+                            </div>
+                            <p class="text-gray-100 text-[13px] leading-relaxed font-medium italic">"${review.text}"</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Соцсети
+            document.getElementById('social-tg').href = CONFIG.socials.telegram;
+            document.getElementById('social-inst').href = CONFIG.socials.instagram;
+            document.getElementById('social-yt').href = CONFIG.socials.youtube;
+            document.getElementById('social-vk').href = CONFIG.socials.vk;
+        }
+
+        // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА ---
+        function toggleLanguage() {
+            tg.HapticFeedback.impactOccurred('medium');
+            const langBtn = document.getElementById('lang-btn');
             
-            MY_DATA.services.forEach(srv => {
-                servicesContainer.innerHTML += `
-                <div class="glass-btn rounded-xl p-5 text-left border border-white/5">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-serif text-xl text-gold">${srv.title}</h3>
-                        <span class="text-sm tracking-wider font-light border border-gold/30 px-3 py-1 rounded-full text-gold">${srv.price}</span>
-                    </div>
-                    <p class="text-xs text-gray-400 font-light leading-relaxed mb-4">${srv.description}</p>
-                    <a href="tg://resolve?domain=${tgDomain}&text=${encodeURIComponent(srv.telegramMessage)}" 
-                       class="block w-full text-center bg-white/10 hover:bg-white/20 text-white text-sm py-3 rounded-lg uppercase tracking-widest transition-colors">
-                       Записаться
+            // Находим главные экраны для эффекта плавного затухания
+            const screens = [document.getElementById('main-screen'), document.getElementById('services-screen')];
+            
+            // Плавно прячем контент
+            screens.forEach(s => { 
+                if(s) {
+                    s.style.transition = 'opacity 0.2s ease'; 
+                    s.style.opacity = '0'; 
+                }
+            });
+            
+            // Меняем язык через 200мс (пока контент скрыт)
+            setTimeout(() => {
+                currentLang = currentLang === 'ru' ? 'en' : 'ru';
+                langBtn.textContent = currentLang === 'ru' ? 'EN' : 'RU';
+                
+                // Берем нужный конфиг (APP_DATA.ru или APP_DATA.en)
+                CONFIG = APP_DATA[currentLang];
+                
+                // Перерисовываем интерфейс с новыми данными
+                renderApp();
+                
+                // Плавно возвращаем контент
+                screens.forEach(s => { 
+                    if(s) s.style.opacity = '1'; 
+                });
+            }, 200);
+        }
+
+        // --- ЛОГИКА ФОРМЫ ОТЗЫВОВ ---
+        let currentRating = 0;
+        function setRating(stars) {
+            currentRating = stars;
+            tg.HapticFeedback.impactOccurred('light');
+            const starElements = document.querySelectorAll('#star-rating i');
+            starElements.forEach((el, index) => {
+                if (index < stars) {
+                    el.classList.remove('text-gray-500');
+                    el.classList.add('text-orange-400');
+                } else {
+                    el.classList.remove('text-orange-400');
+                    el.classList.add('text-gray-500');
+                }
+            });
+        }
+
+        function openReviewSheet() {
+            tg.HapticFeedback.impactOccurred('medium');
+            document.body.style.overflow = 'hidden'; 
+            
+            // Сброс формы перед открытием
+            setRating(0);
+            document.getElementById('review-input-name').value = '';
+            document.getElementById('review-input-text').value = '';
+
+            const sheet = document.getElementById('review-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function submitReview() {
+            if (currentRating === 0) {
+                tg.HapticFeedback.notificationOccurred('warning');
+                showToast(CONFIG.ui.toastWarning, 'ph-fill ph-warning-circle');
+                return; // Не даем отправить без оценки
+            }
+            // Здесь в будущем будет отправка в Google Таблицы
+            showToast(CONFIG.ui.toastSuccess, 'ph-fill ph-heart');
+            closeSheet();
+        }
+
+        // Открытие шторки Предсказания
+        function openFortuneSheet() {
+            tg.HapticFeedback.impactOccurred('medium');
+            document.body.style.overflow = 'hidden'; 
+
+            const randomIndex = Math.floor(Math.random() * CONFIG.fortunes.length);
+            const fortune = CONFIG.fortunes[randomIndex];
+
+            document.getElementById('fortune-text').innerHTML = `«${fortune.text}»`;
+            document.getElementById('fortune-link-text').textContent = fortune.postTitle;
+            document.getElementById('fortune-link').href = fortune.postLink;
+
+            const sheet = document.getElementById('fortune-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        // --- ЛОГИКА ОТКРЫТИЯ ЭКРАНОВ И ШТОРОК ---
+
+        // Открытие страницы Услуг
+        function openServicesPage() {
+            tg.HapticFeedback.impactOccurred('light');
+            document.getElementById('main-screen').classList.add('hidden');
+            const servicesScreen = document.getElementById('services-screen');
+            servicesScreen.classList.remove('hidden');
+            servicesScreen.classList.add('fade-in');
+            window.scrollTo(0, 0);
+        }
+
+        // Закрытие страницы Услуг
+        function closeServicesPage() {
+            tg.HapticFeedback.impactOccurred('light');
+            document.getElementById('services-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Открытие шторки с конкретной услугой
+        function openServiceDetails(index) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.body.style.overflow = 'hidden';
+
+            const service = CONFIG.services[index];
+            document.getElementById('service-sheet-title').textContent = service.title;
+            renderGallery('service-gallery-container', service.photos || [service.photo]);
+            document.getElementById('service-sheet-desc').innerHTML = service.fullDesc;
+            document.getElementById('service-sheet-new-price').textContent = service.newPrice;
+            document.getElementById('service-sheet-old-price').textContent = service.oldPrice || '';
+            document.getElementById('service-sheet-btn').href = service.buttonLink;
+
+            const sheet = document.getElementById('service-details-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        // Открытие шторки Обучения
+        function openTrainingSheet() {
+            tg.HapticFeedback.impactOccurred('light');
+            document.body.style.overflow = 'hidden'; 
+
+            document.getElementById('training-photo').src = CONFIG.training.photo;
+            document.getElementById('training-text').innerHTML = CONFIG.training.text;
+            document.getElementById('training-btn').href = CONFIG.training.buttonLink;
+
+            const sheet = document.getElementById('training-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        // Открытие шторки с постами
+        function openPostsSheet(index) {
+            tg.HapticFeedback.impactOccurred('light');
+            document.body.style.overflow = 'hidden'; 
+            
+            const category = CONFIG.categories[index];
+            document.getElementById('posts-sheet-title').textContent = category.title;
+            
+            const list = document.getElementById('posts-sheet-list');
+            list.innerHTML = '';
+            category.posts.forEach(post => {
+                list.innerHTML += `
+                    <a href="${post.link}" target="_blank" onclick="tg.HapticFeedback.impactOccurred('light')" class="block p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-between active:scale-[0.98]">
+                        <span class="text-[14px] font-bold text-white text-left">${post.title}</span>
+                        <i class="ph-bold ph-caret-right text-gray-300"></i>
                     </a>
-                </div>`;
+                `;
             });
 
-            // Обо мне
-            document.getElementById('dynamic-about-img').src = MY_DATA.about.photo;
-            document.getElementById('dynamic-about-text').innerText = MY_DATA.about.text;
-            document.getElementById('dynamic-about-quote').innerText = MY_DATA.about.quote;
-            const toolsContainer = document.getElementById('dynamic-about-tools');
-            MY_DATA.about.tools.forEach(tool => {
-                toolsContainer.innerHTML += `<span class="px-3 py-1 rounded-full glass-btn text-xs text-gold">${tool}</span>`;
-            });
+            const sheet = document.getElementById('posts-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
 
-            // Добавляем виброотклик на все ссылки и кнопки (Telegram Haptics)
-            document.querySelectorAll('a, button').forEach(el => {
-                el.addEventListener('click', () => {
-                    // Игнорируем элементы, у которых уже прописан onclick с вибрацией
-                    if(tg.HapticFeedback && !el.hasAttribute('onclick')) {
-                        tg.HapticFeedback.impactOccurred('light');
+        // Открытие шторки "Обо мне"
+        function openSheet() {
+            tg.HapticFeedback.impactOccurred('light');
+            document.body.style.overflow = 'hidden'; 
+            const sheet = document.getElementById('about-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                sheet.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        // Универсальное закрытие любой шторки
+        function closeSheet() {
+            document.body.style.overflow = ''; 
+            const aboutSheet = document.getElementById('about-sheet');
+            const postsSheet = document.getElementById('posts-sheet');
+            const trainingSheet = document.getElementById('training-sheet');
+            const serviceDetailsSheet = document.getElementById('service-details-sheet');
+            const fortuneSheet = document.getElementById('fortune-sheet');
+            const reviewSheet = document.getElementById('review-sheet');
+            const overlay = document.getElementById('sheet-overlay');
+            
+            overlay.classList.add('opacity-0');
+            aboutSheet.classList.add('translate-y-full');
+            postsSheet.classList.add('translate-y-full');
+            trainingSheet.classList.add('translate-y-full');
+            serviceDetailsSheet.classList.add('translate-y-full');
+            fortuneSheet.classList.add('translate-y-full');
+            reviewSheet.classList.add('translate-y-full');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- НОВЫЕ ФУНКЦИИ (ТОСТЫ, ГАЛЕРЕЯ, ПОДЕЛИТЬСЯ) ---
+        
+        // Всплывающее уведомление (Toast)
+        let toastTimeout;
+        function showToast(message, iconClass = 'ph-fill ph-check-circle') {
+            tg.HapticFeedback.notificationOccurred('success');
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="${iconClass} text-orange-400 text-lg"></i><span>${message}</span>`;
+            
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        // Кнопка Поделиться (Share)
+        function shareProfile() {
+            tg.HapticFeedback.impactOccurred('medium');
+            // Здесь должна быть ссылка на твоего бота, который открывает это приложение
+            const shareUrl = "https://t.me/telegram"; 
+            const shareText = "🔥 Смотри крутое фаер-шоу Полины Чубакиной!";
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+            tg.openTelegramLink(telegramUrl);
+        }
+
+        // Рендер галереи-свайпера с точками
+        function renderGallery(containerId, photos) {
+            const wrapper = document.getElementById(containerId);
+            if (!photos || photos.length === 0) return;
+            
+            const aspectClass = containerId === 'service-gallery-container' ? 'aspect-video' : 'aspect-square';
+            
+            let html = `
+            <div class="relative w-full ${aspectClass} rounded-[2rem] overflow-hidden mb-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <div class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar h-full w-full" id="${containerId}-scroll" onscroll="updateGalleryDots('${containerId}')">
+                    ${photos.map(p => `<img src="${p}" class="w-full h-full object-cover shrink-0 snap-center">`).join('')}
+                </div>
+                ${photos.length > 1 ? `
+                <div class="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10" id="${containerId}-dots">
+                    ${photos.map((_, i) => `<div class="w-2 h-2 rounded-full bg-white transition-all duration-300 shadow-md ${i === 0 ? 'opacity-100 scale-125' : 'opacity-40'}"></div>`).join('')}
+                </div>
+                ` : ''}
+            </div>
+            `;
+            wrapper.innerHTML = html;
+        }
+
+        // Обновление активной точки при свайпе галереи
+        function updateGalleryDots(containerId) {
+            const scrollContainer = document.getElementById(`${containerId}-scroll`);
+            const dotsContainer = document.getElementById(`${containerId}-dots`);
+            if (!scrollContainer || !dotsContainer) return;
+            
+            const scrollLeft = scrollContainer.scrollLeft;
+            const width = scrollContainer.clientWidth;
+            const index = Math.round(scrollLeft / width);
+            
+            Array.from(dotsContainer.children).forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.remove('opacity-40');
+                    dot.classList.add('opacity-100', 'scale-125');
+                } else {
+                    dot.classList.remove('opacity-100', 'scale-125');
+                    dot.classList.add('opacity-40');
+                }
+            });
+        }
+
+        window.onload = () => {
+            renderApp();
+            
+            // --- ЛОГИКА 3D-НАКЛОНА (TILT EFFECT) ДЛЯ ГЛАВНОГО ФОТО ---
+            const tiltCard = document.getElementById('tilt-card');
+            const tiltGlare = document.getElementById('tilt-glare');
+            
+            if(tiltCard) {
+                function handleTiltMove(e) {
+                    // Убираем CSS-задержку во время движения, чтобы фото мгновенно следовало за пальцем
+                    tiltCard.style.transition = 'none';
+                    if(tiltGlare) tiltGlare.style.transition = 'none';
+
+                    const rect = tiltCard.getBoundingClientRect();
+                    // Получаем координаты мыши или пальца
+                    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                    
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    // Вычисляем угол наклона (максимум 12 градусов)
+                    const rotateX = ((y - centerY) / centerY) * -12; 
+                    const rotateY = ((x - centerX) / centerX) * 12;
+                    
+                    // Применяем наклон
+                    tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                    
+                    // Двигаем блик
+                    if(tiltGlare) {
+                        tiltGlare.style.opacity = '1';
+                        const glareX = (x / rect.width) * 100;
+                        const glareY = (y / rect.height) * 100;
+                        tiltGlare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.4) 0%, transparent 60%)`;
+                    }
+                }
+                
+                function handleTiltLeave() {
+                    // Возвращаем в исходное положение (Включаем плавную анимацию возврата)
+                    tiltCard.style.transition = 'transform 0.5s ease-out';
+                    tiltCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    if(tiltGlare) {
+                        tiltGlare.style.transition = 'opacity 0.5s ease-out';
+                        tiltGlare.style.opacity = '0';
+                    }
+                }
+                
+                // Слушатели для мыши (ПК) и пальцев (Сенсор)
+                tiltCard.addEventListener('mousemove', handleTiltMove);
+                tiltCard.addEventListener('mouseleave', handleTiltLeave);
+                tiltCard.addEventListener('touchmove', handleTiltMove, {passive: true});
+                tiltCard.addEventListener('touchend', handleTiltLeave);
+            }
+
+            // Логика свайпа вниз для закрытия шторок
+            let touchStartY = 0;
+            let touchCurrentY = 0;
+            document.querySelectorAll('.drag-handle').forEach(handle => {
+                handle.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                }, {passive: true});
+                handle.addEventListener('touchmove', (e) => {
+                    touchCurrentY = e.touches[0].clientY;
+                }, {passive: true});
+                handle.addEventListener('touchend', (e) => {
+                    if (touchCurrentY > touchStartY + 40) { // Если потянули вниз больше чем на 40px
+                        closeSheet();
                     }
                 });
             });
-        });
+            
+            setTimeout(() => {
+                const loader = document.getElementById('app-loader');
+                if(loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.remove(), 500);
+                }
+            }, 600);
+        };
     </script>
 </body>
 </html>
